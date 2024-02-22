@@ -175,6 +175,21 @@ namespace LanistaBrowserV1.Classes
             }
         }
 
+        public string? RaceRestrictions
+        {
+            get
+            {
+                var raceRequirements = this.Requirements?.Where(r => r.Requirementable == "App\\Models\\Race");
+
+                if (raceRequirements == null || !raceRequirements.Any())
+                {
+                    return null;
+                }
+
+                return string.Join(", ", raceRequirements.Select(item => item.RaceName));
+            }
+        }
+
         public bool IsFavorited { get; set; } = false;
     }
 
@@ -210,6 +225,9 @@ namespace LanistaBrowserV1.Classes
         [JsonProperty("requirementable")]
         public string? Requirementable { get; set; }
 
+        [JsonProperty("race_name")]
+        public string? RaceName { get; set; }
+
         [JsonProperty("Requirementable_id")]
         public int? RequirementableId { get; set; }
 
@@ -230,6 +248,9 @@ namespace LanistaBrowserV1.Classes
 
         [JsonProperty("additive")]
         public int? Additive { get; set; }
+
+        [JsonProperty("multiplier")]
+        public double? Multiplier { get; set; }
     }
 
     public class FavoritedWeapon

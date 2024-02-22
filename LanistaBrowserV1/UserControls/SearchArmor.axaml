@@ -3,14 +3,229 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="LanistaBrowserV1.UserControls.SearchArmor">
+             x:Class="LanistaBrowserV1.UserControls.SearchArmor"
+			 xmlns:vm="clr-namespace:LanistaBrowserV1.ViewModels"
+			 Loaded="UserControl_Loaded"
+			 x:DataType="vm:MainViewModel">
 	<Grid>
 		<DockPanel>
-			<TextBlock Text="Search Armor"
-					   HorizontalAlignment="Center"
-					   DockPanel.Dock="Top"
-					   Padding="10" />
-			<DockPanel Background="Azure"></DockPanel>
+			<DockPanel DockPanel.Dock="Top">
+				<DockPanel x:Name="DetailsChooseItemView" Height="250" DockPanel.Dock="Top">
+					<TextBlock FontWeight="Bold" FontSize="20" Text="Choose an item to view details." VerticalAlignment="Center" HorizontalAlignment="Center" />
+				</DockPanel>
+				<ScrollViewer x:Name="DetailsScrollViewer" HorizontalScrollBarVisibility="Auto" IsVisible="False">
+
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+						<Border Background="#252526" Margin="10,10,10,25" MinWidth="210" CornerRadius="10" Padding="10" Height="210">
+							<DockPanel VerticalAlignment="Center">
+								<StackPanel DockPanel.Dock="Top">
+
+									<StackPanel Margin="5">
+										<TextBlock Text="Item" FontWeight="Bold" FontSize="16" />
+										<TextBlock Text="n/a" x:Name="ItemNameBlock" />
+									</StackPanel>
+
+									<StackPanel Margin="5">
+										<TextBlock Text="Type" FontWeight="Bold" FontSize="16" />
+										<TextBlock Text="n/a" x:Name="ItemTypeBlock" />
+									</StackPanel>
+
+									<StackPanel Margin="5">
+										<TextBlock Text="Damage" FontWeight="Bold" FontSize="16" />
+										<TextBlock Text="n/a" x:Name="ItemDamageBlock" />
+									</StackPanel>
+
+									<StackPanel Margin="5">
+										<TextBlock Text="Weight" FontWeight="Bold" FontSize="16" />
+										<TextBlock Text="n/a" x:Name="ItemWeightBlock" />
+									</StackPanel>
+								</StackPanel>
+							</DockPanel>
+						</Border>
+
+						<Border Background="#252526" Margin="10,10,10,25" MinWidth="210" CornerRadius="10" Padding="10" Height="210">
+							<DockPanel VerticalAlignment="Center">
+								<StackPanel DockPanel.Dock="Top">
+
+									<StackPanel Margin="5">
+										<TextBlock Text="Crit Damage" FontWeight="Bold" FontSize="16" />
+										<TextBlock Text="n/a" x:Name="ItemCritBlock" />
+									</StackPanel>
+
+									<StackPanel Margin="5">
+										<TextBlock Text="Durability" FontWeight="Bold" FontSize="16" />
+										<TextBlock Text="n/a" x:Name="ItemDurabilityBlock" />
+									</StackPanel>
+
+									<StackPanel Margin="5">
+										<TextBlock Text="Absorption" FontWeight="Bold" FontSize="16" />
+										<TextBlock Text="n/a" x:Name="ItemAbsorptionBlock" />
+									</StackPanel>
+
+									<StackPanel Margin="5">
+										<TextBlock Text="Can Dual Wield" FontWeight="Bold" FontSize="16" />
+										<TextBlock Text="n/a" x:Name="ItemDualWieldBlock" />
+									</StackPanel>
+								</StackPanel>
+							</DockPanel>
+						</Border>
+
+						<Border Background="#252526" Margin="10,10,10,25" MinWidth="210" CornerRadius="10" Padding="10" Height="210">
+							<DockPanel VerticalAlignment="Center">
+								<StackPanel DockPanel.Dock="Top">
+
+									<StackPanel Margin="5">
+										<TextBlock Text="Min Strength" FontWeight="Bold" FontSize="16" />
+										<TextBlock Text="n/a" x:Name="ItemStrengthBlock" />
+									</StackPanel>
+
+									<StackPanel Margin="5">
+										<TextBlock Text="Min Skill" FontWeight="Bold" FontSize="16" />
+										<TextBlock Text="n/a" x:Name="ItemSkillBlock" />
+									</StackPanel>
+
+									<StackPanel Margin="5">
+										<TextBlock Text="Req Level" FontWeight="Bold" FontSize="16" />
+										<TextBlock Text="n/a" x:Name="ItemLevelBlock" />
+									</StackPanel>
+
+									<StackPanel Margin="5">
+										<TextBlock Text="Req Popularity" FontWeight="Bold" FontSize="16" />
+										<TextBlock Text="n/a" x:Name="ItemPopularityBlock" />
+									</StackPanel>
+								</StackPanel>
+							</DockPanel>
+						</Border>
+
+						<Border Background="#252526" Margin="10,10,10,25" MinWidth="210" CornerRadius="10" Padding="10" Height="210">
+							<DockPanel VerticalAlignment="Center">
+								<StackPanel DockPanel.Dock="Top">
+
+									<StackPanel Margin="5">
+										<TextBlock Text="Actions" FontWeight="Bold" FontSize="16" />
+										<TextBlock Text="n/a" x:Name="ItemActionsBlock" />
+									</StackPanel>
+
+									<StackPanel Margin="5">
+										<TextBlock Text="Soulbound" FontWeight="Bold" FontSize="16" />
+										<TextBlock Text="n/a" x:Name="ItemSoulboundBlock" />
+									</StackPanel>
+
+									<StackPanel Margin="5">
+										<TextBlock Text="Magic Types" FontWeight="Bold" FontSize="16" />
+										<TextBlock Text="n/a" x:Name="ItemMagicTypesBlock" />
+									</StackPanel>
+
+									<StackPanel Margin="5">
+										<TextBlock Text="Max Spells" FontWeight="Bold" FontSize="16" />
+										<TextBlock Text="n/a" x:Name="ItemMaxSpellsBlock" />
+									</StackPanel>
+								</StackPanel>
+							</DockPanel>
+						</Border>
+
+						<Border Background="#252526" Margin="10,10,10,25" MinWidth="210" CornerRadius="10" Padding="10" Height="210">
+							<DockPanel VerticalAlignment="Center">
+								<StackPanel DockPanel.Dock="Top">
+
+									<StackPanel Margin="5">
+										<TextBlock Text="Req Rank" FontWeight="Bold" FontSize="16" />
+										<TextBlock Text="n/a" x:Name="ItemReqRankBlock" />
+									</StackPanel>
+
+									<StackPanel Margin="5">
+										<TextBlock Text="Req Legend" FontWeight="Bold" FontSize="16" />
+										<TextBlock Text="n/a" x:Name="ItemReqLegendBlock" />
+									</StackPanel>
+
+									<StackPanel Margin="5">
+										<TextBlock Text="Req Age" FontWeight="Bold" FontSize="16" />
+										<TextBlock Text="n/a" x:Name="ItemReqAgeBlock" />
+									</StackPanel>
+
+									<StackPanel Margin="5">
+										<TextBlock Text="Allowed Races" FontWeight="Bold" FontSize="16" />
+										<TextBlock Text="n/a" x:Name="ItemReqRaceBlock" />
+									</StackPanel>
+								</StackPanel>
+							</DockPanel>
+						</Border>
+
+						<Border Background="#252526" Margin="10,10,10,25" MinWidth="210" CornerRadius="10" Padding="10" Height="210">
+							<DockPanel VerticalAlignment="Top">
+								<StackPanel DockPanel.Dock="Top">
+
+									<StackPanel Margin="5">
+										<TextBlock Text="Bonuses" FontWeight="Bold" FontSize="16" />
+										<ScrollViewer>
+											<TextBlock Text="N/A" x:Name="ItemBonusesBlock" />
+										</ScrollViewer>
+									</StackPanel>
+								</StackPanel>
+							</DockPanel>
+						</Border>
+					</StackPanel>
+				</ScrollViewer>
+			</DockPanel>
+
+			<DockPanel x:Name="DataTable">
+				<ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+					<Grid x:Name="FullGrid">
+						<Grid.RowDefinitions>
+							<RowDefinition Height="Auto" />
+							<RowDefinition Height="Auto" />
+							<RowDefinition Height="*" />
+						</Grid.RowDefinitions>
+						<Grid.ColumnDefinitions>
+							<!--Favorites-->
+							<ColumnDefinition Width="40" />
+							<!--Name-->
+							<ColumnDefinition Width="250" />
+							<!--Filler-->
+							<ColumnDefinition Width="*" />
+						</Grid.ColumnDefinitions>
+						<!-- 1st Headers -->
+
+						<Button Grid.Column="0" Grid.Row="0" Width="30" Height="30" VerticalAlignment="Center" HorizontalAlignment="Center" Click="ClearSearchButton_Click" Background="Transparent" Padding="0">
+							<TextBlock Text="✗" x:Name="ClearSearchButton" VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center" FontSize="25" Foreground="Red" ToolTip.Tip="Reset table filters to default." />
+						</Button>
+
+						<TextBox Grid.Column="1"  Grid.Row="0" x:Name="SearchBox" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5,5" TextAlignment="Center" Watermark="Search Item" TextChanged="SearchBoxItem_TextChanged" />
+
+						<!-- 2nd Headers -->
+
+						<Button Grid.Column="0" Grid.Row="1"  Width="30" Height="30" VerticalAlignment="Center" HorizontalAlignment="Center" Click="FavoriteSortingButton_Click" Cursor="Hand" ToolTip.Tip="Toggle between showing all items, or only showing favorites.">
+							<TextBlock Text="A" x:Name="ToggleFavorites" VerticalAlignment="Center" HorizontalAlignment="Center" />
+						</Button>
+
+						<Button x:Name="ArmorNameButton" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5,5" Background="Transparent" Cursor="Hand" Click="SortListButton_Click">
+							<TextBlock Text="Armor Name" FontSize="17" FontWeight="Bold" TextAlignment="Center" />
+						</Button>
+
+						<!-- ListBox -->
+						<ListBox x:Name="ListBoxArmors" ItemsSource="{Binding ArmorList}" SelectionChanged="ListBoxArmors_SelectionChanged" Grid.Row="2" Grid.ColumnSpan="13" Padding="0" Cursor="Hand">
+							<ListBox.ItemTemplate>
+								<DataTemplate>
+									<Grid>
+										<Grid.ColumnDefinitions>
+											<!--Favorites-->
+											<ColumnDefinition Width="40" />
+											<!--Name-->
+											<ColumnDefinition Width="250" />
+											<!--Filler-->
+											<ColumnDefinition Width="*" />
+										</Grid.ColumnDefinitions>
+										<Button Grid.Column="0" Width="25" Height="25" VerticalAlignment="Center" HorizontalAlignment="Center" Click="FavoriteButton_Click" Padding="0" Margin="5">
+											<TextBlock VerticalAlignment="Center" Text="★" HorizontalAlignment="Center" TextAlignment="Center" Foreground="Yellow" Padding="0" IsVisible="{Binding IsFavorited}" />
+										</Button>
+										<TextBlock Text="{Binding Name}" Grid.Column="1" VerticalAlignment="Center" TextAlignment="Center" />
+									</Grid>
+								</DataTemplate>
+							</ListBox.ItemTemplate>
+						</ListBox>
+					</Grid>
+				</ScrollViewer>
+			</DockPanel>
 		</DockPanel>
 	</Grid>
 </UserControl>

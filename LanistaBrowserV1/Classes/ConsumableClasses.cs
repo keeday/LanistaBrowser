@@ -88,22 +88,22 @@ namespace LanistaBrowserV1.Classes
         public bool? LiveBattleDebuff { get; set; }
 
         [JsonProperty("restore_hp")]
-        public int? RestoreHp { get; set; }
+        public string? RestoreHp { get; set; }
 
         [JsonProperty("restore_hp_chance")]
-        public int? RestoreHpChance { get; set; }
+        public double? RestoreHpChance { get; set; }
 
         [JsonProperty("damage")]
-        public int? Damage { get; set; }
+        public string? Damage { get; set; }
 
         [JsonProperty("damage_chance")]
-        public int? DamageChance { get; set; }
+        public double? DamageChance { get; set; }
 
         [JsonProperty("reduced_hit_rate_chance")]
-        public int? ReducedHitRateChance { get; set; }
+        public double? ReducedHitRateChance { get; set; }
 
         [JsonProperty("reduced_hit_rate")]
-        public int? ReducedHitRate { get; set; }
+        public double? ReducedHitRate { get; set; }
 
         [JsonProperty("requirements")]
         public List<Requirement>? Requirements { get; set; }
@@ -130,7 +130,7 @@ namespace LanistaBrowserV1.Classes
         public bool? Undead { get; set; }
 
         [JsonProperty("undead_chance")]
-        public int? UndeadChance { get; set; }
+        public string? UndeadChance { get; set; }
 
         public bool IsFavorited { get; set; } = false;
     }

@@ -36,7 +36,7 @@ namespace LanistaBrowserV1.Functions
         public static async Task<List<Consumable>> GetConsumables()
         {
             var httpClient = new HttpClient();
-            var response = await httpClient.GetStringAsync("https://beta.lanista.se/api/external/items/armors/all");
+            var response = await httpClient.GetStringAsync("https://beta.lanista.se/api/external/items/consumables/all");
 
             List<Consumable> consumableList = JsonConvert.DeserializeObject<List<Consumable>>(response)!;
 

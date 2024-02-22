@@ -22,7 +22,7 @@ namespace LanistaBrowserV1.Functions
 
             // Create tables if they don't exist
             await connection.ExecuteAsync(@"CREATE TABLE IF NOT EXISTS FavoritedWeapons (Id INTEGER PRIMARY KEY, Name TEXT NOT NULL)");
-            await connection.ExecuteAsync(@"CREATE TABLE IF NOT EXISTS FavoritedArmor (Id INTEGER PRIMARY KEY, Name TEXT NOT NULL)");
+            await connection.ExecuteAsync(@"CREATE TABLE IF NOT EXISTS FavoritedArmors (Id INTEGER PRIMARY KEY, Name TEXT NOT NULL)");
             await connection.ExecuteAsync(@"CREATE TABLE IF NOT EXISTS FavoritedConsumables (Id INTEGER PRIMARY KEY, Name TEXT NOT NULL)");
             await connection.ExecuteAsync(@"CREATE TABLE IF NOT EXISTS Tactics (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL, Race TEXT NOT NULL)");
             await connection.ExecuteAsync(@"CREATE TABLE IF NOT EXISTS TacticsLevels (Id INTEGER PRIMARY KEY AUTOINCREMENT, TacticsId INTEGER, Level INTEGER)");
@@ -31,7 +31,7 @@ namespace LanistaBrowserV1.Functions
             var tablesAndColumns = new Dictionary<string, List<(string ColumnName, string ColumnType)>>
             {
         { "FavoritedWeapons", new List<(string, string)> { ("Id", "INTEGER"), ("Name", "TEXT") } },
-        { "FavoritedArmor", new List<(string, string)> { ("Id", "INTEGER"), ("Name", "TEXT") } },
+        { "FavoritedArmors", new List<(string, string)> { ("Id", "INTEGER"), ("Name", "TEXT") } },
         { "FavoritedConsumables", new List<(string, string)> { ("Id", "INTEGER"), ("Name", "TEXT")} },
         { "Tactics", new List<(string, string)> { ("Id", "INTEGER"), ("Name", "TEXT"), ("Race", "TEXT")} },
         { "TacticsLevels", new List<(string, string)> { ("Id", "INTEGER"), ("TacticsId", "INTEGER"), ("Level", "INTEGER"),
@@ -39,7 +39,7 @@ namespace LanistaBrowserV1.Functions
                                                         ("INITIATIVE", "INTEGER"), ("LEARNING_CAPACITY", "INTEGER"), ("DODGE", "INTEGER"),
                                                         ("LUCK", "INTEGER"), ("DISCIPLINE", "INTEGER"), ("AXE", "INTEGER"),
                                                         ("SWORD", "INTEGER"), ("MACE", "INTEGER"), ("STAVE", "INTEGER"),
-                                                        ("SHIELD", "INTEGER"), ("SPEAR", "INTEGER"), ("CHAIN", "INTEGER") } }
+                                                        ("SHIELD", "INTEGER"), ("SPEAR", "INTEGER"), ("CHAIN", "INTEGER"), ("EquippedMainhaindID","INTEGER"), ("EquippedOffhandID","INTEGER") } }
             };
 
             // Check each table for missing columns
@@ -72,7 +72,7 @@ namespace LanistaBrowserV1.Functions
             using var connection = new SqliteConnection("Data Source=mydatabase.db");
             connection.Open();
 
-            return connection.Query<FavoritedConsumable>("SELECT * FROM FavoritedWeapons").ToList();
+            return connection.Query<FavoritedConsumable>("SELECT * FROM FavoritedConsumables").ToList();
         }
 
         public static List<FavoritedArmor> FetchFavoritedArmors()
@@ -80,7 +80,7 @@ namespace LanistaBrowserV1.Functions
             using var connection = new SqliteConnection("Data Source=mydatabase.db");
             connection.Open();
 
-            return connection.Query<FavoritedArmor>("SELECT * FROM FavoritedWeapons").ToList();
+            return connection.Query<FavoritedArmor>("SELECT * FROM FavoritedArmors").ToList();
         }
 
         public static void ToggleFavoritedItem(object x, MainViewModel viewModel)
