@@ -1,0 +1,72 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:LanistaBrowserV1.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="LanistaBrowserV1.Views.MainView"
+			 xmlns:local="clr-namespace:LanistaBrowserV1.UserControls"
+             x:DataType="vm:MainViewModel"
+			 Loaded="UserControl_Loaded">
+	<Design.DataContext>
+		<!-- This only sets the DataContext for the previewer in an IDE,
+         to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+		<vm:MainViewModel />
+	</Design.DataContext>
+	<Grid>
+
+		<DockPanel x:Name="LoadingScreen">
+			<StackPanel HorizontalAlignment="Center"
+					    VerticalAlignment="Center">
+
+				<TextBlock
+				x:Name="LoadingText"
+				HorizontalAlignment="Center"
+				VerticalAlignment="Center"
+				Text="LOADING"
+				FontSize="30" />
+
+				<TextBlock
+						x:Name="LoadingInfo"
+						HorizontalAlignment="Center"
+						VerticalAlignment="Center"
+						Text=""
+						FontSize="18"
+			Margin="0,20,0,0" />
+			</StackPanel>
+		</DockPanel>
+
+		<DockPanel x:Name="MainWindow" IsVisible="False">
+			<DockPanel DockPanel.Dock="Top">
+				<TabStrip
+					  AutoScrollToSelectedItem="True"
+					  SelectionChanged="OnSelectionChanged"
+					  IsVisible="{Binding IsWindows}"
+					  Padding="0,0,0,7">
+					<TabItem Header="Lanista" x:Name="LanistaButton" Cursor="Hand">
+					</TabItem>
+
+					<TabItem Header="Search Items" x:Name="Tab2Button" Cursor="Hand">
+					</TabItem>
+
+					<TabItem Header="Theory Crafting" x:Name="TheoryButton" Cursor="Hand">
+					</TabItem>
+
+					<TabItem Header="Wiki" x:Name="WikiButton" Cursor="Hand">
+					</TabItem>
+				</TabStrip>
+				<DockPanel></DockPanel>
+			</DockPanel>
+
+			<Border DockPanel.Dock="Top" Background="Black" Height="1" />
+			<Grid x:Name="BaseGrid">
+				<DockPanel x:Name="LanistaPanel" IsVisible="{Binding IsLanistaVisible}">
+					<local:LanistaWebView />
+				</DockPanel>
+				<DockPanel x:Name="SearchItemsPanel" IsVisible="{Binding IsSearchItemsVisible}">
+					<local:SearchItemsParent />
+				</DockPanel>
+			</Grid>
+		</DockPanel>
+	</Grid>
+</UserControl>

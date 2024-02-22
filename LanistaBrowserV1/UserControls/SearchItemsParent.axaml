@@ -1,0 +1,42 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:local="clr-namespace:LanistaBrowserV1.UserControls"
+			 xmlns:vm="clr-namespace:LanistaBrowserV1.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="LanistaBrowserV1.UserControls.SearchItemsParent"
+			 x:DataType="vm:MainViewModel">
+	<Grid>
+		<DockPanel>
+			<DockPanel DockPanel.Dock="Left">
+				<Border DockPanel.Dock="Right" Width="1" Background="Black"></Border>
+				<TextBlock DockPanel.Dock="Top"
+						   Text="Search"
+						   HorizontalAlignment="Center"
+						   Padding="10"
+						   FontSize="20" />
+
+				<TabStrip Width="200" SelectionChanged="OnSelectionChanged">
+					<TabItem Width="190" Header="Weapons" x:Name="SearchWeapons" Cursor="Hand">
+					</TabItem>
+					<TabItem Width="190" Header="Armor" x:Name="SearchArmor" Cursor="Hand">
+					</TabItem>
+					<TabItem Width="190" Header="Consumables" x:Name="SearchConsumables" Cursor="Hand">
+					</TabItem>
+				</TabStrip>
+			</DockPanel>
+			<Grid x:Name="BaseGrid">
+				<DockPanel x:Name="SearchWeaponsDock" IsVisible="{Binding IsWeaponsVisible}">
+					<local:SearchWeapons />
+				</DockPanel>
+				<DockPanel x:Name="SearchArmorDock" IsVisible="{Binding IsArmorVisible}">
+					<local:SearchArmor />
+				</DockPanel>
+				<DockPanel x:Name="SearchConsumablesDock" IsVisible="{Binding IsConsumablesVisible}">
+					<local:SearchConsumables />
+				</DockPanel>
+			</Grid>
+		</DockPanel>
+	</Grid>
+</UserControl>

@@ -1,0 +1,240 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+       mc:Ignorable="d" d:DesignWidth="1500" d:DesignHeight="450"
+       x:Class="LanistaBrowserV1.UserControls.SearchWeapons"
+			 xmlns:vm="clr-namespace:LanistaBrowserV1.ViewModels"
+			 Loaded="UserControl_Loaded"
+			 x:DataType="vm:MainViewModel">
+	<Grid>
+		<DockPanel>
+			<DockPanel DockPanel.Dock="Top">
+
+				<DockPanel Height="150" DockPanel.Dock="Top" LastChildFill="False">
+					<StackPanel>
+						<DockPanel>
+							<TextBlock Text="Item Name: " FontWeight="Bold" />
+							<TextBlock x:Name="SelectedItem" Text="N/A" DockPanel.Dock="Top" />
+						</DockPanel>
+						<DockPanel>
+							<TextBlock Text="Type: " FontWeight="Bold" />
+							<TextBlock x:Name="SelectedItemType" Text="N/A" DockPanel.Dock="Top" />
+						</DockPanel>
+						<DockPanel>
+							<TextBlock Text="Damage: " FontWeight="Bold" />
+							<TextBlock x:Name="SelectedItemDamage" Text="N/A" DockPanel.Dock="Top" />
+						</DockPanel>
+					</StackPanel>
+				</DockPanel>
+			</DockPanel>
+
+			<DockPanel>
+				<ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+					<Grid x:Name="FullGrid">
+						<Grid.RowDefinitions>
+							<RowDefinition Height="Auto" />
+							<RowDefinition Height="Auto" />
+							<RowDefinition Height="*" />
+						</Grid.RowDefinitions>
+						<Grid.ColumnDefinitions>
+							<!--Favorites-->
+							<ColumnDefinition Width="40" />
+							<!--Item Name-->
+							<ColumnDefinition Width="250" />
+							<!--Type-->
+							<ColumnDefinition Width="120" />
+							<!--Weight-->
+							<ColumnDefinition Width="110" />
+							<!--Grabbing-->
+							<ColumnDefinition Width="110" />
+							<!--Min Dmg-->
+							<ColumnDefinition Width="110" />
+							<!--Max Dmg-->
+							<ColumnDefinition Width="110" />
+							<!--Dmg Roof-->
+							<ColumnDefinition Width="110" />
+							<!--Min Level-->
+							<ColumnDefinition Width="110" />
+							<!--Max Level-->
+							<ColumnDefinition Width="110" />
+							<!--Str Req-->
+							<ColumnDefinition Width="110" />
+							<!--Skill Req-->
+							<ColumnDefinition Width="110" />
+							<!--Filler-->
+							<ColumnDefinition Width="*" />
+						</Grid.ColumnDefinitions>
+						<!-- 1st Headers -->
+
+						<Button Grid.Column="0" Grid.Row="0" Width="30" Height="30" VerticalAlignment="Center" HorizontalAlignment="Center" Click="ClearSearchButton_Click" Background="Transparent" Padding="0">
+							<TextBlock Text="↩" x:Name="ClearSearchButton" VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center" FontSize="25" Foreground="LightBlue" />
+						</Button>
+
+						<TextBox Grid.Column="1"  Grid.Row="0" x:Name="SearchBox" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5,5" TextAlignment="Center" Watermark="Search Item" TextChanged="SearchBoxItem_TextChanged" />
+
+						<ComboBox Grid.Column="2"  Grid.Row="0" x:Name="TypeSelectionBox" HorizontalAlignment="Stretch" VerticalAlignment="Center" HorizontalContentAlignment="Center" Margin="5,5" SelectionChanged="TypeSelectionBox_SelectionChanged" />
+
+						<DockPanel Grid.Column="3" Grid.Row="0"  HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5,5">
+							<Button x:Name="SearchWeightButton" Width="25" Height="30" Content="=" Margin="10,0,0,0" Padding="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" BorderThickness="0" FontSize="20" Click="ToggleGreaterLesserEqual" />
+							<TextBox x:Name="SearchWeight" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" TextChanged="SearchBox_TextChanged" Margin="0,0,10,0" MinWidth="0" />
+						</DockPanel>
+
+						<ComboBox Grid.Column="4"  Grid.Row="0" x:Name="GripTypeSelection" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalAlignment="Center" Margin="5,5" SelectionChanged="TypeSelectionBox_SelectionChanged" SelectedIndex="0">
+							<ComboBoxItem Content="1h/2h" HorizontalContentAlignment="Center" />
+							<ComboBoxItem Content="1h" HorizontalContentAlignment="Center" />
+							<ComboBoxItem Content="2h" HorizontalContentAlignment="Center" />
+						</ComboBox>
+
+						<DockPanel Grid.Column="5" Grid.Row="0"  HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5,5">
+							<Button x:Name="SearchMinDmgButton" Width="25" Height="30" Content="=" Margin="10,0,0,0" Padding="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" BorderThickness="0" FontSize="20" Click="ToggleGreaterLesserEqual" />
+							<TextBox x:Name="SearchMinDmg" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" TextChanged="SearchBox_TextChanged" Margin="0,0,10,0" MinWidth="0" />
+						</DockPanel>
+
+						<DockPanel Grid.Column="6" Grid.Row="0"  HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5,5">
+							<Button x:Name="SearchMaxDmgButton" Width="25" Height="30" Content="=" Margin="10,0,0,0" Padding="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" BorderThickness="0" FontSize="20" Click="ToggleGreaterLesserEqual" />
+							<TextBox x:Name="SearchMaxDmg" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" TextChanged="SearchBox_TextChanged" Margin="0,0,10,0" MinWidth="0" />
+						</DockPanel>
+
+						<DockPanel Grid.Column="7" Grid.Row="0"  HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5,5">
+							<Button x:Name="SearchDmgRoofButton" Width="25" Height="30" Content="=" Margin="10,0,0,0" Padding="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" BorderThickness="0" FontSize="20" Click="ToggleGreaterLesserEqual" />
+							<TextBox x:Name="SearchDmgRoof" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" TextChanged="SearchBox_TextChanged" Margin="0,0,10,0" MinWidth="0" />
+						</DockPanel>
+
+						<DockPanel Grid.Column="8" Grid.Row="0"  HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5,5">
+							<Button x:Name="SearchMinLevelButton" Width="25" Height="30" Content="=" Margin="10,0,0,0" Padding="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" BorderThickness="0" FontSize="20" Click="ToggleGreaterLesserEqual" />
+							<TextBox x:Name="SearchMinLevel" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" TextChanged="SearchBox_TextChanged" Margin="0,0,10,0" MinWidth="0" />
+						</DockPanel>
+
+						<DockPanel Grid.Column="9" Grid.Row="0"  HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5,5">
+							<Button x:Name="SearchMaxLevelButton" Width="25" Height="30" Content="=" Margin="10,0,0,0" Padding="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" BorderThickness="0" FontSize="20" Click="ToggleGreaterLesserEqual" />
+							<TextBox x:Name="SearchMaxLevel" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" TextChanged="SearchBox_TextChanged" Margin="0,0,10,0" MinWidth="0" />
+						</DockPanel>
+
+						<DockPanel Grid.Column="10" Grid.Row="0"  HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5,5">
+							<Button x:Name="SearchStrReqButton" Width="25" Height="30" Content="=" Margin="10,0,0,0" Padding="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" BorderThickness="0" FontSize="20" Click="ToggleGreaterLesserEqual" />
+							<TextBox x:Name="SearchStrReq" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" TextChanged="SearchBox_TextChanged" Margin="0,0,10,0" MinWidth="0" />
+						</DockPanel>
+
+						<DockPanel Grid.Column="11" Grid.Row="0"  HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5,5">
+							<Button x:Name="SearchSkillReqButton" Width="25" Height="30" Content="=" Margin="10,0,0,0" Padding="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" BorderThickness="0" FontSize="20" Click="ToggleGreaterLesserEqual" />
+							<TextBox x:Name="SearchSkillReq" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" TextChanged="SearchBox_TextChanged" Margin="0,0,10,0" MinWidth="0" />
+						</DockPanel>
+
+						<!-- 2nd Headers -->
+
+						<Button Grid.Column="0" Grid.Row="1" Width="30" Height="30" VerticalAlignment="Center" HorizontalAlignment="Center" Click="FavoriteButton_Click">
+							<TextBlock Text="S" VerticalAlignment="Center" HorizontalAlignment="Center" />
+						</Button>
+
+						<Button x:Name="WeaponShieldNameButton" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5,5" Background="Transparent" Cursor="Hand" Click="SortListButton_Click">
+							<TextBlock Text="Weapon / Shield Name" FontSize="17" FontWeight="Bold" TextAlignment="Center" />
+						</Button>
+
+						<Button x:Name="TypeButton" Grid.Column="2" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5,5" Background="Transparent" Cursor="Hand" Click="SortListButton_Click">
+							<TextBlock Text="Type" FontSize="17" FontWeight="Bold" TextAlignment="Center" />
+						</Button>
+
+						<Button x:Name="WeightButton" Grid.Column="3" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5,5" Background="Transparent" Cursor="Hand" Click="SortListButton_Click">
+							<DockPanel>
+								<TextBlock Text="Weight" TextAlignment="Center" FontSize="17"  FontWeight="Bold" />
+							</DockPanel>
+						</Button>
+
+						<Button x:Name="GripButton" Grid.Column="4" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5,5" Background="Transparent" Cursor="Hand" Click="SortListButton_Click">
+							<TextBlock Text="Grip" FontSize="17" FontWeight="Bold" TextAlignment="Center" />
+						</Button>
+
+						<Button x:Name="MinDmgButton" Grid.Column="5" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5,5" Background="Transparent" Cursor="Hand" Click="SortListButton_Click">
+							<DockPanel>
+								<TextBlock Text="Min Dmg" TextAlignment="Center" FontSize="17" FontWeight="Bold" />
+							</DockPanel>
+						</Button>
+						<Button x:Name="MaxDmgButton" Grid.Column="6" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5,5" Background="Transparent" Cursor="Hand" Click="SortListButton_Click">
+							<DockPanel>
+								<TextBlock Text="Max Dmg" TextAlignment="Center" FontSize="17" FontWeight="Bold" />
+							</DockPanel>
+						</Button>
+						<Button x:Name="DmgRoofButton" Grid.Column="7" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5,5" Background="Transparent" Cursor="Hand" Click="SortListButton_Click">
+							<DockPanel>
+								<TextBlock Text="Dmg Roof" TextAlignment="Center" FontSize="17" FontWeight="Bold" />
+							</DockPanel>
+						</Button>
+						<Button x:Name="MinLevelButton" Grid.Column="8" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5,5" Background="Transparent" Cursor="Hand" Click="SortListButton_Click">
+							<DockPanel>
+								<TextBlock Text="Min Level" TextAlignment="Center" FontSize="17" FontWeight="Bold" />
+							</DockPanel>
+						</Button>
+						<Button x:Name="MaxLevelButton" Grid.Column="9" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5,5" Background="Transparent" Cursor="Hand" Click="SortListButton_Click">
+							<DockPanel>
+								<TextBlock Text="Max Level" TextAlignment="Center" FontSize="17" FontWeight="Bold" />
+							</DockPanel>
+						</Button>
+						<Button x:Name="StrReqButton" Grid.Column="10" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5,5" Background="Transparent" Cursor="Hand" Click="SortListButton_Click">
+							<DockPanel>
+								<TextBlock Text="Str Req" TextAlignment="Center" FontSize="17" FontWeight="Bold" />
+							</DockPanel>
+						</Button>
+						<Button x:Name="SkillReqButton" Grid.Column="11" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5,5" Background="Transparent" Cursor="Hand" Click="SortListButton_Click">
+							<DockPanel>
+								<TextBlock Text="Skill Req" TextAlignment="Center" FontSize="17" FontWeight="Bold" />
+							</DockPanel>
+						</Button>
+
+						<!-- ListBox -->
+						<ListBox x:Name="ListBoxWeapons" ItemsSource="{Binding WeaponList}" SelectionChanged="ListBoxWeapons_SelectionChanged" Grid.Row="2" Grid.ColumnSpan="13" Padding="0" Cursor="Hand">
+							<ListBox.ItemTemplate>
+								<DataTemplate>
+									<Grid>
+										<Grid.ColumnDefinitions>
+											<!--Favorites-->
+											<ColumnDefinition Width="40" />
+											<!--Item Name-->
+											<ColumnDefinition Width="250" />
+											<!--Type-->
+											<ColumnDefinition Width="120" />
+											<!--Weight-->
+											<ColumnDefinition Width="110" />
+											<!--Grabbing-->
+											<ColumnDefinition Width="110" />
+											<!--Min Dmg-->
+											<ColumnDefinition Width="110" />
+											<!--Max Dmg-->
+											<ColumnDefinition Width="110" />
+											<!--Dmg Roof-->
+											<ColumnDefinition Width="110" />
+											<!--Min Level-->
+											<ColumnDefinition Width="110" />
+											<!--Max Level-->
+											<ColumnDefinition Width="110" />
+											<!--Str Req-->
+											<ColumnDefinition Width="110" />
+											<!--Skill Req-->
+											<ColumnDefinition Width="110" />
+											<!--Filler-->
+											<ColumnDefinition Width="*" />
+										</Grid.ColumnDefinitions>
+										<Button Grid.Column="0" Width="25" Height="25" VerticalAlignment="Center" HorizontalAlignment="Center" Click="FavoriteButton_Click" Padding="0" Margin="5">
+											<TextBlock VerticalAlignment="Center" Text="★" HorizontalAlignment="Center" TextAlignment="Center" Foreground="Yellow" Padding="0" IsVisible="{Binding IsFavorited}" />
+										</Button>
+										<TextBlock Text="{Binding Name}" Grid.Column="1" VerticalAlignment="Center" TextAlignment="Center" />
+										<TextBlock Text="{Binding TypeName}" Grid.Column="2" VerticalAlignment="Center" TextAlignment="Center" />
+										<TextBlock Text="{Binding Weight}" Grid.Column="3" VerticalAlignment="Center" TextAlignment="Center" />
+										<TextBlock Text="{Binding GrabType}" Grid.Column="4" VerticalAlignment="Center" TextAlignment="Center" />
+										<TextBlock Text="{Binding BaseDamageMin}" Grid.Column="5" VerticalAlignment="Center" TextAlignment="Center" />
+										<TextBlock Text="{Binding BaseDamageMax}" Grid.Column="6" VerticalAlignment="Center" TextAlignment="Center" />
+										<TextBlock Text="{Binding DamageRoof}" Grid.Column="7" VerticalAlignment="Center" TextAlignment="Center" />
+										<TextBlock Text="{Binding RequiredLevel}" Grid.Column="8" VerticalAlignment="Center" TextAlignment="Center" />
+										<TextBlock Text="{Binding MaxLevel}" Grid.Column="9" VerticalAlignment="Center" TextAlignment="Center" />
+										<TextBlock Text="{Binding StrengthRequirementValue}" Grid.Column="10" VerticalAlignment="Center" TextAlignment="Center" />
+										<TextBlock Text="{Binding SkillRequirementValue}" Grid.Column="11" VerticalAlignment="Center" TextAlignment="Center" />
+									</Grid>
+								</DataTemplate>
+							</ListBox.ItemTemplate>
+						</ListBox>
+					</Grid>
+				</ScrollViewer>
+			</DockPanel>
+		</DockPanel>
+	</Grid>
+</UserControl>
