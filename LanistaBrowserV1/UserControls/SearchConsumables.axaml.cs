@@ -45,6 +45,14 @@ namespace LanistaBrowserV1.UserControls
 
             ToggleFavorites.Text = "A";
 
+            SearchMinLevel.Text = string.Empty;
+            SearchMaxLevel.Text = string.Empty;
+
+            TypeSelection.SelectedIndex = 0;
+
+            SearchMinLevelButton.Content = "=";
+            SearchMaxLevelButton.Content = "=";
+
             // Remove current sorting
             currentSortColumn = null;
             isAscending = true;
@@ -61,6 +69,16 @@ namespace LanistaBrowserV1.UserControls
 
             DetailsChooseItemView.IsVisible = true;
             DetailsScrollViewer.IsVisible = false;
+        }
+
+        private async void TypeSelectionBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (sender is not ComboBox)
+            {
+                return;
+            }
+
+            await UpdateList();
         }
 
         private async void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -99,6 +117,33 @@ namespace LanistaBrowserV1.UserControls
             await UpdateList();
         }
 
+        private async void ToggleGreaterLesserEqual(object sender, RoutedEventArgs e)
+        {
+            var button = (Button)sender;
+            if (button.Content is string item)
+            {
+                if (item == ">")
+                {
+                    button.Content = "<";
+                }
+                else if (item == "<")
+                {
+                    button.Content = "=";
+                }
+                else if (item == "=")
+                {
+                    button.Content = ">";
+                }
+                await UpdateList();
+
+                var parentDockPanel = button.Parent as DockPanel;
+
+                var textBox = parentDockPanel!.Children.OfType<TextBox>().FirstOrDefault();
+
+                textBox?.Focus();
+            }
+        }
+
         private async void SortListButton_Click(object sender, RoutedEventArgs e)
         {
             var button = (Button)sender;
@@ -107,10 +152,10 @@ namespace LanistaBrowserV1.UserControls
                 // Determine the property to sort by based on the button name
                 Func<Consumable, object> sortProperty = buttonName switch
                 {
-                    "WeightButton" => w => w.Weight ?? 0,
+                    "TypeButton" => w => w.ForLiveBattle.ToString() ?? string.Empty,
                     "MinLevelButton" => w => w.RequiredLevel ?? 0,
                     "MaxLevelButton" => w => w.MaxLevel ?? 0,
-                    "WeaponShieldNameButton" => w => w.Name ?? string.Empty,
+                    "ConsumablesNameButton" => w => w.Name ?? string.Empty,
 
                     _ => w => 0,
                 };
@@ -150,76 +195,171 @@ namespace LanistaBrowserV1.UserControls
 
         private void ListBoxConsumables_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            Debug.WriteLine("DataGridWeapons_SelectionChanged");
-            if (sender is ListBox listBox && listBox.SelectedItem is Consumable selectedWeapon)
+            if (sender is ListBox listBox && listBox.SelectedItem is Consumable selectedConsumable)
             {
-                //    string critInfo = selectedWeapon.CritDamage?.Replace("till", "to") ?? "n/a";
+                GeneralStackPanel.Children.Clear();
+                RequirementsStackPanel.Children.Clear();
+                BonusesStackPanel.Children.Clear();
 
-                // ItemMagicTypesBlock.Text = selectedWeapon.MagicTypes;
-                // ItemMaxSpellsBlock.Text = selectedWeapon.MaxSpells.ToString();
-                //ItemReqAgeBlock.Text = selectedWeapon.minAge
+                //General Block
+                SelectedItemTitle.Text = selectedConsumable.Name ?? string.Empty;
 
-                ItemNameBlock.Text = selectedWeapon.Name;
-                //   ItemTypeBlock.Text = $"{selectedWeapon.TypeName} - {selectedWeapon.GrabType}";
-                ItemWeightBlock.Text = selectedWeapon.Weight.ToString();
-                //    ItemDurabilityBlock.Text = selectedWeapon.Durability.ToString();
-                //   ItemStrengthBlock.Text = selectedWeapon.StrengthRequirementValue.ToString();
-                //   ItemSkillBlock.Text = selectedWeapon.SkillRequirementValue.ToString();
-                ItemSoulboundBlock.Text = selectedWeapon.Soulbound.ToString();
-
-                if (selectedWeapon.RequiredRankingPoints == null)
+                if (selectedConsumable.Cooldown != null)
                 {
-                    ItemReqRankBlock.Text = "n/a";
+                    string str;
+                    if (selectedConsumable.Cooldown > 86400)
+                    {
+                        TimeSpan time = TimeSpan.FromSeconds(selectedConsumable.Cooldown.Value);
+                        str = string.Format("{0} d {1} h {2} m", time.Days, time.Hours, time.Minutes);
+                    }
+                    else
+                    {
+                        TimeSpan time = TimeSpan.FromSeconds(selectedConsumable.Cooldown.Value);
+                        int totalHours = (int)time.TotalHours;
+                        int remainingMinutes = time.Minutes;
+                        str = string.Format("{0} h {1} m", totalHours, remainingMinutes);
+                    }
+
+                    GeneralStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Cooldown", str));
+                }
+
+                if (selectedConsumable.Duration != null)
+                {
+                    string str;
+                    if (selectedConsumable.Duration > 1440)
+                    {
+                        TimeSpan time = TimeSpan.FromMinutes(selectedConsumable.Duration.Value);
+                        str = string.Format("{0} d {1} h {2} m", time.Days, time.Hours, time.Minutes);
+                    }
+                    else
+                    {
+                        TimeSpan time = TimeSpan.FromMinutes(selectedConsumable.Duration.Value);
+                        int totalHours = (int)time.TotalHours;
+                        int remainingMinutes = time.Minutes;
+                        str = string.Format("{0} h {1} m", totalHours, remainingMinutes);
+                    }
+                    GeneralStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Duration", str));
+                }
+                if (selectedConsumable.ActiveRounds != null)
+                {
+                    GeneralStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Active Rounds", selectedConsumable.ActiveRounds.ToString() ?? string.Empty));
+                }
+
+                GeneralStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("For Live Battles", selectedConsumable.ForLiveBattle.ToString() ?? string.Empty));
+
+                GeneralStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Soulbound", selectedConsumable.Soulbound.ToString() ?? string.Empty));
+
+                //Requirements Block
+
+                string requiredLevel;
+                string minLevel = selectedConsumable.RequiredLevel.ToString() ?? string.Empty;
+                string maxLevel = selectedConsumable.MaxLevel.ToString() ?? string.Empty;
+                if (string.IsNullOrEmpty(maxLevel))
+                {
+                    requiredLevel = minLevel;
                 }
                 else
                 {
-                    ItemReqRankBlock.Text = selectedWeapon.RequiredRankingPoints.ToString();
+                    requiredLevel = $"{minLevel} - {maxLevel}";
+                }
+                RequirementsStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Level", requiredLevel));
+
+                if (selectedConsumable.StrengthRequirementValue != null && selectedConsumable.StrengthRequirementValue != 0)
+                {
+                    RequirementsStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Strength", selectedConsumable.StrengthRequirementValue.ToString() ?? string.Empty));
                 }
 
-                if (selectedWeapon.MinPopularity == null && selectedWeapon.MaxPopularity == null)
+                if (selectedConsumable.SkillRequirementValue != null && selectedConsumable.SkillRequirementValue != 0)
                 {
-                    ItemPopularityBlock.Text = "n/a";
-                }
-                else if (selectedWeapon.MinPopularity == null && selectedWeapon.MaxPopularity != null)
-                {
-                    ItemPopularityBlock.Text = selectedWeapon.MaxPopularity.ToString();
-                }
-                else if (selectedWeapon.MinPopularity != null && selectedWeapon.MaxPopularity == null)
-                {
-                    ItemPopularityBlock.Text = selectedWeapon.MinPopularity.ToString();
-                }
-                else
-                {
-                    ItemPopularityBlock.Text = selectedWeapon.MinPopularity.ToString() + " - " + selectedWeapon.MaxPopularity.ToString();
+                    RequirementsStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Skill", selectedConsumable.SkillRequirementValue.ToString() ?? string.Empty));
                 }
 
-                //if (selectedWeapon.RaceRestrictions == null)
-                //{
-                //    ItemReqRaceBlock.Text = "All";
-                //}
-                //else
-                //{
-                //    ItemReqRaceBlock.Text = selectedWeapon.RaceRestrictions;
-                //}
-
-                if (selectedWeapon.Bonuses == null || selectedWeapon.Bonuses.Count == 0)
+                if (!string.IsNullOrEmpty(selectedConsumable.RaceRestrictions))
                 {
-                    ItemBonusesBlock.Text = "None";
-                }
-                else
-                {
-                    ItemBonusesBlock.Text = string.Empty;
+                    RequirementsStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Race", selectedConsumable.RaceRestrictions));
                 }
 
-                if (selectedWeapon.MaxLevel == null)
+                if (selectedConsumable.RequiredRankingPoints != null)
                 {
-                    ItemLevelBlock.Text = selectedWeapon.RequiredLevel.ToString();
+                    RequirementsStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Ranking", selectedConsumable.RequiredRankingPoints.ToString() ?? string.Empty));
                 }
-                else
+                if (selectedConsumable.MinPopularity != null)
                 {
-                    ItemLevelBlock.Text = selectedWeapon.RequiredLevel.ToString() + " - " + selectedWeapon.MaxLevel.ToString();
+                    RequirementsStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Min Popularity", selectedConsumable.MinPopularity.ToString() ?? string.Empty));
+                }
+                if (selectedConsumable.MaxPopularity != null)
+                {
+                    RequirementsStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Max Popularity", selectedConsumable.MaxPopularity.ToString() ?? string.Empty));
                 }
 
+                //Bonuses Block
+                if (selectedConsumable.Bonuses != null)
+                {
+                    if (selectedConsumable.CritRate != null && selectedConsumable.CritRate != 0)
+                    {
+                        string isPositive = selectedConsumable.CritRate > 0 ? "+" : "";
+                        BonusesStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Crit Rate", $"{isPositive}{selectedConsumable.CritRate}%"));
+                    }
+                    if (selectedConsumable.MaxCritRate != null && selectedConsumable.MaxCritRate != 0)
+                    {
+                        string isPositive = selectedConsumable.MaxCritRate > 0 ? "+" : "";
+                        BonusesStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Max Crit Rate", $"{isPositive}{selectedConsumable.CritRate}%"));
+                    }
+                    if (selectedConsumable.MinCritRate != null && selectedConsumable.MinCritRate != 0)
+                    {
+                        string isPositive = selectedConsumable.MinCritRate > 0 ? "+" : "";
+                        BonusesStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Min Crit Rate", $"{isPositive}{selectedConsumable.CritRate}%"));
+                    }
+                    if (selectedConsumable.IncreasedHitRate != null && selectedConsumable.IncreasedHitRate != 0)
+                    {
+                        string isPositive = selectedConsumable.IncreasedHitRate > 0 ? "+" : "";
+                        BonusesStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Hit Rate", $"{isPositive}{selectedConsumable.IncreasedHitRate}%"));
+                    }
+                    if (selectedConsumable.RestoreHp != null)
+                    {
+                        BonusesStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Healing", $"{selectedConsumable.RestoreHp} ({selectedConsumable.RestoreHpChance}% chance to success.)"));
+                    }
+                    if (selectedConsumable.Damage != null)
+                    {
+                        BonusesStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Offensive Damage", $"{selectedConsumable.Damage} ({selectedConsumable.DamageChance}% chance to success.)"));
+                    }
+
+                    if (selectedConsumable.ReducedHitRate != null && selectedConsumable.ReducedHitRateChance != null)
+                    {
+                        BonusesStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Reduce Enemy Hitrate", $"{selectedConsumable.ReducedHitRate} ({selectedConsumable.ReducedHitRateChance}% chance to success.)"));
+                    }
+                    if (selectedConsumable.Xp != null && selectedConsumable.Xp != 0)
+                    {
+                        string isPositive = selectedConsumable.Xp > 0 ? "+" : "";
+                        BonusesStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("XP", isPositive + selectedConsumable.Xp.ToString() ?? string.Empty));
+                    }
+                    if (selectedConsumable.GivenCoins != null && selectedConsumable.GivenCoins != 0)
+                    {
+                        string isPositive = selectedConsumable.GivenCoins > 0 ? "+" : "";
+                        BonusesStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Coins", isPositive + selectedConsumable.GivenCoins.ToString() ?? string.Empty));
+                    }
+                    if (selectedConsumable.Popularity != null && selectedConsumable.Popularity != 0)
+                    {
+                        string isPositive = selectedConsumable.Popularity > 0 ? "+" : "";
+                        BonusesStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Popularity", isPositive + selectedConsumable.Popularity.ToString() ?? string.Empty));
+                    }
+                    if (selectedConsumable.Rounds != null && selectedConsumable.Rounds != 0)
+                    {
+                        string isPositive = selectedConsumable.Rounds > 0 ? "+" : "";
+                        BonusesStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Popularity", isPositive + selectedConsumable.Rounds.ToString() ?? string.Empty));
+                    }
+                    if (selectedConsumable.Undead == true)
+                    {
+                        BonusesStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Become Undead", $"{selectedConsumable.Undead} ({selectedConsumable.UndeadChance} chance to success.)"));
+                    }
+
+                    foreach (var item in selectedConsumable.Bonuses)
+                    {
+                        BonusesStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel(item.BonusableName!, $"{item.BonusValueDisplay}"));
+                    }
+                }
+
+                //Show Details
                 DetailsChooseItemView.IsVisible = false;
                 DetailsScrollViewer.IsVisible = true;
             }
@@ -275,75 +415,46 @@ namespace LanistaBrowserV1.UserControls
                 searchQuery = SearchBox.Text.ToLower();
             }
 
-            //if (TypeSelectionBox.SelectionBoxItem as string == "all")
-            //{
-            //    typeQuery = string.Empty;
-            //}
-            //else
-            //{
-            //    typeQuery = TypeSelectionBox.SelectionBoxItem as string ?? string.Empty;
-            //}
+            if (TypeSelection.SelectionBoxItem as string == "all")
+            {
+                typeQuery = string.Empty;
+            }
+            else
+            {
+                typeQuery = TypeSelection.SelectionBoxItem as string ?? string.Empty;
+            }
 
             if (ToggleFavorites.Text == "F")
             {
                 showOnlyFavorited = true;
             }
 
-            //if (!double.TryParse(SearchMinDmg.Text, out double minDmgQuery)) minDmgQuery = double.NaN;
-            //if (!double.TryParse(SearchMaxDmg.Text, out double maxDmgQuery)) maxDmgQuery = double.NaN;
-            //if (!double.TryParse(SearchDmgRoof.Text, out double dmgRoofQuery)) dmgRoofQuery = double.NaN;
-            //if (!double.TryParse(SearchMinLevel.Text, out double minLevelQuery)) minLevelQuery = double.NaN;
-            //if (!double.TryParse(SearchMaxLevel.Text, out double maxLevelQuery)) maxLevelQuery = double.NaN;
-            //if (!double.TryParse(SearchStrReq.Text, out double strReqQuery)) strReqQuery = double.NaN;
-            //if (!double.TryParse(SearchSkillReq.Text, out double skillReqQuery)) skillReqQuery = double.NaN;
-            //if (!double.TryParse(SearchWeight.Text, out double weightQuery)) weightQuery = double.NaN;
+            if (!double.TryParse(SearchMinLevel.Text, out double minLevelQuery)) minLevelQuery = double.NaN;
+            if (!double.TryParse(SearchMaxLevel.Text, out double maxLevelQuery)) maxLevelQuery = double.NaN;
 
             var filteredConsumables = await Dispatcher.UIThread.InvokeAsync(() =>
             viewModel.ConsumableList.Where(w =>
             (!showOnlyFavorited || w.IsFavorited) &&
-            (w.Name?.ToLower().Contains(searchQuery) ?? false)) // &&
-            //(double.IsNaN(weightQuery) ||
-            //    (SearchWeightButton.Content!.ToString() == ">" && w.Weight > weightQuery) ||
-            //    (SearchWeightButton.Content!.ToString() == "<" && w.Weight < weightQuery) ||
-            //    (SearchWeightButton.Content!.ToString() == "=" && w.Weight == weightQuery)) &&
-            //(double.IsNaN(minDmgQuery) ||
-            //    (SearchMinDmgButton.Content!.ToString() == ">" && w.BaseDamageMin > minDmgQuery) ||
-            //    (SearchMinDmgButton.Content!.ToString() == "<" && w.BaseDamageMin < minDmgQuery) ||
-            //    (SearchMinDmgButton.Content!.ToString() == "=" && w.BaseDamageMin == minDmgQuery)) &&
-            //(double.IsNaN(maxDmgQuery) ||
-            //    (SearchMaxDmgButton.Content!.ToString() == ">" && w.BaseDamageMax > maxDmgQuery) ||
-            //    (SearchMaxDmgButton.Content!.ToString() == "<" && w.BaseDamageMax < maxDmgQuery) ||
-            //    (SearchMaxDmgButton.Content!.ToString() == "=" && w.BaseDamageMax == maxDmgQuery)) &&
-            //(double.IsNaN(dmgRoofQuery) ||
-            //    (SearchDmgRoofButton.Content!.ToString() == ">" && w.DamageRoof > dmgRoofQuery) ||
-            //    (SearchDmgRoofButton.Content!.ToString() == "<" && w.DamageRoof < dmgRoofQuery) ||
-            //    (SearchDmgRoofButton.Content!.ToString() == "=" && w.DamageRoof == dmgRoofQuery)) &&
-            //(double.IsNaN(minLevelQuery) ||
-            //    (SearchMinLevelButton.Content!.ToString() == ">" && w.RequiredLevel > minLevelQuery) ||
-            //    (SearchMinLevelButton.Content!.ToString() == "<" && w.RequiredLevel < minLevelQuery) ||
-            //    (SearchMinLevelButton.Content!.ToString() == "=" && w.RequiredLevel == minLevelQuery)) &&
-            //(double.IsNaN(maxLevelQuery) ||
-            //    (SearchMaxLevelButton.Content!.ToString() == ">" && w.MaxLevel > maxLevelQuery) ||
-            //    (SearchMaxLevelButton.Content!.ToString() == "<" && w.MaxLevel < maxLevelQuery) ||
-            //    (SearchMaxLevelButton.Content!.ToString() == "=" && w.MaxLevel == maxLevelQuery)) &&
-            //(double.IsNaN(strReqQuery) ||
-            //    (SearchStrReqButton.Content!.ToString() == ">" && w.StrengthRequirementValue > strReqQuery) ||
-            //    (SearchStrReqButton.Content!.ToString() == "<" && w.StrengthRequirementValue < strReqQuery) ||
-            //    (SearchStrReqButton.Content!.ToString() == "=" && w.StrengthRequirementValue == strReqQuery)) &&
-            //(double.IsNaN(skillReqQuery) ||
-            //    (SearchSkillReqButton.Content!.ToString() == ">" && w.SkillRequirementValue > skillReqQuery) ||
-            //    (SearchSkillReqButton.Content!.ToString() == "<" && w.SkillRequirementValue < skillReqQuery) ||
-            //    (SearchSkillReqButton.Content!.ToString() == "=" && w.SkillRequirementValue == skillReqQuery)))
+            (w.Name?.ToLower().Contains(searchQuery) ?? false) &&
+            (w.ForLiveBattle.ToString()?.ToLower().Contains(searchQuery) ?? false) &&
+            (double.IsNaN(minLevelQuery) ||
+                (SearchMinLevelButton.Content!.ToString() == ">" && w.RequiredLevel > minLevelQuery) ||
+                (SearchMinLevelButton.Content!.ToString() == "<" && w.RequiredLevel < minLevelQuery) ||
+                (SearchMinLevelButton.Content!.ToString() == "=" && w.RequiredLevel == minLevelQuery)) &&
+            (double.IsNaN(maxLevelQuery) ||
+                (SearchMaxLevelButton.Content!.ToString() == ">" && w.MaxLevel > maxLevelQuery) ||
+                (SearchMaxLevelButton.Content!.ToString() == "<" && w.MaxLevel < maxLevelQuery) ||
+                (SearchMaxLevelButton.Content!.ToString() == "=" && w.MaxLevel == maxLevelQuery)))
             .ToList()
 
 );
 
             Func<Consumable, object> sortProperty = currentSortColumn switch
             {
-                "WeightButton" => w => w.Weight ?? 0,
+                "TypeButton" => w => w.Weight ?? 0,
                 "MinLevelButton" => w => w.RequiredLevel ?? 0,
                 "MaxLevelButton" => w => w.MaxLevel ?? 0,
-                "WeaponShieldNameButton" => w => w.Name ?? string.Empty,
+                "ConsumablesNameButton" => w => w.Name ?? string.Empty,
 
                 _ => w => 0,
             };

@@ -19,9 +19,10 @@
 
   <ItemGroup>
     <PackageReference Include="Avalonia.Android" Version="11.0.9" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="WebView.Avalonia.Android" Version="11.0.0.1" />
-    <PackageReference Include="Xamarin.AndroidX.Core.SplashScreen" Version="1.0.1.5" />
+    <PackageReference Include="Xamarin.AndroidX.Core.SplashScreen" Version="1.0.1.6" />
   </ItemGroup>
 
   <ItemGroup>

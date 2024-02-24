@@ -3,29 +3,45 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Data.Sqlite;
 using Dapper;
 using DryIoc.FastExpressionCompiler.LightExpression;
 using System.Data;
 using LanistaBrowserV1.Classes;
 using LanistaBrowserV1.ViewModels;
 using DryIoc.ImTools;
+using Microsoft.Data.Sqlite;
+using System.IO;
+using System.Diagnostics;
+using System.Collections.ObjectModel;
 
 namespace LanistaBrowserV1.Functions
 {
     public class SqliteHandler
     {
+        private static string DbPath()
+        {
+            string folderPath = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "LanistaBrowser");
+
+            Directory.CreateDirectory(folderPath);
+
+            string dbPath = Path.Combine(folderPath, "mydatabase.db");
+
+            return dbPath;
+        }
+
         public static async Task CreateAndUpdateTables()
         {
-            await using var connection = new SqliteConnection("Data Source=mydatabase.db");
+            string path = DbPath();
+            await using var connection = new SqliteConnection($"Data Source={path}");
             await connection.OpenAsync();
 
             // Create tables if they don't exist
             await connection.ExecuteAsync(@"CREATE TABLE IF NOT EXISTS FavoritedWeapons (Id INTEGER PRIMARY KEY, Name TEXT NOT NULL)");
             await connection.ExecuteAsync(@"CREATE TABLE IF NOT EXISTS FavoritedArmors (Id INTEGER PRIMARY KEY, Name TEXT NOT NULL)");
             await connection.ExecuteAsync(@"CREATE TABLE IF NOT EXISTS FavoritedConsumables (Id INTEGER PRIMARY KEY, Name TEXT NOT NULL)");
-            await connection.ExecuteAsync(@"CREATE TABLE IF NOT EXISTS Tactics (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL, Race TEXT NOT NULL)");
-            await connection.ExecuteAsync(@"CREATE TABLE IF NOT EXISTS TacticsLevels (Id INTEGER PRIMARY KEY AUTOINCREMENT, TacticsId INTEGER, Level INTEGER)");
+            await connection.ExecuteAsync(@"CREATE TABLE IF NOT EXISTS Tactics (Id INTEGER PRIMARY KEY AUTOINCREMENT, TacticName TEXT NOT NULL)");
+            await connection.ExecuteAsync(@"CREATE TABLE IF NOT EXISTS TacticsPlacedStats (Id INTEGER PRIMARY KEY AUTOINCREMENT, TacticId INTEGER NOT NULL, Level INTEGER NOT NULL, FOREIGN KEY(TacticId) REFERENCES Tactics(Id) ON DELETE CASCADE)");
+            await connection.ExecuteAsync(@"CREATE TABLE IF NOT EXISTS TacticsEquipped (Id INTEGER PRIMARY KEY AUTOINCREMENT, TacticId INTEGER NOT NULL, FOREIGN KEY(TacticId) REFERENCES Tactics(Id) ON DELETE CASCADE)");
 
             // List of tables and their expected columns
             var tablesAndColumns = new Dictionary<string, List<(string ColumnName, string ColumnType)>>
@@ -33,13 +49,9 @@ namespace LanistaBrowserV1.Functions
         { "FavoritedWeapons", new List<(string, string)> { ("Id", "INTEGER"), ("Name", "TEXT") } },
         { "FavoritedArmors", new List<(string, string)> { ("Id", "INTEGER"), ("Name", "TEXT") } },
         { "FavoritedConsumables", new List<(string, string)> { ("Id", "INTEGER"), ("Name", "TEXT")} },
-        { "Tactics", new List<(string, string)> { ("Id", "INTEGER"), ("Name", "TEXT"), ("Race", "TEXT")} },
-        { "TacticsLevels", new List<(string, string)> { ("Id", "INTEGER"), ("TacticsId", "INTEGER"), ("Level", "INTEGER"),
-                                                        ("STAMINA", "INTEGER"), ("STRENGTH", "INTEGER"), ("ENDURANCE", "INTEGER"),
-                                                        ("INITIATIVE", "INTEGER"), ("LEARNING_CAPACITY", "INTEGER"), ("DODGE", "INTEGER"),
-                                                        ("LUCK", "INTEGER"), ("DISCIPLINE", "INTEGER"), ("AXE", "INTEGER"),
-                                                        ("SWORD", "INTEGER"), ("MACE", "INTEGER"), ("STAVE", "INTEGER"),
-                                                        ("SHIELD", "INTEGER"), ("SPEAR", "INTEGER"), ("CHAIN", "INTEGER"), ("EquippedMainhaindID","INTEGER"), ("EquippedOffhandID","INTEGER") } }
+        { "Tactics", new List<(string, string)> { ("Id", "INTEGER"), ("TacticName", "TEXT"), ("RaceID", "INTEGER NOT NULL"), ("WeaponSkillID", "INTEGER NOT NULL"), ("LoadedCharacterName", "TEXT DEFAULT ''") } },
+        { "TacticsPlacedStats", new List<(string, string)> { ("Id", "INTEGER"), ("TacticId", "INTEGER"), ("StatType", "TEXT NOT NULL"), ("StatID", "INTEGER NOT NULL"), ("StatValue", "INTEGER NOT NULL") } },
+        { "TacticsEquipped", new List<(string, string)> { ("Id", "INTEGER"), ("TacticId", "INTEGER"), ("EquippedType", "TEXT NOT NULL"), ("EquippedID", "INTEGER NOT NULL"), ("EquippedLevel", "INTEGER NOT NULL") } },
             };
 
             // Check each table for missing columns
@@ -57,11 +69,22 @@ namespace LanistaBrowserV1.Functions
                     await connection.ExecuteAsync($"ALTER TABLE {table.Key} ADD COLUMN {column} {columnType}");
                 }
             }
+
+            //Create Triggers
+            await connection.ExecuteAsync(@"CREATE TRIGGER IF NOT EXISTS update_gladiator_name
+                                                BEFORE UPDATE ON Tactics
+                                                FOR EACH ROW
+                                                BEGIN
+                                                   UPDATE Tactics
+                                                   SET LoadedCharacterName = ''
+                                                   WHERE LoadedCharacterName = NEW.LoadedCharacterName;
+                                                END;");
         }
 
         public static List<FavoritedWeapon> FetchFavoritedWeapons()
         {
-            using var connection = new SqliteConnection("Data Source=mydatabase.db");
+            string path = DbPath();
+            using var connection = new SqliteConnection($"Data Source={path}");
             connection.Open();
 
             return connection.Query<FavoritedWeapon>("SELECT * FROM FavoritedWeapons").ToList();
@@ -69,7 +92,8 @@ namespace LanistaBrowserV1.Functions
 
         public static List<FavoritedConsumable> FetchFavoritedConsumables()
         {
-            using var connection = new SqliteConnection("Data Source=mydatabase.db");
+            string path = DbPath();
+            using var connection = new SqliteConnection($"Data Source={path}");
             connection.Open();
 
             return connection.Query<FavoritedConsumable>("SELECT * FROM FavoritedConsumables").ToList();
@@ -77,15 +101,65 @@ namespace LanistaBrowserV1.Functions
 
         public static List<FavoritedArmor> FetchFavoritedArmors()
         {
-            using var connection = new SqliteConnection("Data Source=mydatabase.db");
+            string path = DbPath();
+            using var connection = new SqliteConnection($"Data Source={path}");
             connection.Open();
 
             return connection.Query<FavoritedArmor>("SELECT * FROM FavoritedArmors").ToList();
         }
 
+        public static ObservableCollection<Tactic> FetchTactics()
+        {
+            string path = DbPath();
+            using var connection = new SqliteConnection($"Data Source={path}");
+            connection.Open();
+
+            var tacticsList = connection.Query<Tactic>("SELECT * FROM Tactics").ToList();
+
+            foreach (var t in tacticsList)
+            {
+                t.EquippedItems = FetchTacticsEquippedItems(t.Id);
+                t.PlacedStats = FetchTacticsPlacedStat(t.Id);
+            }
+
+            return new ObservableCollection<Tactic>(tacticsList);
+        }
+
+        public static List<TacticEquippedItem> FetchTacticsEquippedItems(int tacticId)
+        {
+            string path = DbPath();
+            using var connection = new SqliteConnection($"Data Source={path}");
+            connection.Open();
+
+            var equippedItems = connection.Query<TacticEquippedItem>("SELECT * FROM TacticsEquipped WHERE TacticId = @tacticId", new { tacticId }).ToList();
+
+            return equippedItems;
+        }
+
+        public static List<TacticPlacedStat> FetchTacticsPlacedStat(int tacticId)
+        {
+            string path = DbPath();
+            using var connection = new SqliteConnection($"Data Source={path}");
+            connection.Open();
+
+            var placedStats = connection.Query<TacticPlacedStat>("SELECT * FROM TacticsPlacedStats WHERE TacticId = @tacticId", new { tacticId }).ToList();
+
+            return placedStats;
+        }
+
+        public static void CreateNewTactic(string name, int raceId, int weaponTypeId)
+        {
+            string path = DbPath();
+            using var connection = new SqliteConnection($"Data Source={path}");
+            connection.Open();
+
+            connection.Execute("INSERT INTO Tactics (TacticName, RaceID, WeaponSkillID) VALUES (@TacticName, @RaceID, @WeaponSkillID)", new { TacticName = name, RaceID = raceId, WeaponSkillID = weaponTypeId });
+        }
+
         public static void ToggleFavoritedItem(object x, MainViewModel viewModel)
         {
-            using var connection = new SqliteConnection("Data Source=mydatabase.db");
+            string path = DbPath();
+            using var connection = new SqliteConnection($"Data Source={path}");
             connection.Open();
 
             if (x is Weapon weapon)

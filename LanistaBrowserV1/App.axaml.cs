@@ -16,6 +16,14 @@ public partial class App : Application
         AvaloniaXamlLoader.Load(this);
     }
 
+    public override void RegisterServices()
+    {
+        base.RegisterServices();
+
+        // if you use only WebView
+        AvaloniaWebViewBuilder.Initialize(default);
+    }
+
     public override void OnFrameworkInitializationCompleted()
     {
         // Line below is needed to remove Avalonia data validation.

@@ -10,161 +10,53 @@
 	<Grid>
 		<DockPanel>
 			<DockPanel DockPanel.Dock="Top">
-				<DockPanel x:Name="DetailsChooseItemView" Height="250" DockPanel.Dock="Top">
+				<DockPanel x:Name="DetailsChooseItemView" Height="250" DockPanel.Dock="Top" IsVisible="True">
 					<TextBlock FontWeight="Bold" FontSize="20" Text="Choose an item to view details." VerticalAlignment="Center" HorizontalAlignment="Center" />
 				</DockPanel>
-				<ScrollViewer x:Name="DetailsScrollViewer" HorizontalScrollBarVisibility="Auto" IsVisible="False">
+				<ScrollViewer x:Name="DetailsScrollViewer" HorizontalScrollBarVisibility="Auto" IsVisible="False" Height="250">
 
-					<StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-						<Border Background="#252526" Margin="10,10,10,25" MinWidth="210" CornerRadius="10" Padding="10" Height="210">
-							<DockPanel VerticalAlignment="Center">
-								<StackPanel DockPanel.Dock="Top">
+					<DockPanel>
+						<Grid>
+							<Grid.RowDefinitions>
+								<RowDefinition Height="*" />
+							</Grid.RowDefinitions>
+							<Grid.ColumnDefinitions>
 
-									<StackPanel Margin="5">
-										<TextBlock Text="Item" FontWeight="Bold" FontSize="16" />
-										<TextBlock Text="n/a" x:Name="ItemNameBlock" />
-									</StackPanel>
+								<ColumnDefinition Width="*" />
 
-									<StackPanel Margin="5">
-										<TextBlock Text="Type" FontWeight="Bold" FontSize="16" />
-										<TextBlock Text="n/a" x:Name="ItemTypeBlock" />
-									</StackPanel>
+								<ColumnDefinition Width="*" />
 
-									<StackPanel Margin="5">
-										<TextBlock Text="Damage" FontWeight="Bold" FontSize="16" />
-										<TextBlock Text="n/a" x:Name="ItemDamageBlock" />
-									</StackPanel>
+								<ColumnDefinition Width="*" />
+							</Grid.ColumnDefinitions>
 
-									<StackPanel Margin="5">
-										<TextBlock Text="Weight" FontWeight="Bold" FontSize="16" />
-										<TextBlock Text="n/a" x:Name="ItemWeightBlock" />
-									</StackPanel>
-								</StackPanel>
-							</DockPanel>
-						</Border>
+							<Border Grid.Column="0" Background="#252526" Margin="10,10,5,25" MinWidth="300" CornerRadius="10" Padding="5" Height="220">
+								<DockPanel>
+									<TextBlock Text="General" x:Name="SelectedItemTitle" DockPanel.Dock="Top" Margin="10" HorizontalAlignment="Center" FontWeight="Bold" FontSize="18" />
+									<ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+										<StackPanel x:Name="GeneralStackPanel" />
+									</ScrollViewer>
+								</DockPanel>
+							</Border>
 
-						<Border Background="#252526" Margin="10,10,10,25" MinWidth="210" CornerRadius="10" Padding="10" Height="210">
-							<DockPanel VerticalAlignment="Center">
-								<StackPanel DockPanel.Dock="Top">
+							<Border Grid.Column="1" Background="#252526" Margin="5,10,5,25" MinWidth="300" CornerRadius="10" Padding="5" Height="220">
+								<DockPanel>
+									<TextBlock Text="Requirements" DockPanel.Dock="Top" Margin="10" HorizontalAlignment="Center" FontWeight="Bold" FontSize="18" />
+									<ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+										<StackPanel x:Name="RequirementsStackPanel" />
+									</ScrollViewer>
+								</DockPanel>
+							</Border>
 
-									<StackPanel Margin="5">
-										<TextBlock Text="Crit Damage" FontWeight="Bold" FontSize="16" />
-										<TextBlock Text="n/a" x:Name="ItemCritBlock" />
-									</StackPanel>
-
-									<StackPanel Margin="5">
-										<TextBlock Text="Durability" FontWeight="Bold" FontSize="16" />
-										<TextBlock Text="n/a" x:Name="ItemDurabilityBlock" />
-									</StackPanel>
-
-									<StackPanel Margin="5">
-										<TextBlock Text="Absorption" FontWeight="Bold" FontSize="16" />
-										<TextBlock Text="n/a" x:Name="ItemAbsorptionBlock" />
-									</StackPanel>
-
-									<StackPanel Margin="5">
-										<TextBlock Text="Can Dual Wield" FontWeight="Bold" FontSize="16" />
-										<TextBlock Text="n/a" x:Name="ItemDualWieldBlock" />
-									</StackPanel>
-								</StackPanel>
-							</DockPanel>
-						</Border>
-
-						<Border Background="#252526" Margin="10,10,10,25" MinWidth="210" CornerRadius="10" Padding="10" Height="210">
-							<DockPanel VerticalAlignment="Center">
-								<StackPanel DockPanel.Dock="Top">
-
-									<StackPanel Margin="5">
-										<TextBlock Text="Min Strength" FontWeight="Bold" FontSize="16" />
-										<TextBlock Text="n/a" x:Name="ItemStrengthBlock" />
-									</StackPanel>
-
-									<StackPanel Margin="5">
-										<TextBlock Text="Min Skill" FontWeight="Bold" FontSize="16" />
-										<TextBlock Text="n/a" x:Name="ItemSkillBlock" />
-									</StackPanel>
-
-									<StackPanel Margin="5">
-										<TextBlock Text="Req Level" FontWeight="Bold" FontSize="16" />
-										<TextBlock Text="n/a" x:Name="ItemLevelBlock" />
-									</StackPanel>
-
-									<StackPanel Margin="5">
-										<TextBlock Text="Req Popularity" FontWeight="Bold" FontSize="16" />
-										<TextBlock Text="n/a" x:Name="ItemPopularityBlock" />
-									</StackPanel>
-								</StackPanel>
-							</DockPanel>
-						</Border>
-
-						<Border Background="#252526" Margin="10,10,10,25" MinWidth="210" CornerRadius="10" Padding="10" Height="210">
-							<DockPanel VerticalAlignment="Center">
-								<StackPanel DockPanel.Dock="Top">
-
-									<StackPanel Margin="5">
-										<TextBlock Text="Actions" FontWeight="Bold" FontSize="16" />
-										<TextBlock Text="n/a" x:Name="ItemActionsBlock" />
-									</StackPanel>
-
-									<StackPanel Margin="5">
-										<TextBlock Text="Soulbound" FontWeight="Bold" FontSize="16" />
-										<TextBlock Text="n/a" x:Name="ItemSoulboundBlock" />
-									</StackPanel>
-
-									<StackPanel Margin="5">
-										<TextBlock Text="Magic Types" FontWeight="Bold" FontSize="16" />
-										<TextBlock Text="n/a" x:Name="ItemMagicTypesBlock" />
-									</StackPanel>
-
-									<StackPanel Margin="5">
-										<TextBlock Text="Max Spells" FontWeight="Bold" FontSize="16" />
-										<TextBlock Text="n/a" x:Name="ItemMaxSpellsBlock" />
-									</StackPanel>
-								</StackPanel>
-							</DockPanel>
-						</Border>
-
-						<Border Background="#252526" Margin="10,10,10,25" MinWidth="210" CornerRadius="10" Padding="10" Height="210">
-							<DockPanel VerticalAlignment="Center">
-								<StackPanel DockPanel.Dock="Top">
-
-									<StackPanel Margin="5">
-										<TextBlock Text="Req Rank" FontWeight="Bold" FontSize="16" />
-										<TextBlock Text="n/a" x:Name="ItemReqRankBlock" />
-									</StackPanel>
-
-									<StackPanel Margin="5">
-										<TextBlock Text="Req Legend" FontWeight="Bold" FontSize="16" />
-										<TextBlock Text="n/a" x:Name="ItemReqLegendBlock" />
-									</StackPanel>
-
-									<StackPanel Margin="5">
-										<TextBlock Text="Req Age" FontWeight="Bold" FontSize="16" />
-										<TextBlock Text="n/a" x:Name="ItemReqAgeBlock" />
-									</StackPanel>
-
-									<StackPanel Margin="5">
-										<TextBlock Text="Allowed Races" FontWeight="Bold" FontSize="16" />
-										<TextBlock Text="n/a" x:Name="ItemReqRaceBlock" />
-									</StackPanel>
-								</StackPanel>
-							</DockPanel>
-						</Border>
-
-						<Border Background="#252526" Margin="10,10,10,25" MinWidth="210" CornerRadius="10" Padding="10" Height="210">
-							<DockPanel VerticalAlignment="Top">
-								<StackPanel DockPanel.Dock="Top">
-
-									<StackPanel Margin="5">
-										<TextBlock Text="Bonuses" FontWeight="Bold" FontSize="16" />
-										<ScrollViewer>
-											<TextBlock Text="N/A" x:Name="ItemBonusesBlock" />
-										</ScrollViewer>
-									</StackPanel>
-								</StackPanel>
-							</DockPanel>
-						</Border>
-					</StackPanel>
+							<Border Grid.Column="2" Background="#252526" Margin="5,10,10,25" MinWidth="300" CornerRadius="10" Padding="5" Height="220">
+								<DockPanel>
+									<TextBlock Text="Bonuses" DockPanel.Dock="Top" Margin="10" HorizontalAlignment="Center" FontWeight="Bold" FontSize="18" />
+									<ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+										<StackPanel x:Name="BonusesStackPanel" />
+									</ScrollViewer>
+								</DockPanel>
+							</Border>
+						</Grid>
+					</DockPanel>
 				</ScrollViewer>
 			</DockPanel>
 

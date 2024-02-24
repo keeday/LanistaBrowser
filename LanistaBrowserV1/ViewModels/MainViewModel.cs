@@ -6,6 +6,7 @@ using LanistaBrowserV1.Functions;
 using System.Collections.ObjectModel;
 using LanistaBrowserV1.Classes;
 using System.Linq;
+using System.Diagnostics;
 
 namespace LanistaBrowserV1.ViewModels;
 
@@ -15,6 +16,10 @@ public partial class MainViewModel : ViewModelBase
     private bool _isLanistaVisible = true;
 
     private bool _isSearchItemsVisible = false;
+
+    private bool _isTheoryCraftingMainVisible = false;
+
+    private bool _isWikiPageVisible = false;
 
     private string _currentUrl = "https://www.wikipedia.org/";
 
@@ -38,6 +43,9 @@ public partial class MainViewModel : ViewModelBase
 
     private ApiConfig _apiConfig = new();
 
+    //TheoryCrafting
+    private ObservableCollection<Tactic> _tactics = new();
+
     //Other
 
     public static bool IsWindows = true; // => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
@@ -52,6 +60,8 @@ public partial class MainViewModel : ViewModelBase
             if (SetProperty(ref _isLanistaVisible, value) && value)
             {
                 IsSearchItemsVisible = false;
+                IsTheoryCraftingMainVisible = false;
+                IsWikiPageVisible = false;
             }
         }
     }
@@ -64,6 +74,36 @@ public partial class MainViewModel : ViewModelBase
             if (SetProperty(ref _isSearchItemsVisible, value) && value)
             {
                 IsLanistaVisible = false;
+                IsTheoryCraftingMainVisible = false;
+                IsWikiPageVisible = false;
+            }
+        }
+    }
+
+    public bool IsTheoryCraftingMainVisible
+    {
+        get => _isTheoryCraftingMainVisible;
+        set
+        {
+            if (SetProperty(ref _isTheoryCraftingMainVisible, value) && value)
+            {
+                IsLanistaVisible = false;
+                IsWikiPageVisible = false;
+                IsSearchItemsVisible = false;
+            }
+        }
+    }
+
+    public bool IsWikiPageVisible
+    {
+        get => _isWikiPageVisible;
+        set
+        {
+            if (SetProperty(ref _isWikiPageVisible, value) && value)
+            {
+                IsLanistaVisible = false;
+                IsTheoryCraftingMainVisible = false;
+                IsSearchItemsVisible = false;
             }
         }
     }
@@ -154,6 +194,38 @@ public partial class MainViewModel : ViewModelBase
                 IsWeaponsVisible = false;
                 IsArmorVisible = false;
             }
+        }
+    }
+
+    //TheoryCrafting
+    public ObservableCollection<Tactic> Tactics
+    {
+        get => _tactics;
+        set
+        {
+            try
+            {
+                foreach (var tactic in value)
+                {
+                    var matchingRace = ApiConfig.Races!.FirstOrDefault(race => race.Type == tactic.RaceID);
+                    if (matchingRace != null)
+                    {
+                        tactic.RaceName = matchingRace.Name!.ToLower();
+                    }
+
+                    var matchingWeaponSkill = ApiConfig.WeaponSkills!.FirstOrDefault(skill => skill.Type == tactic.WeaponSkillID);
+                    if (matchingWeaponSkill != null)
+                    {
+                        tactic.WeaponName = matchingWeaponSkill.Name!.ToLower();
+                    }
+                }
+            }
+            catch (System.Exception e)
+            {
+                Debug.WriteLine(e.Message);
+            }
+
+            SetProperty(ref _tactics, value);
         }
     }
 }

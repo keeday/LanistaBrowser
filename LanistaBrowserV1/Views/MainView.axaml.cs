@@ -47,34 +47,81 @@ public partial class MainView : UserControl
                 case 1:
                     viewModel.IsSearchItemsVisible = true;
                     break;
+
+                case 2:
+                    viewModel.IsTheoryCraftingMainVisible = true;
+                    break;
+
+                case 3:
+                    viewModel.IsWikiPageVisible = true;
+                    break;
             }
         }
     }
 
+    private void ContinueAnyway_Click(object sender, RoutedEventArgs e)
+    {
+        LoadingScreen.IsVisible = false;
+        MainWindow.IsVisible = true;
+    }
+
     private async void DownloadApiData()
     {
-        try
-        {
-            viewModel = DataContext as MainViewModel;
+        bool noError = true;
+        viewModel = DataContext as MainViewModel;
 
-            if (viewModel != null)
+        if (viewModel != null)
+        {
+            try
             {
-                Debug.WriteLine("Updating Tables...");
-                LoadingInfo.Text = "Updating Tables...";
+                Debug.WriteLine("Fetching Config...");
+                LoadingInfo.Text = "Fetching Config...";
+                var config = await LanistaApiCall.GetConfig();
+                viewModel.ApiConfig = config;
+            }
+            catch (Exception ex)
+            {
+                LoadingTitle.Text = "ERROR";
+                LoadingTitle.Foreground = new SolidColorBrush(Colors.Red);
+                string maintinanceMessage = string.Empty;
+                if (ex.Message.Contains("503"))
+                {
+                    maintinanceMessage = "Lanista is down for maintenance.";
+
+                    ContinueAnywayButton.IsVisible = true;
+                }
+                LoadingInfo.Text = "Could Not load API Data.\n\n" + ex.Message + "\n\n" + maintinanceMessage;
+                noError = false;
+            }
+
+            Debug.WriteLine("Updating Tables...");
+            LoadingInfo.Text = "Updating Tables...";
+
+            try
+            {
                 await SqliteHandler.CreateAndUpdateTables();
 
                 var favoritedWeapons = SqliteHandler.FetchFavoritedWeapons();
                 var favoritedArmors = SqliteHandler.FetchFavoritedArmors();
                 var favoritedConsumables = SqliteHandler.FetchFavoritedConsumables();
+                var tactics = SqliteHandler.FetchTactics();
 
                 viewModel.FavoritedArmors = favoritedArmors;
                 viewModel.FavoritedWeapons = favoritedWeapons;
                 viewModel.FavoritedConsumables = favoritedConsumables;
+                viewModel.Tactics = tactics;
+            }
+            catch (Exception ex)
+            {
+                LoadingTitle.Text = "ERROR";
+                LoadingTitle.Foreground = new SolidColorBrush(Colors.Red);
 
-                Debug.WriteLine("Fetching Config...");
-                LoadingInfo.Text = "Fetching Config...";
-                var config = await LanistaApiCall.GetConfig();
+                LoadingInfo.Text = "Could Not Load Local Data.\n\n" + ex.Message;
+                noError = false;
+            }
 
+            try
+            {
                 Debug.WriteLine("Fetching Weapons...");
                 LoadingInfo.Text = "Fetching Weapons...";
                 var weapons = await LanistaApiCall.GetWeapons();
@@ -92,36 +139,50 @@ public partial class MainView : UserControl
 
                 for (int i = 0; i < weapons.Count; i++)
                 {
-                    weapons[i].IsFavorited = favoritedWeapons.Exists(x => x.Id == weapons[i].Id);
+                    weapons[i].IsFavorited = viewModel.FavoritedWeapons.Exists(x => x.Id == weapons[i].Id);
                 }
 
                 for (int i = 0; i < armors.Count; i++)
                 {
-                    armors[i].IsFavorited = favoritedArmors.Exists(x => x.Id == armors[i].Id);
+                    armors[i].IsFavorited = viewModel.FavoritedArmors.Exists(x => x.Id == armors[i].Id);
                 }
 
                 for (int i = 0; i < consumables.Count; i++)
                 {
-                    consumables[i].IsFavorited = favoritedConsumables.Exists(x => x.Id == consumables[i].Id);
+                    consumables[i].IsFavorited = viewModel.FavoritedConsumables.Exists(x => x.Id == consumables[i].Id);
                 }
 
-                viewModel.ApiConfig = config;
                 viewModel.ConsumableList = consumables;
                 viewModel.ArmorList = armors;
                 viewModel.WeaponList = weapons;
+            }
+            catch (Exception ex)
+            {
+                LoadingTitle.Text = "ERROR";
+                LoadingTitle.Foreground = new SolidColorBrush(Colors.Red);
+                string maintinanceMessage = string.Empty;
+                if (ex.Message.Contains("503"))
+                {
+                    maintinanceMessage = "Lanista is down for maintenance.";
 
+                    ContinueAnywayButton.IsVisible = true;
+                }
+                LoadingInfo.Text = "Could Not load API Data.\n\n" + ex.Message + "\n\n" + maintinanceMessage;
+                noError = false;
+            }
+
+            if (noError)
+            {
                 LoadingScreen.IsVisible = false;
                 MainWindow.IsVisible = true;
             }
-            else
-            {
-                LoadingText.Text = "Error fetching data";
-                LoadingText.Foreground = new SolidColorBrush(Colors.Red);
-            }
         }
-        catch (Exception ex)
+        else
         {
-            Debug.WriteLine("Error fetching Weapons;\n\n" + ex.Message);
+            LoadingTitle.Text = "ERROR";
+            LoadingTitle.Foreground = new SolidColorBrush(Colors.Red);
+
+            LoadingInfo.Text = "Something went horribly wrong...";
         }
     }
 }

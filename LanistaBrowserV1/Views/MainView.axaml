@@ -20,7 +20,7 @@
 					    VerticalAlignment="Center">
 
 				<TextBlock
-				x:Name="LoadingText"
+				x:Name="LoadingTitle"
 				HorizontalAlignment="Center"
 				VerticalAlignment="Center"
 				Text="LOADING"
@@ -30,9 +30,12 @@
 						x:Name="LoadingInfo"
 						HorizontalAlignment="Center"
 						VerticalAlignment="Center"
+						TextAlignment="Center"
 						Text=""
 						FontSize="18"
 			Margin="0,20,0,0" />
+
+				<Button x:Name="ContinueAnywayButton" Click="ContinueAnyway_Click" Content="Continue Anyway" HorizontalAlignment="Center" Margin="30" IsVisible="False" />
 			</StackPanel>
 		</DockPanel>
 
@@ -65,6 +68,12 @@
 				</DockPanel>
 				<DockPanel x:Name="SearchItemsPanel" IsVisible="{Binding IsSearchItemsVisible}">
 					<local:SearchItemsParent />
+				</DockPanel>
+				<DockPanel x:Name="TheoryCraftingMain" IsVisible="{Binding IsTheoryCraftingMainVisible}">
+					<local:TheoryCraftingMain />
+				</DockPanel>
+				<DockPanel x:Name="WikiPage" IsVisible="{Binding IsWikiPageVisible}">
+					<local:WikiPage />
 				</DockPanel>
 			</Grid>
 		</DockPanel>

@@ -401,116 +401,132 @@ namespace LanistaBrowserV1.UserControls
 
         private void ListBoxWeapons_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            Debug.WriteLine("DataGridWeapons_SelectionChanged");
             if (sender is ListBox listBox && listBox.SelectedItem is Weapon selectedWeapon)
             {
-                string critInfo = selectedWeapon.CritDamage?.Replace("till", "to") ?? "n/a";
+                GeneralStackPanel.Children.Clear();
+                RequirementsStackPanel.Children.Clear();
+                BonusesStackPanel.Children.Clear();
 
-                // ItemMagicTypesBlock.Text = selectedWeapon.MagicTypes;
-                // ItemMaxSpellsBlock.Text = selectedWeapon.MaxSpells.ToString();
-                //ItemReqAgeBlock.Text = selectedWeapon.minAge
+                //General Block
+                SelectedItemTitle.Text = selectedWeapon.Name ?? string.Empty;
 
-                ItemNameBlock.Text = selectedWeapon.Name;
-                ItemTypeBlock.Text = $"{selectedWeapon.TypeName} - {selectedWeapon.GrabType}";
-                ItemWeightBlock.Text = selectedWeapon.Weight.ToString();
-                ItemDurabilityBlock.Text = selectedWeapon.Durability.ToString();
-                ItemStrengthBlock.Text = selectedWeapon.StrengthRequirementValue.ToString();
-                ItemSkillBlock.Text = selectedWeapon.SkillRequirementValue.ToString();
-                ItemReqLegendBlock.Text = selectedWeapon.RequiresLegend.ToString();
-                ItemSoulboundBlock.Text = selectedWeapon.Soulbound.ToString();
+                GeneralStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Type", selectedWeapon.TypeName + " / " + selectedWeapon.GrabType));
+                GeneralStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Durability", selectedWeapon.Durability.ToString()!));
 
-                if (selectedWeapon.RequiredRankingPoints == null)
+                if (selectedWeapon.IsShield == true)
                 {
-                    ItemReqRankBlock.Text = "n/a";
+                    GeneralStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Absorption", $"{selectedWeapon.Absorption}"));
+                    GeneralStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Actions", $"2"));
+                }
+                else if (selectedWeapon.IsWeapon == true)
+                {
+                    GeneralStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Actions", $"{selectedWeapon.Actions}"));
+
+                    GeneralStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Damage", $"{selectedWeapon.BaseDamageMin} - {selectedWeapon.BaseDamageMax} (max {selectedWeapon.DamageRoof})"));
+                    string critDamage = selectedWeapon.CritDamage!.Replace("till", "to");
+                    GeneralStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Crit", $"{critDamage}"));
+                    if (selectedWeapon.IsTwoHanded == false)
+                    {
+                        GeneralStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Can Dual Wield:", $"{selectedWeapon.CanDualWield}"));
+                    }
+                }
+
+                GeneralStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Weight", selectedWeapon.Weight.ToString() ?? string.Empty));
+                GeneralStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Soulbound", selectedWeapon.Soulbound.ToString() ?? string.Empty));
+
+                //Requirements Block
+
+                string requiredLevel;
+                string minLevel = selectedWeapon.RequiredLevel.ToString() ?? string.Empty;
+                string maxLevel = selectedWeapon.MaxLevel.ToString() ?? string.Empty;
+                if (string.IsNullOrEmpty(maxLevel))
+                {
+                    requiredLevel = minLevel;
                 }
                 else
                 {
-                    ItemReqRankBlock.Text = selectedWeapon.RequiredRankingPoints.ToString();
+                    requiredLevel = $"{minLevel} - {maxLevel}";
+                }
+                RequirementsStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Level", requiredLevel));
+
+                if (selectedWeapon.StrengthRequirementValue != null && selectedWeapon.StrengthRequirementValue != 0)
+                {
+                    RequirementsStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Strength", selectedWeapon.StrengthRequirementValue.ToString() ?? string.Empty));
                 }
 
-                if (selectedWeapon.MinPopularity == null && selectedWeapon.MaxPopularity == null)
+                if (selectedWeapon.SkillRequirementValue != null && selectedWeapon.SkillRequirementValue != 0)
                 {
-                    ItemPopularityBlock.Text = "n/a";
-                }
-                else if (selectedWeapon.MinPopularity == null && selectedWeapon.MaxPopularity != null)
-                {
-                    ItemPopularityBlock.Text = selectedWeapon.MaxPopularity.ToString();
-                }
-                else if (selectedWeapon.MinPopularity != null && selectedWeapon.MaxPopularity == null)
-                {
-                    ItemPopularityBlock.Text = selectedWeapon.MinPopularity.ToString();
-                }
-                else
-                {
-                    ItemPopularityBlock.Text = selectedWeapon.MinPopularity.ToString() + " - " + selectedWeapon.MaxPopularity.ToString();
+                    RequirementsStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel(selectedWeapon.TypeName ?? "Skill", selectedWeapon.SkillRequirementValue.ToString() ?? string.Empty));
                 }
 
-                if (selectedWeapon.RaceRestrictions == null)
+                if (!string.IsNullOrEmpty(selectedWeapon.RaceRestrictions))
                 {
-                    ItemReqRaceBlock.Text = "All";
+                    RequirementsStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Race", selectedWeapon.RaceRestrictions));
                 }
-                else
+                if (selectedWeapon.RequiresLegend == true)
                 {
-                    ItemReqRaceBlock.Text = selectedWeapon.RaceRestrictions;
+                    RequirementsStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Requires Legend", ""));
+                }
+                if (selectedWeapon.RequiredRankingPoints != null)
+                {
+                    RequirementsStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Ranking", selectedWeapon.RequiredRankingPoints.ToString() ?? string.Empty));
+                }
+                if (selectedWeapon.MinPopularity != null)
+                {
+                    RequirementsStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Min Popularity", selectedWeapon.MinPopularity.ToString() ?? string.Empty));
+                }
+                if (selectedWeapon.MaxPopularity != null)
+                {
+                    RequirementsStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Max Popularity", selectedWeapon.MaxPopularity.ToString() ?? string.Empty));
                 }
 
-                if (selectedWeapon.Bonuses == null || selectedWeapon.Bonuses.Count == 0)
+                //Bonuses Block
+                if (selectedWeapon.Bonuses != null)
                 {
-                    ItemBonusesBlock.Text = "None";
-                }
-                else
-                {
-                    ItemBonusesBlock.Text = string.Empty;
+                    if (selectedWeapon.CritRate != null && selectedWeapon.CritRate != 0)
+                    {
+                        string isPositive = selectedWeapon.CritRate > 0 ? "+" : "";
+                        BonusesStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Crit Rate", $"{isPositive}{selectedWeapon.CritRate}%"));
+                    }
+                    if (selectedWeapon.MaxCritRate != null && selectedWeapon.MaxCritRate != 0)
+                    {
+                        string isPositive = selectedWeapon.MaxCritRate > 0 ? "+" : "";
+                        BonusesStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Max Crit Rate", $"{isPositive}{selectedWeapon.MaxCritRate}%"));
+                    }
+                    if (selectedWeapon.MinCritRate != null && selectedWeapon.MinCritRate != 0)
+                    {
+                        string isPositive = selectedWeapon.MinCritRate > 0 ? "+" : "";
+                        BonusesStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel("Min Crit Rate", $"{isPositive}{selectedWeapon.MinCritRate}%"));
+                    }
 
                     foreach (var item in selectedWeapon.Bonuses)
                     {
+                        string itemType;
+                        if (item.Type == null)
+                        {
+                            itemType = "Experience";
+                        }
+                        else
+                        {
+                            itemType = item.Type;
+                        }
+
                         if (item.Additive != null)
                         {
-                            ItemBonusesBlock.Text += $"{CultureInfo.CurrentCulture.TextInfo.ToTitleCase(item.Type!.ToLowerInvariant())}: {item.Additive}\n";
+                            string isPositive = item.Additive > 0 ? "+" : "";
+                            BonusesStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel(CultureInfo.CurrentCulture.TextInfo.ToTitleCase(itemType.ToLowerInvariant()), $"{isPositive}{item.Additive}"));
                         }
                         else if (item.Multiplier != null)
                         {
                             double multiplier = (item.Multiplier.Value - 1) * 100;
                             multiplier = Math.Round(multiplier);
-                            ItemBonusesBlock.Text += $"{CultureInfo.CurrentCulture.TextInfo.ToTitleCase(item.Type!.ToLowerInvariant())}: {multiplier}%\n";
+                            string isPositive = multiplier > 0 ? "+" : "";
+                            BonusesStackPanel.Children.Add(InfoDockPanel.BuildInfoDockPanel(CultureInfo.CurrentCulture.TextInfo.ToTitleCase(itemType.ToLowerInvariant()), $"{isPositive}{multiplier}%"));
                         }
                     }
                 }
 
-                if (selectedWeapon.MaxLevel == null)
-                {
-                    ItemLevelBlock.Text = selectedWeapon.RequiredLevel.ToString();
-                }
-                else
-                {
-                    ItemLevelBlock.Text = selectedWeapon.RequiredLevel.ToString() + " - " + selectedWeapon.MaxLevel.ToString();
-                }
-
-                if (selectedWeapon.IsShield == true)
-                {
-                    ItemDualWieldBlock.Text = "n/a";
-                    ItemDamageBlock.Text = "n/a";
-                    ItemCritBlock.Text = "n/a";
-                    ItemAbsorptionBlock.Text = selectedWeapon.Absorption.ToString();
-                    ItemActionsBlock.Text = "2";
-                }
-                else
-                {
-                    ItemDamageBlock.Text = $"{selectedWeapon.BaseDamageMin} - {selectedWeapon.BaseDamageMax} (max {selectedWeapon.DamageRoof})";
-                    ItemCritBlock.Text = critInfo;
-                    ItemAbsorptionBlock.Text = "n/a";
-                    ItemActionsBlock.Text = selectedWeapon.Actions.ToString();
-
-                    if (selectedWeapon.IsTwoHanded == true)
-                    {
-                        ItemDualWieldBlock.Text = "n/a";
-                    }
-                    else
-                    {
-                        ItemDualWieldBlock.Text = selectedWeapon.CanDualWield.ToString();
-                    }
-                }
-
+                //Show Details
                 DetailsChooseItemView.IsVisible = false;
                 DetailsScrollViewer.IsVisible = true;
             }

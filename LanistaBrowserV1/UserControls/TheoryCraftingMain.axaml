@@ -1,0 +1,117 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="600"
+             x:Class="LanistaBrowserV1.UserControls.TheoryCraftingMain"
+			  xmlns:vm="clr-namespace:LanistaBrowserV1.ViewModels"
+			 Loaded="UserControl_Loaded"
+			 x:DataType="vm:MainViewModel">
+	<Grid>
+		<DockPanel>
+			<DockPanel Width="400" HorizontalAlignment="Left">
+				<DockPanel DockPanel.Dock="Bottom" Height="40">
+					<Button Content="Create New Tactic" HorizontalAlignment="Stretch" Click="OpenNewTacticWindow_Click" VerticalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="20" CornerRadius="0" Cursor="Hand">
+					</Button>
+				</DockPanel>
+				<Border Height="1" Background="Black" DockPanel.Dock="Bottom" />
+				<DockPanel x:Name="ListDockPanel">
+					<Grid x:Name="FullGrid">
+						<Grid.RowDefinitions>
+							<RowDefinition Height="Auto" />
+							<RowDefinition Height="*" />
+						</Grid.RowDefinitions>
+						<Grid.ColumnDefinitions>
+							<!--IsLoaded-->
+							<ColumnDefinition Width="50" />
+							<!--Name-->
+							<ColumnDefinition Width="150" />
+							<!--Race-->
+							<ColumnDefinition Width="100" />
+							<!--WeaponType-->
+							<ColumnDefinition Width="100" />
+						</Grid.ColumnDefinitions>
+
+						<!-- 2nd Headers -->
+						<Button Grid.Column="0" Grid.Row="0"  Width="30" Height="30" VerticalAlignment="Center" HorizontalAlignment="Center"  Cursor="Hand" ToolTip.Tip="Toggle between showing all items, or only showing favorites.">
+							<TextBlock Text="A" x:Name="ToggleFavorites" VerticalAlignment="Center" HorizontalAlignment="Center" />
+						</Button>
+
+						<Button x:Name="ConsumablesNameButton" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5,5" Background="Transparent" Cursor="Hand">
+							<TextBlock Text="Tactic Name" FontSize="17" FontWeight="Bold" TextAlignment="Center" />
+						</Button>
+
+						<Button x:Name="TypeButton" Grid.Column="2" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5,5" Background="Transparent" Cursor="Hand">
+							<TextBlock Text="Race" FontSize="17" FontWeight="Bold" TextAlignment="Center" />
+						</Button>
+
+						<Button x:Name="MinLevelButton" Grid.Column="3" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5,5" Background="Transparent" Cursor="Hand">
+							<DockPanel>
+								<TextBlock Text="Weapon" TextAlignment="Center" FontSize="17" FontWeight="Bold" />
+							</DockPanel>
+						</Button>
+
+						<!-- ListBox -->
+						<ListBox x:Name="ListBoxTactics" ItemsSource="{Binding Tactics}" SelectionChanged="ListBoxTactics_SelectionChanged" Grid.Row="2" Grid.ColumnSpan="6" Padding="0" Cursor="Hand">
+							<ListBox.ItemTemplate>
+								<DataTemplate>
+									<Grid>
+										<Grid.ColumnDefinitions>
+											<!--IsLoaded-->
+											<ColumnDefinition Width="50" />
+											<!--Name-->
+											<ColumnDefinition Width="150" />
+											<!--Race-->
+											<ColumnDefinition Width="100" />
+											<!--WeaponType-->
+											<ColumnDefinition Width="100" />
+										</Grid.ColumnDefinitions>
+										<TextBlock IsVisible="{Binding IsLoaded}" Grid.Column="0" VerticalAlignment="Center" Text="★" HorizontalAlignment="Center" TextAlignment="Center" Foreground="Yellow" Padding="0" />
+										<TextBlock Text="{Binding TacticName}" Margin="0,10,0,10" Grid.Column="1" VerticalAlignment="Center" TextAlignment="Center" />
+										<TextBlock Text="{Binding RaceName}" Grid.Column="2" VerticalAlignment="Center" TextAlignment="Center" />
+										<TextBlock Text="{Binding WeaponName}" Grid.Column="3" VerticalAlignment="Center" TextAlignment="Center" />
+									</Grid>
+								</DataTemplate>
+							</ListBox.ItemTemplate>
+						</ListBox>
+					</Grid>
+				</DockPanel>
+			</DockPanel>
+			<Border  Width="1" Background="Black" />
+			<DockPanel x:Name="ContentDockPanel">
+				<StackPanel x:Name="ContentStackPanel">
+				</StackPanel>
+			</DockPanel>
+		</DockPanel>
+
+		<DockPanel x:Name="CreateNewTacticDockPanel" Background="Black" Opacity="0.9" IsVisible="False">
+			<Border Background="#1E1E1E" Opacity="1" CornerRadius="20" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="25">
+				<DockPanel HorizontalAlignment="Center">
+					<TextBlock Text="Create New Tactic" FontSize="25" HorizontalAlignment="Center" FontWeight="Bold" DockPanel.Dock="Top" />
+					<StackPanel DockPanel.Dock="Top" Margin="0,25,0,0">
+						<StackPanel>
+							<TextBlock Text="Tactic Name" FontWeight="Bold" Margin="0,0,0,3" />
+							<TextBox x:Name="CreateTacticNameBox" />
+						</StackPanel>
+
+						<StackPanel Margin="0,15,0,0">
+							<TextBlock Text="Race" FontWeight="Bold" Margin="0,0,0,3" />
+							<ComboBox x:Name="CreateTacticRaceBox" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+						</StackPanel>
+
+						<StackPanel Margin="0,15,0,0">
+							<TextBlock Text="Weapon Type" FontWeight="Bold" Margin="0,0,0,3" />
+							<ComboBox x:Name="CreateTacticWeaponBox" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+						</StackPanel>
+
+						<TextBlock x:Name="CreateTacticWarningBlock" Text="" HorizontalAlignment="Center" Foreground="Red" Margin="0,15,0,10" />
+					</StackPanel>
+					<DockPanel DockPanel.Dock="Bottom" VerticalAlignment="Bottom" HorizontalAlignment="Center">
+						<Button HorizontalAlignment="Center" Content="Create" Margin="15" Click="TacticCreateButton_Click" Cursor="Hand" />
+						<Button HorizontalAlignment="Center" Content="Cancel" Margin="15" Click="TacticCancelButton_Click" Cursor="Hand" />
+					</DockPanel>
+				</DockPanel>
+			</Border>
+		</DockPanel>
+	</Grid>
+</UserControl>

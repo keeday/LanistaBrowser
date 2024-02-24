@@ -91,6 +91,39 @@ namespace LanistaBrowserV1.Classes
         //public List<object>? AugmentedRaces { get; set; }
 
         public bool IsFavorited { get; set; } = false;
+
+        public string? RaceRestrictions
+        {
+            get
+            {
+                var raceRequirements = this.Requirements?.Where(r => r.Requirementable == "App\\Models\\Race");
+
+                if (raceRequirements == null || !raceRequirements.Any())
+                {
+                    return null;
+                }
+
+                return string.Join(", ", raceRequirements.Select(item => item.RaceName));
+            }
+        }
+
+        public int? StrengthRequirementValue
+        {
+            get
+            {
+                var requirement = this.Requirements?.FirstOrDefault(r => r.RequirementableId == 2);
+                return requirement?.RequirementValue;
+            }
+        }
+
+        public int? SkillRequirementValue
+        {
+            get
+            {
+                var requirement = this.Requirements?.FirstOrDefault(r => r.Requirementable == "App\\Models\\WeaponSkill");
+                return requirement?.RequirementValue;
+            }
+        }
     }
 
     public class FavoritedArmor
