@@ -42,6 +42,7 @@ namespace LanistaBrowserV1.Functions
             await connection.ExecuteAsync(@"CREATE TABLE IF NOT EXISTS Tactics (Id INTEGER PRIMARY KEY AUTOINCREMENT, TacticName TEXT NOT NULL)");
             await connection.ExecuteAsync(@"CREATE TABLE IF NOT EXISTS TacticsPlacedStats (Id INTEGER PRIMARY KEY AUTOINCREMENT, TacticId INTEGER NOT NULL, Level INTEGER NOT NULL, FOREIGN KEY(TacticId) REFERENCES Tactics(Id) ON DELETE CASCADE)");
             await connection.ExecuteAsync(@"CREATE TABLE IF NOT EXISTS TacticsEquipped (Id INTEGER PRIMARY KEY AUTOINCREMENT, TacticId INTEGER NOT NULL, FOREIGN KEY(TacticId) REFERENCES Tactics(Id) ON DELETE CASCADE)");
+            await connection.ExecuteAsync(@"CREATE TABLE IF NOT EXISTS TacticsLevels (Id INTEGER PRIMARY KEY AUTOINCREMENT, TacticId INTEGER NOT NULL, FOREIGN KEY(TacticId) REFERENCES Tactics(Id) ON DELETE CASCADE)");
 
             // List of tables and their expected columns
             var tablesAndColumns = new Dictionary<string, List<(string ColumnName, string ColumnType)>>
@@ -49,9 +50,10 @@ namespace LanistaBrowserV1.Functions
         { "FavoritedWeapons", new List<(string, string)> { ("Id", "INTEGER"), ("Name", "TEXT") } },
         { "FavoritedArmors", new List<(string, string)> { ("Id", "INTEGER"), ("Name", "TEXT") } },
         { "FavoritedConsumables", new List<(string, string)> { ("Id", "INTEGER"), ("Name", "TEXT")} },
-        { "Tactics", new List<(string, string)> { ("Id", "INTEGER"), ("TacticName", "TEXT"), ("RaceID", "INTEGER NOT NULL"), ("WeaponSkillID", "INTEGER NOT NULL"), ("LoadedCharacterName", "TEXT DEFAULT ''") } },
+        { "Tactics", new List<(string, string)> { ("Id", "INTEGER"), ("TacticName", "TEXT"), ("RaceID", "INTEGER NOT NULL"), ("WeaponSkillID", "INTEGER NOT NULL"), ("LoadedCharacterName", "TEXT DEFAULT ''"), ("TacticNote", "TEXT DEFAULT ''") } },
         { "TacticsPlacedStats", new List<(string, string)> { ("Id", "INTEGER"), ("TacticId", "INTEGER"), ("StatType", "TEXT NOT NULL"), ("StatID", "INTEGER NOT NULL"), ("StatValue", "INTEGER NOT NULL") } },
         { "TacticsEquipped", new List<(string, string)> { ("Id", "INTEGER"), ("TacticId", "INTEGER"), ("EquippedType", "TEXT NOT NULL"), ("EquippedID", "INTEGER NOT NULL"), ("EquippedLevel", "INTEGER NOT NULL") } },
+        { "TacticsLevels", new List<(string, string)> { ("Id", "INTEGER"), ("TacticId", "INTEGER"), ("Level", "INTEGER NOT NULL"), ("LevelNote", "TEXT DEFAULT ''") } },
             };
 
             // Check each table for missing columns
@@ -120,6 +122,7 @@ namespace LanistaBrowserV1.Functions
             {
                 t.EquippedItems = FetchTacticsEquippedItems(t.Id);
                 t.PlacedStats = FetchTacticsPlacedStat(t.Id);
+                t.Levels = FetchTacticsLevels(t.Id);
             }
 
             return new ObservableCollection<Tactic>(tacticsList);
@@ -143,6 +146,17 @@ namespace LanistaBrowserV1.Functions
             connection.Open();
 
             var placedStats = connection.Query<TacticPlacedStat>("SELECT * FROM TacticsPlacedStats WHERE TacticId = @tacticId", new { tacticId }).ToList();
+
+            return placedStats;
+        }
+
+        public static List<TacticsLevels> FetchTacticsLevels(int tacticId)
+        {
+            string path = DbPath();
+            using var connection = new SqliteConnection($"Data Source={path}");
+            connection.Open();
+
+            var placedStats = connection.Query<TacticsLevels>("SELECT * FROM TacticsLevels WHERE TacticId = @tacticId", new { tacticId }).ToList();
 
             return placedStats;
         }

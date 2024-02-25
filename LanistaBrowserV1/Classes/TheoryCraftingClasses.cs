@@ -19,6 +19,8 @@ namespace LanistaBrowserV1.Classes
         public List<TacticEquippedItem> EquippedItems { get; set; } = [];
         public List<TacticPlacedStat> PlacedStats { get; set; } = [];
 
+        public List<TacticsLevels> Levels { get; set; } = [];
+
         public bool IsLoaded
         {
             get
@@ -36,6 +38,8 @@ namespace LanistaBrowserV1.Classes
 
         public string RaceName { get; set; } = string.Empty;
         public string WeaponName { get; set; } = string.Empty;
+
+        public Dictionary<string, string> LevelsWithStats { get; set; } = [];
     }
 
     public class TacticEquippedItem
@@ -55,5 +59,15 @@ namespace LanistaBrowserV1.Classes
         public string StatType { get; set; } = string.Empty;
         public int StatId { get; set; }
         public int StatValue { get; set; }
+    }
+
+    public class TacticsLevels
+    {
+        public int Id { get; set; }
+        public int TacticId { get; set; }
+        public int Level { get; set; }
+        public string Levelnotes { get; set; } = string.Empty;
+
+        public string LevelWithStats { get; set; } = string.Empty;
     }
 }

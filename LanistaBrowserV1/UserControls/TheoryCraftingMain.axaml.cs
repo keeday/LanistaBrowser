@@ -28,23 +28,7 @@ namespace LanistaBrowserV1.UserControls
 
             if (sender is ListBox listBox && listBox.SelectedItem is Tactic selectedTactic)
             {
-                ContentStackPanel.Children.Clear();
-                int levelCount = selectedTactic.PlacedStats.Count;
-                int highestLevel = 0;
-                if (levelCount > 0)
-                {
-                    highestLevel = viewModel.Tactics.First(r => r.Id == selectedTactic.Id).PlacedStats.Max(s => s.Level);
-                    for (int i = 1; i <= highestLevel; i++)
-                    {
-                        var levelDisplay = new TheoryCraftingLevelDisplay(selectedTactic.Id, i);
-                        ContentStackPanel.Children.Add(levelDisplay);
-                    }
-                }
-                else
-                {
-                    var levelDisplay = new TheoryCraftingLevelDisplay(selectedTactic.Id, 0);
-                    ContentStackPanel.Children.Add(levelDisplay);
-                }
+                LevelListListBox.ItemsSource = selectedTactic.LevelsWithStats;
             }
         }
 
