@@ -218,23 +218,6 @@ public partial class MainViewModel : ViewModelBase
                     {
                         tactic.WeaponName = matchingWeaponSkill.Name!.ToLower();
                     }
-
-                    foreach (var level in tactic.Levels)
-                    {
-                        string levelAsName = "Level " + level.Level.ToString();
-                        List<string> levelStatsList = new List<string>();
-
-                        foreach (var stat in tactic.PlacedStats)
-                        {
-                            if (stat.Level == level.Level && stat.StatType == "stats")
-                            {
-                                string statString = ApiConfig.Stats!.First(stats => stats.Type == stat.StatId).Name!.ToLower() + " +" + stat.StatValue.ToString();
-                                levelStatsList.Add(statString);
-                            }
-                        }
-                        string levelStats = string.Join(", ", levelStatsList);
-                        tactic.LevelsWithStats.Add(levelAsName, levelStats);
-                    }
                 }
             }
             catch (System.Exception e)

@@ -2,6 +2,7 @@
 using LanistaBrowserV1.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,10 +17,17 @@ namespace LanistaBrowserV1.Classes
         public int WeaponSkillID { get; set; }
         public string LoadedCharacterName { get; set; } = string.Empty;
 
-        public List<TacticEquippedItem> EquippedItems { get; set; } = [];
-        public List<TacticPlacedStat> PlacedStats { get; set; } = [];
+        public ObservableCollection<TacticEquippedItem> EquippedItems { get; set; } = [];
 
-        public List<TacticsLevels> Levels { get; set; } = [];
+        private ObservableCollection<TacticPlacedStat> _placedStats = [];
+
+        public ObservableCollection<TacticPlacedStat> PlacedStats
+        {
+            get => _placedStats;
+            set => SetProperty(ref _placedStats, value);
+        }
+
+        public ObservableCollection<TacticsLevels> Levels { get; set; } = [];
 
         public bool IsLoaded
         {
@@ -38,11 +46,9 @@ namespace LanistaBrowserV1.Classes
 
         public string RaceName { get; set; } = string.Empty;
         public string WeaponName { get; set; } = string.Empty;
-
-        public Dictionary<string, string> LevelsWithStats { get; set; } = [];
     }
 
-    public class TacticEquippedItem
+    public class TacticEquippedItem : ObservableObject
     {
         public int Id { get; set; }
         public int TacticId { get; set; }
@@ -51,7 +57,7 @@ namespace LanistaBrowserV1.Classes
         public int EquippedLevel { get; set; }
     }
 
-    public class TacticPlacedStat
+    public class TacticPlacedStat : ObservableObject
     {
         public int Id { get; set; }
         public int TacticId { get; set; }
@@ -61,13 +67,21 @@ namespace LanistaBrowserV1.Classes
         public int StatValue { get; set; }
     }
 
-    public class TacticsLevels
+    public class TacticsLevels : ObservableObject
     {
         public int Id { get; set; }
         public int TacticId { get; set; }
         public int Level { get; set; }
         public string Levelnotes { get; set; } = string.Empty;
 
-        public string LevelWithStats { get; set; } = string.Empty;
+        public string LevelAsString { get; set; } = string.Empty;
+
+        private string _placedStatsString = string.Empty;
+
+        public string PlacedStatsString
+        {
+            get => _placedStatsString;
+            set => SetProperty(ref _placedStatsString, value);
+        }
     }
 }

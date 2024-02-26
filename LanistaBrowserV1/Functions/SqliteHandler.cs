@@ -53,7 +53,7 @@ namespace LanistaBrowserV1.Functions
         { "Tactics", new List<(string, string)> { ("Id", "INTEGER"), ("TacticName", "TEXT"), ("RaceID", "INTEGER NOT NULL"), ("WeaponSkillID", "INTEGER NOT NULL"), ("LoadedCharacterName", "TEXT DEFAULT ''"), ("TacticNote", "TEXT DEFAULT ''") } },
         { "TacticsPlacedStats", new List<(string, string)> { ("Id", "INTEGER"), ("TacticId", "INTEGER"), ("StatType", "TEXT NOT NULL"), ("StatID", "INTEGER NOT NULL"), ("StatValue", "INTEGER NOT NULL") } },
         { "TacticsEquipped", new List<(string, string)> { ("Id", "INTEGER"), ("TacticId", "INTEGER"), ("EquippedType", "TEXT NOT NULL"), ("EquippedID", "INTEGER NOT NULL"), ("EquippedLevel", "INTEGER NOT NULL") } },
-        { "TacticsLevels", new List<(string, string)> { ("Id", "INTEGER"), ("TacticId", "INTEGER"), ("Level", "INTEGER NOT NULL"), ("LevelNote", "TEXT DEFAULT ''") } },
+        { "TacticsLevels", new List<(string, string)> { ("Id", "INTEGER"), ("TacticId", "INTEGER"), ("Level", "INTEGER NOT NULL"), ("LevelNote", "TEXT DEFAULT ''"), ("LevelAsString", "TEXT NOT NULL"), ("PlacedStatsString", "TEXT DEFAULT ''") } },
             };
 
             // Check each table for missing columns
@@ -128,7 +128,7 @@ namespace LanistaBrowserV1.Functions
             return new ObservableCollection<Tactic>(tacticsList);
         }
 
-        public static List<TacticEquippedItem> FetchTacticsEquippedItems(int tacticId)
+        public static ObservableCollection<TacticEquippedItem> FetchTacticsEquippedItems(int tacticId)
         {
             string path = DbPath();
             using var connection = new SqliteConnection($"Data Source={path}");
@@ -136,10 +136,10 @@ namespace LanistaBrowserV1.Functions
 
             var equippedItems = connection.Query<TacticEquippedItem>("SELECT * FROM TacticsEquipped WHERE TacticId = @tacticId", new { tacticId }).ToList();
 
-            return equippedItems;
+            return new ObservableCollection<TacticEquippedItem>(equippedItems);
         }
 
-        public static List<TacticPlacedStat> FetchTacticsPlacedStat(int tacticId)
+        public static ObservableCollection<TacticPlacedStat> FetchTacticsPlacedStat(int tacticId)
         {
             string path = DbPath();
             using var connection = new SqliteConnection($"Data Source={path}");
@@ -147,10 +147,10 @@ namespace LanistaBrowserV1.Functions
 
             var placedStats = connection.Query<TacticPlacedStat>("SELECT * FROM TacticsPlacedStats WHERE TacticId = @tacticId", new { tacticId }).ToList();
 
-            return placedStats;
+            return new ObservableCollection<TacticPlacedStat>(placedStats);
         }
 
-        public static List<TacticsLevels> FetchTacticsLevels(int tacticId)
+        public static ObservableCollection<TacticsLevels> FetchTacticsLevels(int tacticId)
         {
             string path = DbPath();
             using var connection = new SqliteConnection($"Data Source={path}");
@@ -158,16 +158,62 @@ namespace LanistaBrowserV1.Functions
 
             var placedStats = connection.Query<TacticsLevels>("SELECT * FROM TacticsLevels WHERE TacticId = @tacticId", new { tacticId }).ToList();
 
-            return placedStats;
+            return new ObservableCollection<TacticsLevels>(placedStats);
         }
 
-        public static void CreateNewTactic(string name, int raceId, int weaponTypeId)
+        public static int CreateNewTactic(string name, int raceId, int weaponTypeId)
         {
             string path = DbPath();
             using var connection = new SqliteConnection($"Data Source={path}");
             connection.Open();
 
             connection.Execute("INSERT INTO Tactics (TacticName, RaceID, WeaponSkillID) VALUES (@TacticName, @RaceID, @WeaponSkillID)", new { TacticName = name, RaceID = raceId, WeaponSkillID = weaponTypeId });
+
+            int newId = connection.QuerySingle<int>("SELECT last_insert_rowid()");
+            return newId;
+        }
+
+        public static void AddNewLevel(int tacticId, int level)
+        {
+            string path = DbPath();
+            using var connection = new SqliteConnection($"Data Source={path}");
+            connection.Open();
+            string levelAsString = "Level " + level.ToString();
+            connection.Execute("INSERT INTO TacticsLevels (TacticId, Level, LevelAsString) VALUES (@tacticId, @level, @levelAsString)", new { tacticId, level, levelAsString });
+        }
+
+        public static void UpdateLevelStatsInfo(int TacticId, int level, string placedStatsString)
+        {
+            string path = DbPath();
+            using var connection = new SqliteConnection($"Data Source={path}");
+            connection.Open();
+
+            connection.Execute("UPDATE TacticsLevels SET PlacedStatsString = @placedStatsString WHERE TacticId = @TacticId AND Level = @level", new { TacticId, level, placedStatsString });
+        }
+
+        public static void UpdatePlacedStats(int tacticId, int level, string statType, int statID, int statValue)
+        {
+            string path = DbPath();
+            using var connection = new SqliteConnection($"Data Source={path}");
+            connection.Open();
+
+            if (statValue <= 0)
+            {
+                connection.Execute("DELETE FROM TacticsPlacedStats WHERE TacticId = @tacticId AND Level = @level AND statType = @statType AND statID = @statID", new { tacticId, level, statType, statID });
+            }
+            else
+            {
+                var existingRow = connection.QueryFirstOrDefault("SELECT * FROM TacticsPlacedStats WHERE TacticId = @tacticId AND Level = @level AND statType = @statType AND statID = @statID", new { tacticId, level, statType, statID });
+
+                if (existingRow != null)
+                {
+                    connection.Execute("UPDATE TacticsPlacedStats SET statValue = @statValue WHERE TacticId = @tacticId AND Level = @level AND statType = @statType AND statID = @statID", new { tacticId, level, statType, statID, statValue });
+                }
+                else
+                {
+                    connection.Execute("INSERT INTO TacticsPlacedStats (TacticId, Level, statType, statID, statValue) VALUES (@tacticId, @level, @statType, @statID, @statValue)", new { tacticId, level, statType, statID, statValue });
+                }
+            }
         }
 
         public static void ToggleFavoritedItem(object x, MainViewModel viewModel)

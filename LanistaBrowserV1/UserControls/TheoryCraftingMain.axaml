@@ -91,7 +91,7 @@
 					</StackPanel>
 
 					<ScrollViewer Grid.Column="1">
-						<StackPanel x:Name="ContentStackPanel">
+						<StackPanel x:Name="ContentStackPanel" IsVisible="False">
 							<TextBlock  Text="Level 0 | Tactic Name" DockPanel.Dock="Top" HorizontalAlignment="Center" Margin="10" FontWeight="Bold" FontSize="20" />
 							<Grid Margin="20" HorizontalAlignment="Center">
 								<Grid.ColumnDefinitions>
@@ -110,35 +110,37 @@
 									<RowDefinition Height="Auto" />
 								</Grid.RowDefinitions>
 
-								<TextBlock Grid.Column="0" Grid.Row="0" Text="Points to spend" FontWeight="Bold" Grid.ColumnSpan="3" Margin="0,0,0,20" />
+								<TextBlock Grid.Column="0" Grid.Row="0" Text="0 / 20 Points Spent" x:Name="PointsToSpendBlock" FontWeight="Bold" Grid.ColumnSpan="3" Margin="0,0,0,25" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="Yellow" />
+
+								<Button Grid.Column="0" x:Name="SaveStatsButton" Content="Save" Margin="0,0,0,10" IsVisible="False" VerticalAlignment="Top" FontWeight="Bold" Click="SaveStatsButton_Click" />
 
 								<Label Grid.Column="0" Grid.Row="1" Content="Stamina" Margin="0,0,10,10" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
-								<TextBlock Grid.Column="1" Grid.Row="1" Text="500" Margin="10,0,20,10" VerticalAlignment="Center" />
-								<TextBox Grid.Column="2" Grid.Row="1" Name="StaminaTextBox" Margin="0,0,0,10" Width="100" />
+								<TextBlock Grid.Column="1" Grid.Row="1" Text="0" Margin="10,0,20,10" VerticalAlignment="Center" x:Name="StaminaTotalTextBlock" />
+								<TextBox Grid.Column="2" Grid.Row="1" Name="StaminaTextBox" Margin="0,0,0,10" Width="100" TextChanged="TextBox_TextChanged" />
 
 								<Label Grid.Column="0" Grid.Row="2" Content="Strength" Margin="0,0,10,10" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
-								<TextBlock Grid.Column="1" Grid.Row="2" Text="0" Margin="10,0,20,10" VerticalAlignment="Center" />
-								<TextBox Grid.Column="2" Grid.Row="2" Name="StrengthTextBox" Margin="0,0,0,10" Width="100" />
+								<TextBlock Grid.Column="1" Grid.Row="2" Text="0" Margin="10,0,20,10" VerticalAlignment="Center" x:Name="StrengthTotalTextBlock" />
+								<TextBox Grid.Column="2" Grid.Row="2" Name="StrengthTextBox" Margin="0,0,0,10" Width="100" TextChanged="TextBox_TextChanged" />
 
 								<Label Grid.Column="0" Grid.Row="3" Content="Endurance" Margin="0,0,10,10" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
-								<TextBlock Grid.Column="1" Grid.Row="3" Text="0" Margin="10,0,20,10" VerticalAlignment="Center" />
-								<TextBox Grid.Column="2" Grid.Row="3" Name="EnduranceTextBox" Margin="0,0,0,10" Width="100" />
+								<TextBlock Grid.Column="1" Grid.Row="3" Text="0" Margin="10,0,20,10" VerticalAlignment="Center" x:Name="EnduranceTotalTextBlock" />
+								<TextBox Grid.Column="2" Grid.Row="3" Name="EnduranceTextBox" Margin="0,0,0,10" Width="100" TextChanged="TextBox_TextChanged" />
 
 								<Label Grid.Column="0" Grid.Row="4" Content="Initiative" Margin="0,10,10,10" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
-								<TextBlock Grid.Column="1" Grid.Row="4" Text="0" Margin="10,10,20,10" VerticalAlignment="Center" />
-								<TextBox Grid.Column="2" Grid.Row="4" Name="InitiativeTextBox" Margin="0,10,0,10" Width="100" />
+								<TextBlock Grid.Column="1" Grid.Row="4" Text="0" Margin="10,10,20,10" VerticalAlignment="Center" x:Name="InitiativeTotalTextBlock" />
+								<TextBox Grid.Column="2" Grid.Row="4" Name="InitiativeTextBox" Margin="0,10,0,10" Width="100" TextChanged="TextBox_TextChanged" />
 
 								<Label Grid.Column="0" Grid.Row="5" Content="Dodge" Margin="0,0,10,10" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
-								<TextBlock Grid.Column="1" Grid.Row="5" Text="0" Margin="10,0,20,10" VerticalAlignment="Center" />
-								<TextBox Grid.Column="2" Grid.Row="5" Name="DodgeTextBox" Margin="0,0,0,10" Width="100" />
+								<TextBlock Grid.Column="1" Grid.Row="5" Text="0" Margin="10,0,20,10" VerticalAlignment="Center" x:Name="DodgeTotalTextBlock" />
+								<TextBox Grid.Column="2" Grid.Row="5" Name="DodgeTextBox" Margin="0,0,0,10" Width="100" TextChanged="TextBox_TextChanged" />
 
 								<Label Grid.Column="0" Grid.Row="6" Content="Weapon Skill" Margin="0,10,10,10" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
-								<TextBlock Grid.Column="1" Grid.Row="6" Text="0" Margin="10,10,20,10" VerticalAlignment="Center" />
-								<TextBox Grid.Column="2" Grid.Row="6" Name="WeaponSkillTextBox" Margin="0,10,0,10" Width="100" />
+								<TextBlock Grid.Column="1" Grid.Row="6" Text="0" Margin="10,10,20,10" VerticalAlignment="Center" x:Name="WeaponSkillTotalTextBlock" />
+								<TextBox Grid.Column="2" Grid.Row="6" Name="WeaponSkillTextBox" Margin="0,10,0,10" Width="100" TextChanged="TextBox_TextChanged" />
 
 								<Label Grid.Column="0" Grid.Row="7" Content="Shield Skill" Margin="0,0,10,10" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
-								<TextBlock Grid.Column="1" Grid.Row="7" Text="0" Margin="10,0,20,10" VerticalAlignment="Center" />
-								<TextBox Grid.Column="2" Grid.Row="7" Name="ShieldSkillTextBox" Margin="0,0,0,10" Width="100" />
+								<TextBlock Grid.Column="1" Grid.Row="7" Text="0" Margin="10,0,20,10" VerticalAlignment="Center" x:Name="ShieldSkillTotalTextBlock" />
+								<TextBox Grid.Column="2" Grid.Row="7" Name="ShieldSkillTextBox" Margin="0,0,0,10" Width="100" TextChanged="TextBox_TextChanged" />
 							</Grid>
 
 							<TextBlock Text="Equipped Items (Click to Change)" FontWeight="Bold" FontSize="20" Margin="10" HorizontalAlignment="Center" />
@@ -227,24 +229,32 @@
 						</StackPanel>
 					</ScrollViewer>
 
-					<StackPanel Grid.Column="2" x:Name="LevelListPanel" DockPanel.Dock="Right" Background="#252526">
-						<TextBlock  Text="Level List" DockPanel.Dock="Top" HorizontalAlignment="Center" Margin="10" FontWeight="Bold" FontSize="20" />
-						<ListBox x:Name="LevelListListBox" Cursor="Hand">
-							<ListBox.ItemTemplate>
-								<DataTemplate>
-									<Grid>
-										<Grid.ColumnDefinitions>
-											<ColumnDefinition Width="100" />
-											<ColumnDefinition Width="*" />
-										</Grid.ColumnDefinitions>
+					<DockPanel Grid.Column="2"  DockPanel.Dock="Right" Background="#252526">
+						<DockPanel x:Name="LevelListPanel" IsVisible="False">
+							<TextBlock  Text="Level List" Grid.Column="1" DockPanel.Dock="Top" HorizontalAlignment="Center" Margin="10" FontWeight="Bold" FontSize="20" />
+							<ScrollViewer VerticalScrollBarVisibility="Visible">
 
-										<TextBlock Text="{Binding Key}" Grid.Column="0" HorizontalAlignment="Right" Margin="10" />
-										<TextBlock Text="{Binding Value}" Grid.Column="1"  Margin="10" HorizontalAlignment="Left" />
-									</Grid>
-								</DataTemplate>
-							</ListBox.ItemTemplate>
-						</ListBox>
-					</StackPanel>
+								<StackPanel>
+									<ListBox x:Name="LevelListListBox" Cursor="Hand" SelectionChanged="ListBoxSelectLevel_SelectionChanged">
+										<ListBox.ItemTemplate>
+											<DataTemplate>
+												<Grid>
+													<Grid.ColumnDefinitions>
+														<ColumnDefinition Width="100" />
+														<ColumnDefinition Width="*" />
+													</Grid.ColumnDefinitions>
+
+													<TextBlock Text="{Binding LevelAsString}" Grid.Column="0" HorizontalAlignment="Left" Margin="20,10,0,0" />
+													<TextBlock Text="{Binding PlacedStatsString}" Grid.Column="1"  Margin="10" HorizontalAlignment="Left" />
+												</Grid>
+											</DataTemplate>
+										</ListBox.ItemTemplate>
+									</ListBox>
+									<Button x:Name="AddLevelButton" Content="[ Click to Add Level ]" HorizontalAlignment="Stretch" FontSize="13" FontWeight="Bold" HorizontalContentAlignment="Center" Background="Transparent"   Click="AddLevelButton_Click" IsVisible="False" />
+								</StackPanel>
+							</ScrollViewer>
+						</DockPanel>
+					</DockPanel>
 				</Grid>
 			</DockPanel>
 		</DockPanel>
