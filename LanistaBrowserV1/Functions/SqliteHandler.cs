@@ -47,13 +47,13 @@ namespace LanistaBrowserV1.Functions
             // List of tables and their expected columns
             var tablesAndColumns = new Dictionary<string, List<(string ColumnName, string ColumnType)>>
             {
-        { "FavoritedWeapons", new List<(string, string)> { ("Id", "INTEGER"), ("Name", "TEXT") } },
-        { "FavoritedArmors", new List<(string, string)> { ("Id", "INTEGER"), ("Name", "TEXT") } },
-        { "FavoritedConsumables", new List<(string, string)> { ("Id", "INTEGER"), ("Name", "TEXT")} },
-        { "Tactics", new List<(string, string)> { ("Id", "INTEGER"), ("TacticName", "TEXT"), ("RaceID", "INTEGER NOT NULL"), ("WeaponSkillID", "INTEGER NOT NULL"), ("LoadedCharacterName", "TEXT DEFAULT ''"), ("TacticNote", "TEXT DEFAULT ''") } },
-        { "TacticsPlacedStats", new List<(string, string)> { ("Id", "INTEGER"), ("TacticId", "INTEGER"), ("StatType", "TEXT NOT NULL"), ("StatID", "INTEGER NOT NULL"), ("StatValue", "INTEGER NOT NULL") } },
-        { "TacticsEquipped", new List<(string, string)> { ("Id", "INTEGER"), ("TacticId", "INTEGER"), ("EquippedType", "TEXT NOT NULL"), ("EquippedID", "INTEGER NOT NULL"), ("EquippedLevel", "INTEGER NOT NULL") } },
-        { "TacticsLevels", new List<(string, string)> { ("Id", "INTEGER"), ("TacticId", "INTEGER"), ("Level", "INTEGER NOT NULL"), ("LevelNote", "TEXT DEFAULT ''"), ("LevelAsString", "TEXT NOT NULL"), ("PlacedStatsString", "TEXT DEFAULT ''") } },
+                { "FavoritedWeapons", new List<(string, string)> { ("Id", "INTEGER"), ("Name", "TEXT") } },
+                { "FavoritedArmors", new List<(string, string)> { ("Id", "INTEGER"), ("Name", "TEXT") } },
+                { "FavoritedConsumables", new List<(string, string)> { ("Id", "INTEGER"), ("Name", "TEXT")} },
+                { "Tactics", new List<(string, string)> { ("Id", "INTEGER"), ("TacticName", "TEXT"), ("RaceID", "INTEGER NOT NULL"), ("WeaponSkillID", "INTEGER NOT NULL"), ("LoadedCharacterName", "TEXT DEFAULT ''"), ("TacticNote", "TEXT DEFAULT ''") } },
+                { "TacticsPlacedStats", new List<(string, string)> { ("Id", "INTEGER"), ("TacticId", "INTEGER"), ("StatType", "TEXT NOT NULL"), ("StatID", "INTEGER NOT NULL"), ("StatValue", "INTEGER NOT NULL") } },
+                { "TacticsEquipped", new List<(string, string)> { ("Id", "INTEGER"), ("TacticId", "INTEGER"), ("EquippedType", "TEXT NOT NULL"), ("EquippedID", "INTEGER NOT NULL"), ("EquippedLevel", "INTEGER NOT NULL"), ("EquippedSlot","TEXT NOT NULL") } },
+                { "TacticsLevels", new List<(string, string)> { ("Id", "INTEGER"), ("TacticId", "INTEGER"), ("Level", "INTEGER NOT NULL"), ("LevelNote", "TEXT DEFAULT ''"), ("LevelAsString", "TEXT NOT NULL"), ("PlacedStatsString", "TEXT DEFAULT ''"), ("EquippedItemOnLevel", "TEXT DEFAULT ''") } },
             };
 
             // Check each table for missing columns
@@ -213,6 +213,25 @@ namespace LanistaBrowserV1.Functions
                 {
                     connection.Execute("INSERT INTO TacticsPlacedStats (TacticId, Level, statType, statID, statValue) VALUES (@tacticId, @level, @statType, @statID, @statValue)", new { tacticId, level, statType, statID, statValue });
                 }
+            }
+        }
+
+        public static void UpdateEquippedItem(int tacticId, int level, string equippedType, int equippedId, string equippedSlot)
+        {
+            string path = DbPath();
+            using var connection = new SqliteConnection($"Data Source={path}");
+            connection.Open();
+            string equippedItemOnlevel = "✦";
+            var existingRow = connection.QueryFirstOrDefault("SELECT * FROM TacticsEquipped WHERE TacticId = @tacticId AND EquippedLevel = @level AND EquippedSlot = @equippedSlot", new { tacticId, level, equippedSlot });
+
+            if (existingRow != null)
+            {
+                connection.Execute("UPDATE TacticsEquipped SET EquippedType = @equippedType, EquippedID = @equippedId WHERE TacticId = @tacticId AND EquippedLevel = @level AND EquippedSlot = @equippedSlot", new { tacticId, level, equippedSlot, equippedId, equippedType });
+                connection.Execute("UPDATE TacticsLevels SET EquippedItemOnlevel = @equippedItemOnlevel WHERE TacticId = @tacticId AND Level = @level", new { tacticId, level, equippedItemOnlevel });
+            }
+            else
+            {
+                connection.Execute("INSERT INTO TacticsEquipped (TacticId, EquippedType, EquippedID, EquippedLevel, EquippedSlot) VALUES (@tacticId, @equippedType, @equippedId, @level, @equippedSlot)", new { tacticId, level, equippedSlot, equippedId, equippedType });
             }
         }
 

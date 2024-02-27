@@ -2,12 +2,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="1600" d:DesignHeight="900"
+             mc:Ignorable="d" d:DesignWidth="1600" d:DesignHeight="1200"
              x:Class="LanistaBrowserV1.UserControls.TheoryCraftingMain"
 			  xmlns:vm="clr-namespace:LanistaBrowserV1.ViewModels"
 			 Loaded="UserControl_Loaded"
 			 x:DataType="vm:MainViewModel">
 	<Grid>
+
 		<DockPanel>
 			<DockPanel Width="400" HorizontalAlignment="Left">
 				<DockPanel DockPanel.Dock="Bottom" Height="40">
@@ -91,7 +92,7 @@
 					</StackPanel>
 
 					<ScrollViewer Grid.Column="1">
-						<StackPanel x:Name="ContentStackPanel" IsVisible="False">
+						<StackPanel x:Name="ContentStackPanel" IsVisible="True">
 							<TextBlock  Text="Level 0 | Tactic Name" DockPanel.Dock="Top" HorizontalAlignment="Center" Margin="10" FontWeight="Bold" FontSize="20" />
 							<Grid Margin="20" HorizontalAlignment="Center">
 								<Grid.ColumnDefinitions>
@@ -154,75 +155,75 @@
 								<StackPanel Grid.Column="0">
 
 									<TextBlock Text="Main Hand" FontWeight="Bold" FontSize="16" Margin="10" HorizontalAlignment="Center" />
-									<Button Content="None" Width="150" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Margin="0,0,0,10" Cursor="Hand" />
+									<Button x:Name="MainHandButton" Content="None" Width="150" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Margin="0,0,0,10" Cursor="Hand" Click="ItemButton_Click" />
 
 									<TextBlock Text="Armor" FontWeight="Bold" FontSize="16" Margin="10" HorizontalAlignment="Center" />
 
 									<DockPanel HorizontalAlignment="Center">
 										<TextBlock Text="Head" DockPanel.Dock="Top" Margin="0,2,0,5" HorizontalAlignment="Center" />
-										<Button Content="None" Width="150" HorizontalContentAlignment="Center"  Cursor="Hand" />
+										<Button x:Name="HeadButton" Content="None" Width="150" HorizontalContentAlignment="Center"  Cursor="Hand" Click="ItemButton_Click" />
 									</DockPanel>
 
 									<DockPanel HorizontalAlignment="Center">
 										<TextBlock Text="Shoulders" DockPanel.Dock="Top" Margin="0,10,0,5" HorizontalAlignment="Center" />
-										<Button Content="None" Width="150" HorizontalContentAlignment="Center"  Cursor="Hand" />
+										<Button x:Name="ShouldersButton" Content="None" Width="150" HorizontalContentAlignment="Center"  Cursor="Hand" Click="ItemButton_Click" />
 									</DockPanel>
 
 									<DockPanel HorizontalAlignment="Center">
 										<TextBlock Text="Chest" DockPanel.Dock="Top" Margin="0,10,0,5" HorizontalAlignment="Center" />
-										<Button Content="None" Width="150" HorizontalContentAlignment="Center"  Cursor="Hand" />
+										<Button x:Name="ChestButton" Content="None" Width="150" HorizontalContentAlignment="Center"  Cursor="Hand" Click="ItemButton_Click" />
 									</DockPanel>
 
 									<DockPanel HorizontalAlignment="Center">
 										<TextBlock Text="Hands" DockPanel.Dock="Top" Margin="0,10,0,5" HorizontalAlignment="Center" />
-										<Button Content="None" Width="150" HorizontalContentAlignment="Center"  Cursor="Hand" />
+										<Button x:Name="HandsButton" Content="None" Width="150" HorizontalContentAlignment="Center"  Cursor="Hand" Click="ItemButton_Click" />
 									</DockPanel>
 
 									<DockPanel HorizontalAlignment="Center">
 										<TextBlock Text="Legs" DockPanel.Dock="Top" Margin="0,10,0,5" HorizontalAlignment="Center" />
-										<Button Content="None" Width="150" HorizontalContentAlignment="Center" Cursor="Hand" />
+										<Button x:Name="LegsButton" Content="None" Width="150" HorizontalContentAlignment="Center" Cursor="Hand" Click="ItemButton_Click" />
 									</DockPanel>
 
 									<DockPanel HorizontalAlignment="Center">
 										<TextBlock Text="Feet" DockPanel.Dock="Top" Margin="0,10,0,5" HorizontalAlignment="Center" />
-										<Button Content="None" Width="150" HorizontalContentAlignment="Center"  Cursor="Hand" />
+										<Button x:Name="FeetButton" Content="None" Width="150" HorizontalContentAlignment="Center"  Cursor="Hand" Click="ItemButton_Click" />
 									</DockPanel>
 								</StackPanel>
 
 								<StackPanel Grid.Column="2">
 
 									<TextBlock Text="Shield Hand" FontWeight="Bold" FontSize="16" Margin="10" HorizontalAlignment="Center" />
-									<Button Content="None" Width="150" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Margin="0,0,0,10"  Cursor="Hand" />
+									<Button x:Name="ShieldHandButton" Content="None" Width="150" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Margin="0,0,0,10"  Cursor="Hand" Click="ItemButton_Click" />
 
 									<TextBlock Text="Trinkets" FontWeight="Bold" FontSize="16" Margin="10" HorizontalAlignment="Center" />
 									<DockPanel HorizontalAlignment="Center">
 										<TextBlock Text="Back" DockPanel.Dock="Top" Margin="0,2,0,5" HorizontalAlignment="Center" />
-										<Button Content="None" Width="150" HorizontalContentAlignment="Center"  Cursor="Hand" />
+										<Button x:Name="BackButton" Content="None" Width="150" HorizontalContentAlignment="Center"  Cursor="Hand" Click="ItemButton_Click" />
 									</DockPanel>
 
 									<DockPanel HorizontalAlignment="Center">
 										<TextBlock Text="Neck" DockPanel.Dock="Top" Margin="0,10,0,5" HorizontalAlignment="Center" />
-										<Button Content="None" Width="150" HorizontalContentAlignment="Center"  Cursor="Hand" />
+										<Button x:Name="NeckButton" Content="None" Width="150" HorizontalContentAlignment="Center"  Cursor="Hand" Click="ItemButton_Click" />
 									</DockPanel>
 
 									<DockPanel HorizontalAlignment="Center">
 										<TextBlock Text="Finger" DockPanel.Dock="Top" Margin="0,10,0,5" HorizontalAlignment="Center" />
-										<Button Content="None" Width="150" HorizontalContentAlignment="Center"  Cursor="Hand" />
+										<Button x:Name="FingerButton" Content="None" Width="150" HorizontalContentAlignment="Center"  Cursor="Hand" Click="ItemButton_Click" />
 									</DockPanel>
 
 									<DockPanel HorizontalAlignment="Center">
 										<TextBlock Text="Amulet" DockPanel.Dock="Top" Margin="0,10,0,5" HorizontalAlignment="Center" />
-										<Button Content="None" Width="150" HorizontalContentAlignment="Center"  Cursor="Hand" />
+										<Button x:Name="AmuletButton" Content="None" Width="150" HorizontalContentAlignment="Center"  Cursor="Hand" Click="ItemButton_Click" />
 									</DockPanel>
 
 									<DockPanel HorizontalAlignment="Center">
 										<TextBlock Text="Bracelet" DockPanel.Dock="Top" Margin="0,10,0,5" HorizontalAlignment="Center" />
-										<Button Content="None" Width="150" HorizontalContentAlignment="Center"  Cursor="Hand" />
+										<Button x:Name="BraceletButton" Content="None" Width="150" HorizontalContentAlignment="Center"  Cursor="Hand" Click="ItemButton_Click" />
 									</DockPanel>
 
 									<DockPanel HorizontalAlignment="Center">
 										<TextBlock Text="Trinket" DockPanel.Dock="Top" Margin="0,10,0,5" HorizontalAlignment="Center" />
-										<Button Content="None" Width="150" HorizontalContentAlignment="Center"  Cursor="Hand" />
+										<Button x:Name="TrinketButton" Content="None" Width="150" HorizontalContentAlignment="Center"  Cursor="Hand" Click="ItemButton_Click" />
 									</DockPanel>
 								</StackPanel>
 							</Grid>
@@ -240,12 +241,14 @@
 											<DataTemplate>
 												<Grid>
 													<Grid.ColumnDefinitions>
-														<ColumnDefinition Width="100" />
+														<ColumnDefinition Width="75" />
+														<ColumnDefinition Width="15" />
 														<ColumnDefinition Width="*" />
 													</Grid.ColumnDefinitions>
 
 													<TextBlock Text="{Binding LevelAsString}" Grid.Column="0" HorizontalAlignment="Left" Margin="20,10,0,0" />
-													<TextBlock Text="{Binding PlacedStatsString}" Grid.Column="1"  Margin="10" HorizontalAlignment="Left" />
+													<TextBlock Text="{Binding EquippedItemOnLevel}" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" />
+													<TextBlock Text="{Binding PlacedStatsString}" Grid.Column="2"  Margin="10" HorizontalAlignment="Left" />
 												</Grid>
 											</DataTemplate>
 										</ListBox.ItemTemplate>
@@ -287,6 +290,20 @@
 					</DockPanel>
 				</DockPanel>
 			</Border>
+		</DockPanel>
+		<DockPanel x:Name="SearchItemsParentPanel"  IsVisible="False"  Background="#1E1E1E">
+			<DockPanel DockPanel.Dock="Top">
+				<Grid>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="*" />
+						<ColumnDefinition Width="*" />
+						<ColumnDefinition Width="*" />
+					</Grid.ColumnDefinitions>
+					<Button Content="X" Foreground="Red" Background="Transparent" FontSize="30" Grid.Column="0" Click="CloseSearchItemButton_Click" />
+					<Button x:Name="EquipItemButton" IsVisible="False" Content="Equip Selected Item" Grid.Column="1" Grid.ColumnSpan="2" Click="EquipSelectedItemButton_Click" />
+				</Grid>
+			</DockPanel>
+			<DockPanel x:Name="SearchItemsDockPanel" />
 		</DockPanel>
 	</Grid>
 </UserControl>

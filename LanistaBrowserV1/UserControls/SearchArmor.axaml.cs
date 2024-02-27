@@ -15,6 +15,11 @@ namespace LanistaBrowserV1.UserControls
 {
     public partial class SearchArmor : UserControl
     {
+        public ListBoxItem SelectedItem
+        {
+            get { return (ListBoxItem)ListBoxArmors.SelectedItem!; }
+        }
+
         private List<Armor> armors = new();
 
         private string? currentSortColumn;
@@ -25,33 +30,50 @@ namespace LanistaBrowserV1.UserControls
             InitializeComponent();
         }
 
-        private void UserControl_Loaded(object Sender, RoutedEventArgs e)
+        private async void UserControl_Loaded(object Sender, RoutedEventArgs e)
         {
             Debug.WriteLine("SearchArmor UserControl_Loaded");
 
             if (DataContext is not MainViewModel viewModel) { return; }
 
-            UpdateTypeSelection();
+            await UpdateTypeSelection(false, []);
 
             armors = viewModel.ArmorList;
         }
 
-        private void UpdateTypeSelection()
+        public async Task UpdateTypeSelection(bool isExternal, List<string> itemsToSearch)
         {
-            if (DataContext is not MainViewModel viewModel || viewModel.ApiConfig == null || viewModel.ApiConfig.ArmorTypes == null) { return; }
+            await Dispatcher.UIThread.InvokeAsync(() =>
+             {
+                 if (isExternal)
+                 {
+                     TypeSelectionBox.Items.Clear();
 
-            if (TypeSelectionBox.Items.Count == 0)
-            {
-                var allItem = new ComboBoxItem { Content = "all", HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Center };
-                TypeSelectionBox.Items.Add(allItem);
-                foreach (var item in viewModel.ApiConfig.ArmorTypes)
-                {
-                    var comboBoxItem = new ComboBoxItem { Content = item.Key.ToLower(), HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Center };
-                    TypeSelectionBox.Items.Add(comboBoxItem);
-                }
+                     foreach (var item in itemsToSearch)
+                     {
+                         TypeSelectionBox.Items.Add(item);
+                     }
 
-                TypeSelectionBox.SelectedIndex = 0;
-            }
+                     TypeSelectionBox.SelectedIndex = 0;
+                 }
+                 else
+                 {
+                     if (DataContext is not MainViewModel viewModel || viewModel.ApiConfig == null || viewModel.ApiConfig.ArmorTypes == null) { return; }
+
+                     if (TypeSelectionBox.Items.Count == 0)
+                     {
+                         var allItem = new ComboBoxItem { Content = "all", HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Center };
+                         TypeSelectionBox.Items.Add(allItem);
+                         foreach (var item in viewModel.ApiConfig.ArmorTypes)
+                         {
+                             var comboBoxItem = new ComboBoxItem { Content = item.Key.ToLower(), HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Center };
+                             TypeSelectionBox.Items.Add(comboBoxItem);
+                         }
+
+                         TypeSelectionBox.SelectedIndex = 0;
+                     }
+                 }
+             });
         }
 
         private async void TypeSelectionBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -368,7 +390,7 @@ namespace LanistaBrowserV1.UserControls
             }
         }
 
-        private async Task<List<Armor>> UpdateList()
+        public async Task<List<Armor>> UpdateList()
         {
             string searchQuery;
             string typeQuery = string.Empty;

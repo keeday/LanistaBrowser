@@ -99,8 +99,8 @@ namespace LanistaBrowserV1.UserControls
 
             if (webView != null)
             {
-                await webView.ExecuteScriptAsync(Script("Yxor", 10));
-                await webView.ExecuteScriptAsync(Script("Sköldar", 10));
+                //await webView.ExecuteScriptAsync(Script("Yxor", 10));
+                //await webView.ExecuteScriptAsync(Script("Sköldar", 10));
             }
         }
 

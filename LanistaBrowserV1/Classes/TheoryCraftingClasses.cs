@@ -17,7 +17,13 @@ namespace LanistaBrowserV1.Classes
         public int WeaponSkillID { get; set; }
         public string LoadedCharacterName { get; set; } = string.Empty;
 
-        public ObservableCollection<TacticEquippedItem> EquippedItems { get; set; } = [];
+        private ObservableCollection<TacticEquippedItem> _equippedItems = [];
+
+        public ObservableCollection<TacticEquippedItem> EquippedItems
+        {
+            get => _equippedItems;
+            set => SetProperty(ref _equippedItems, value);
+        }
 
         private ObservableCollection<TacticPlacedStat> _placedStats = [];
 
@@ -55,6 +61,8 @@ namespace LanistaBrowserV1.Classes
         public string EquippedType { get; set; } = string.Empty;
         public int EquippedId { get; set; }
         public int EquippedLevel { get; set; }
+
+        public string equippedSlot { get; set; } = string.Empty;
     }
 
     public class TacticPlacedStat : ObservableObject
@@ -73,6 +81,14 @@ namespace LanistaBrowserV1.Classes
         public int TacticId { get; set; }
         public int Level { get; set; }
         public string Levelnotes { get; set; } = string.Empty;
+
+        private string _equippedItemOnLevel = string.Empty;
+
+        public string EquippedItemOnLevel
+        {
+            get => _equippedItemOnLevel;
+            set => SetProperty(ref _equippedItemOnLevel, value);
+        }
 
         public string LevelAsString { get; set; } = string.Empty;
 

@@ -18,6 +18,11 @@ namespace LanistaBrowserV1.UserControls
 {
     public partial class SearchWeapons : UserControl
     {
+        public ListBoxItem SelectedItem
+        {
+            get { return (ListBoxItem)ListBoxWeapons.SelectedItem!; }
+        }
+
         private List<Weapon> weapons = new();
 
         private string? currentSortColumn;
@@ -28,33 +33,59 @@ namespace LanistaBrowserV1.UserControls
             InitializeComponent();
         }
 
-        private void UserControl_Loaded(object Sender, RoutedEventArgs e)
+        private async void UserControl_Loaded(object Sender, RoutedEventArgs e)
         {
             Debug.WriteLine("SearchWeapons UserControl_Loaded");
 
-            UpdateTypeSelection();
+            await UpdateTypeSelection(false, []);
 
             if (DataContext is not MainViewModel viewModel) { return; }
 
             weapons = viewModel.WeaponList;
         }
 
-        private void UpdateTypeSelection()
+        public async Task SetGripList(string grip)
         {
-            if (DataContext is not MainViewModel viewModel || viewModel.ApiConfig == null || viewModel.ApiConfig.WeaponTypes == null) { return; }
+            await Dispatcher.UIThread.InvokeAsync(() =>
+             {
+                 GripTypeSelection.Items.Clear();
+                 GripTypeSelection.Items.Add(grip);
+                 GripTypeSelection.SelectedIndex = 0;
+             });
+        }
 
-            if (TypeSelectionBox.Items.Count == 0)
-            {
-                var allItem = new ComboBoxItem { Content = "all", HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Center };
-                TypeSelectionBox.Items.Add(allItem);
-                foreach (var item in viewModel.ApiConfig.WeaponTypes)
-                {
-                    var comboBoxItem = new ComboBoxItem { Content = item.Key.ToLower(), HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Center };
-                    TypeSelectionBox.Items.Add(comboBoxItem);
-                }
+        public async Task UpdateTypeSelection(bool isExternal, List<string> itemsToSearch)
+        {
+            await Dispatcher.UIThread.InvokeAsync(() =>
+             {
+                 if (isExternal)
+                 {
+                     TypeSelectionBox.Items.Clear();
 
-                TypeSelectionBox.SelectedIndex = 0;
-            }
+                     foreach (var item in itemsToSearch)
+                     {
+                         TypeSelectionBox.Items.Add(item);
+                     }
+
+                     TypeSelectionBox.SelectedIndex = 0;
+                 }
+                 else
+                 {
+                     if (DataContext is not MainViewModel viewModel || viewModel.ApiConfig == null || viewModel.ApiConfig.WeaponTypes == null) { return; }
+                     if (TypeSelectionBox.Items.Count == 0)
+                     {
+                         var allItem = new ComboBoxItem { Content = "all", HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Center };
+                         TypeSelectionBox.Items.Add(allItem);
+                         foreach (var item in viewModel.ApiConfig.WeaponTypes)
+                         {
+                             var comboBoxItem = new ComboBoxItem { Content = item.Key.ToLower(), HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Center };
+                             TypeSelectionBox.Items.Add(comboBoxItem);
+                         }
+
+                         TypeSelectionBox.SelectedIndex = 0;
+                     }
+                 }
+             });
         }
 
         private void FavoriteButton_Click(object sender, RoutedEventArgs e)
@@ -270,7 +301,7 @@ namespace LanistaBrowserV1.UserControls
             await UpdateList();
         }
 
-        private async Task<List<Weapon>> UpdateList()
+        public async Task<List<Weapon>> UpdateList()
         {
             string searchQuery;
             string typeQuery;
@@ -296,7 +327,7 @@ namespace LanistaBrowserV1.UserControls
             {
                 typeQuery = TypeSelectionBox.SelectionBoxItem as string ?? string.Empty;
             }
-
+            Debug.WriteLine(typeQuery);
             if (GripTypeSelection.SelectionBoxItem as string == "1h/2h")
             {
                 grabQuery = string.Empty;

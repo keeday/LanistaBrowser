@@ -10,6 +10,7 @@
 	<Grid>
 		<DockPanel>
 			<DockPanel DockPanel.Dock="Top">
+
 				<DockPanel x:Name="DetailsChooseItemView" Height="250" DockPanel.Dock="Top" IsVisible="True">
 					<TextBlock FontWeight="Bold" FontSize="20" Text="Choose an item to view details." VerticalAlignment="Center" HorizontalAlignment="Center" />
 				</DockPanel>
