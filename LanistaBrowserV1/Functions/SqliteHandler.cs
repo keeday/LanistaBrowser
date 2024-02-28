@@ -216,6 +216,22 @@ namespace LanistaBrowserV1.Functions
             }
         }
 
+        public static void DeleteEquippedItem(int tacticId, int level, string equippedSlot)
+        {
+            string path = DbPath();
+            using var connection = new SqliteConnection($"Data Source={path}");
+            connection.Open();
+
+            connection.Execute("DELETE FROM TacticsEquipped WHERE TacticId = @tacticId AND EquippedLevel = @level AND EquippedSlot = @equippedSlot", new { tacticId, level, equippedSlot });
+
+            var equippedItems = connection.QueryFirstOrDefault("SELECT * FROM TacticsEquipped WHERE TacticId = @tacticId AND EquippedLevel = @level", new { tacticId, level });
+
+            if (equippedItems == null)
+            {
+                connection.Execute("UPDATE TacticsLevels SET EquippedItemOnlevel = '' WHERE TacticId = @tacticId AND Level = @level", new { tacticId, level });
+            }
+        }
+
         public static void UpdateEquippedItem(int tacticId, int level, string equippedType, int equippedId, string equippedSlot)
         {
             string path = DbPath();
@@ -227,12 +243,12 @@ namespace LanistaBrowserV1.Functions
             if (existingRow != null)
             {
                 connection.Execute("UPDATE TacticsEquipped SET EquippedType = @equippedType, EquippedID = @equippedId WHERE TacticId = @tacticId AND EquippedLevel = @level AND EquippedSlot = @equippedSlot", new { tacticId, level, equippedSlot, equippedId, equippedType });
-                connection.Execute("UPDATE TacticsLevels SET EquippedItemOnlevel = @equippedItemOnlevel WHERE TacticId = @tacticId AND Level = @level", new { tacticId, level, equippedItemOnlevel });
             }
             else
             {
                 connection.Execute("INSERT INTO TacticsEquipped (TacticId, EquippedType, EquippedID, EquippedLevel, EquippedSlot) VALUES (@tacticId, @equippedType, @equippedId, @level, @equippedSlot)", new { tacticId, level, equippedSlot, equippedId, equippedType });
             }
+            connection.Execute("UPDATE TacticsLevels SET EquippedItemOnlevel = @equippedItemOnlevel WHERE TacticId = @tacticId AND Level = @level", new { tacticId, level, equippedItemOnlevel });
         }
 
         public static void ToggleFavoritedItem(object x, MainViewModel viewModel)

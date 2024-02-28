@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using Avalonia.Media;
 
 namespace LanistaBrowserV1.UserControls
 {
@@ -25,6 +26,15 @@ namespace LanistaBrowserV1.UserControls
         private Armor? selectedArmor = new();
         private string weaponTypeNameSelected = string.Empty;
         private string equippingSlot = string.Empty;
+
+        private List<string> equipmentSlots = ["mainhand", "shieldhand", "head", "shoulders", "chest", "hands", "legs", "feet", "back", "neck", "finger", "amulet", "bracelet", "trinket"];
+
+        private Bonuses? loadedRaceBonuses = new();
+
+        private List<Weapon> loadedWeapons = [];
+        private List<Armor> loadedArmor = [];
+
+        private bool isEquippingItems = true;
 
         private string selectedItemCategory = string.Empty;
 
@@ -57,6 +67,16 @@ namespace LanistaBrowserV1.UserControls
 
                 LevelListPanel.IsVisible = true;
                 ContentStackPanel.IsVisible = false;
+
+                loadedRaceBonuses = viewModel.ApiConfig.Races!.FirstOrDefault(r => r.Type == selectedTactic.RaceID)!.Bonuses!;
+
+                StaminaPercentage.Text = ReturnPercentageValue(0, loadedRaceBonuses);
+                StrengthPercentage.Text = ReturnPercentageValue(1, loadedRaceBonuses);
+                EndurancePercentage.Text = ReturnPercentageValue(3, loadedRaceBonuses);
+                InitiativePercentage.Text = ReturnPercentageValue(4, loadedRaceBonuses);
+                DodgePercentage.Text = ReturnPercentageValue(7, loadedRaceBonuses);
+                WeaponPercentage.Text = ReturnPercentageWeaponValue(weaponTypeSelected, loadedRaceBonuses);
+                ShieldPercentage.Text = ReturnPercentageWeaponValue(6, loadedRaceBonuses);
             }
             else
             {
@@ -66,6 +86,20 @@ namespace LanistaBrowserV1.UserControls
                 weaponTypeSelected = 0;
                 selectedRace = 0;
             }
+        }
+
+        private string ReturnPercentageValue(int type, Bonuses loadedBonuses)
+        {
+            if (loadedBonuses.Stats == null) { return "Err"; }
+
+            return ((loadedBonuses.Stats.First(r => r.Type == type).Value - 1) < 0 ? "" : "+") + (loadedBonuses.Stats.First(r => r.Type == type).Value - 1).ToString("P0");
+        }
+
+        private string ReturnPercentageWeaponValue(int type, Bonuses loadedBonuses)
+        {
+            if (loadedBonuses.WeaponSkills == null) { return "Err"; }
+
+            return ((loadedBonuses.WeaponSkills.First(r => r.Type == type).Value - 1) < 0 ? "" : "+") + (loadedBonuses.WeaponSkills.First(r => r.Type == type).Value - 1).ToString("P0");
         }
 
         private void ListBoxSelectLevel_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -126,8 +160,36 @@ namespace LanistaBrowserV1.UserControls
                         }
                     }
                 }
+
+                UpdateLoadedArmorAndWeapons();
+
                 ContentStackPanel.IsVisible = true;
                 UpdateButtons();
+                CalculateStats();
+            }
+        }
+
+        private void UpdateLoadedArmorAndWeapons()
+        {
+            if (DataContext is not MainViewModel viewModel) { return; }
+
+            loadedArmor.Clear();
+            loadedWeapons.Clear();
+
+            var equippedTacticItems = viewModel.Tactics.First(t => t.Id == selectedTacticId).EquippedItems.Where(e => e.TacticId == selectedTacticId).OrderByDescending(r => r.EquippedLevel);
+
+            foreach (var item in equipmentSlots)
+            {
+                var equippedItem = equippedTacticItems.Where(e => e.equippedSlot == item && e.EquippedLevel <= selectedTacticLevel).FirstOrDefault();
+
+                if (equippedItem != null && equippedItem.EquippedType == "armor")
+                {
+                    loadedArmor.Add(viewModel.ArmorList.First(a => a.Id == equippedItem.EquippedId));
+                }
+                else if (equippedItem != null)
+                {
+                    loadedWeapons.Add(viewModel.WeaponList.First(w => w.Id == equippedItem.EquippedId));
+                }
             }
         }
 
@@ -138,6 +200,7 @@ namespace LanistaBrowserV1.UserControls
                 textBox.Text = System.Text.RegularExpressions.Regex.Replace(textBox.Text, "[^0-9]", "");
                 SaveStatsButton.IsVisible = true;
                 UpdateStatsToSpend();
+                CalculateStats();
             }
         }
 
@@ -279,7 +342,7 @@ namespace LanistaBrowserV1.UserControls
             if (DataContext is not MainViewModel viewModel) { return; }
             if (viewModel.ApiConfig == null) { return; }
             if (viewModel.ApiConfig.Races == null) { return; }
-            if (viewModel.ApiConfig.WeaponSkills == null) { return; }
+            if (viewModel.ApiConfig.WeaponTypes == null) { return; }
 
             CreateTacticRaceBox.Items.Clear();
             CreateTacticWeaponBox.Items.Clear();
@@ -294,12 +357,12 @@ namespace LanistaBrowserV1.UserControls
                 }
             }
 
-            foreach (var weaponType in viewModel.ApiConfig.WeaponSkills)
+            foreach (var weaponType in viewModel.ApiConfig.WeaponTypes)
             {
-                if (weaponType.Name != null)
+                if (weaponType.Key != null)
                 {
-                    var comboBoxItem = new ComboBoxItem { Content = weaponType.Name.ToLower(), HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Center };
-                    CreateTacticWeaponBox.Items.Add(weaponType.Name.ToLower());
+                    var comboBoxItem = new ComboBoxItem { Content = weaponType.Key.ToLower(), HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Center };
+                    CreateTacticWeaponBox.Items.Add(weaponType.Key.ToLower());
                 }
             }
         }
@@ -337,7 +400,7 @@ namespace LanistaBrowserV1.UserControls
             }
 
             int raceId = viewModel.ApiConfig.Races!.First(r => r.Name!.ToLower() == CreateTacticRaceBox.SelectionBoxItem as string).Type;
-            int weaponTypeId = viewModel.ApiConfig.WeaponSkills!.First(w => w.Name!.ToLower() == CreateTacticWeaponBox.SelectionBoxItem as string).Type;
+            int weaponTypeId = viewModel.ApiConfig.WeaponTypes!.First(w => w.Key!.ToLower() == CreateTacticWeaponBox.SelectionBoxItem as string).Value;
 
             int newId = SqliteHandler.CreateNewTactic(CreateTacticNameBox.Text, raceId, weaponTypeId);
 
@@ -367,7 +430,7 @@ namespace LanistaBrowserV1.UserControls
         {
             if (sender is Button button)
             {
-                List<string> selectedItemTypes = new();
+                List<string> selectedItemTypes = [];
 
                 string type = button.Name!.Replace("Button", "");
                 if (type == "MainHand")
@@ -390,8 +453,38 @@ namespace LanistaBrowserV1.UserControls
                     selectedItemTypes.Add(type.ToLower());
                 }
 
-                OpenSearchItemWindow(selectedItemCategory, selectedItemTypes);
+                if (isEquippingItems)
+                {
+                    OpenSearchItemWindow(selectedItemCategory, selectedItemTypes);
+                }
+                else
+                {
+                    RemoveEquippedItem();
+                }
             }
+        }
+
+        private void RemoveEquippedItem()
+        {
+            if (DataContext is MainViewModel viewModel)
+            {
+                var tactic = viewModel.Tactics.First(t => t.Id == selectedTacticId);
+
+                var equipmentToRemove = tactic.EquippedItems.Where(e => e.TacticId == selectedTacticId && e.EquippedLevel == selectedTacticLevel && e.equippedSlot == equippingSlot).ToList();
+
+                foreach (var item in equipmentToRemove)
+                {
+                    tactic.EquippedItems.Remove(item);
+                }
+
+                int equippedItemsOnLevel = tactic.EquippedItems.Count(e => e.TacticId == selectedTacticId && e.EquippedLevel == selectedTacticLevel);
+                if (equippedItemsOnLevel == 0)
+                {
+                    viewModel.Tactics.First(t => t.Id == selectedTacticId).Levels.First(l => l.Level == selectedTacticLevel).EquippedItemOnLevel = "";
+                }
+                SqliteHandler.DeleteEquippedItem(selectedTacticId, selectedTacticLevel, equippingSlot);
+            }
+            UpdateButtons();
         }
 
         private void CloseSearchItemButton_Click(object sender, RoutedEventArgs e)
@@ -524,37 +617,95 @@ namespace LanistaBrowserV1.UserControls
             if (DataContext is MainViewModel viewModel)
             {
                 var equippedItems = viewModel.Tactics.First(t => t.Id == selectedTacticId).EquippedItems.OrderByDescending(r => r.EquippedLevel);
+                var equippedItemsOnLevel = viewModel.Tactics.First(t => t.Id == selectedTacticId).EquippedItems.Where(r => r.EquippedLevel == selectedTacticLevel);
 
-                int mainHandId = equippedItems.FirstOrDefault(item => item.TacticId == selectedTacticId && item.EquippedLevel <= selectedTacticLevel && item.equippedSlot == "mainhand")?.EquippedId ?? 0;
-                int shieldHandId = equippedItems.FirstOrDefault(item => item.TacticId == selectedTacticId && item.EquippedLevel <= selectedTacticLevel && item.equippedSlot == "shieldhand")?.EquippedId ?? 0;
-                int headId = equippedItems.FirstOrDefault(item => item.TacticId == selectedTacticId && item.EquippedLevel <= selectedTacticLevel && item.equippedSlot == "head")?.EquippedId ?? 0;
-                int shouldersId = equippedItems.FirstOrDefault(item => item.TacticId == selectedTacticId && item.EquippedLevel <= selectedTacticLevel && item.equippedSlot == "shoulders")?.EquippedId ?? 0;
-                int chestId = equippedItems.FirstOrDefault(item => item.TacticId == selectedTacticId && item.EquippedLevel <= selectedTacticLevel && item.equippedSlot == "chest")?.EquippedId ?? 0;
-                int handsId = equippedItems.FirstOrDefault(item => item.TacticId == selectedTacticId && item.EquippedLevel <= selectedTacticLevel && item.equippedSlot == "hands")?.EquippedId ?? 0;
-                int legsId = equippedItems.FirstOrDefault(item => item.TacticId == selectedTacticId && item.EquippedLevel <= selectedTacticLevel && item.equippedSlot == "legs")?.EquippedId ?? 0;
-                int feetId = equippedItems.FirstOrDefault(item => item.TacticId == selectedTacticId && item.EquippedLevel <= selectedTacticLevel && item.equippedSlot == "feet")?.EquippedId ?? 0;
-                int backId = equippedItems.FirstOrDefault(item => item.TacticId == selectedTacticId && item.EquippedLevel <= selectedTacticLevel && item.equippedSlot == "back")?.EquippedId ?? 0;
-                int neckId = equippedItems.FirstOrDefault(item => item.TacticId == selectedTacticId && item.EquippedLevel <= selectedTacticLevel && item.equippedSlot == "neck")?.EquippedId ?? 0;
-                int fingerId = equippedItems.FirstOrDefault(item => item.TacticId == selectedTacticId && item.EquippedLevel <= selectedTacticLevel && item.equippedSlot == "finger")?.EquippedId ?? 0;
-                int amuletId = equippedItems.FirstOrDefault(item => item.TacticId == selectedTacticId && item.EquippedLevel <= selectedTacticLevel && item.equippedSlot == "amulet")?.EquippedId ?? 0;
-                int braceletId = equippedItems.FirstOrDefault(item => item.TacticId == selectedTacticId && item.EquippedLevel <= selectedTacticLevel && item.equippedSlot == "bracelet")?.EquippedId ?? 0;
-                int trinketId = equippedItems.FirstOrDefault(item => item.TacticId == selectedTacticId && item.EquippedLevel <= selectedTacticLevel && item.equippedSlot == "trinket")?.EquippedId ?? 0;
+                var equipmentButtons = new Dictionary<string, Button>
+                    {
+                        { "mainhand", MainHandButton },
+                        { "shieldhand", ShieldHandButton },
+                        { "head", HeadButton },
+                        { "shoulders", ShouldersButton },
+                        { "chest", ChestButton },
+                        { "hands", HandsButton },
+                        { "legs", LegsButton },
+                        { "feet", FeetButton },
+                        { "back", BackButton },
+                        { "neck", NeckButton },
+                        { "finger", FingerButton },
+                        { "amulet", AmuletButton },
+                        { "bracelet", BraceletButton },
+                        { "trinket", TrinketButton }
+                    };
 
-                MainHandButton.Content = mainHandId != 0 ? viewModel.WeaponList.First(w => w.Id == mainHandId).Name : "None";
-                ShieldHandButton.Content = shieldHandId != 0 ? viewModel.WeaponList.First(w => w.Id == shieldHandId).Name : "None";
-                HeadButton.Content = headId != 0 ? viewModel.ArmorList.First(a => a.Id == headId).Name : "None";
-                ShouldersButton.Content = shouldersId != 0 ? viewModel.ArmorList.First(a => a.Id == shouldersId).Name : "None";
-                ChestButton.Content = chestId != 0 ? viewModel.ArmorList.First(a => a.Id == chestId).Name : "None";
-                HandsButton.Content = handsId != 0 ? viewModel.ArmorList.First(a => a.Id == handsId).Name : "None";
-                LegsButton.Content = legsId != 0 ? viewModel.ArmorList.First(a => a.Id == legsId).Name : "None";
-                FeetButton.Content = feetId != 0 ? viewModel.ArmorList.First(a => a.Id == feetId).Name : "None";
-                BackButton.Content = backId != 0 ? viewModel.ArmorList.First(a => a.Id == backId).Name : "None";
-                NeckButton.Content = neckId != 0 ? viewModel.ArmorList.First(a => a.Id == neckId).Name : "None";
-                FingerButton.Content = fingerId != 0 ? viewModel.ArmorList.First(a => a.Id == fingerId).Name : "None";
-                AmuletButton.Content = amuletId != 0 ? viewModel.ArmorList.First(a => a.Id == amuletId).Name : "None";
-                BraceletButton.Content = braceletId != 0 ? viewModel.ArmorList.First(a => a.Id == braceletId).Name : "None";
-                TrinketButton.Content = trinketId != 0 ? viewModel.ArmorList.First(a => a.Id == trinketId).Name : "None";
+                foreach (var equipmentType in equipmentSlots)
+                {
+                    int equipmentId = equippedItems.FirstOrDefault(item => item.TacticId == selectedTacticId && item.EquippedLevel <= selectedTacticLevel && item.equippedSlot == equipmentType)?.EquippedId ?? 0;
+
+                    if (equipmentId != 0)
+                    {
+                        if (equipmentType == "mainhand" || equipmentType == "shieldhand")
+                        {
+                            equipmentButtons[equipmentType].Content = viewModel.WeaponList.First(w => w.Id == equipmentId).Name;
+                        }
+                        else
+                        {
+                            equipmentButtons[equipmentType].Content = viewModel.ArmorList.First(a => a.Id == equipmentId).Name;
+                        }
+
+                        // Check if the item is in the equippedItemsOnLevel list
+                        if (equippedItemsOnLevel.Any(item => item.EquippedId == equipmentId && item.equippedSlot == equipmentType))
+                        {
+                            // Change the button's border color to yellow
+                            equipmentButtons[equipmentType].BorderBrush = new SolidColorBrush(Colors.DarkGoldenrod);
+                        }
+                        else
+                        {
+                            // Reset the button's border color
+                            equipmentButtons[equipmentType].BorderBrush = new SolidColorBrush(Colors.Transparent);
+                        }
+                    }
+                    else
+                    {
+                        equipmentButtons[equipmentType].Content = "None";
+                        // Reset the button's border color
+                        equipmentButtons[equipmentType].BorderBrush = new SolidColorBrush(Colors.Transparent);
+                    }
+                }
             }
+        }
+
+        private void ToggleEquippingRemovingButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (isEquippingItems)
+            {
+                isEquippingItems = false;
+                ToggleEquippingRemovingButton.Content = "Removing Items (Click To Toggle)";
+                ToggleEquippingRemovingButton.BorderBrush = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                isEquippingItems = true;
+                ToggleEquippingRemovingButton.Content = "Equipping Items (Click To Toggle)";
+                ToggleEquippingRemovingButton.BorderBrush = new SolidColorBrush(Colors.LimeGreen);
+            }
+        }
+
+        private void CalculateStats()
+        {
+            if (loadedRaceBonuses == null || loadedRaceBonuses.Stats == null) { return; }
+
+            StaminaRB.Text = (ReturnTotalStatValue(StaminaTotalTextBlock, StaminaTextBox) * loadedRaceBonuses.Stats.First(r => r.Type == 0).Value).ToString("F1");
+            StrengthRB.Text = (ReturnTotalStatValue(StrengthTotalTextBlock, StrengthTextBox) * loadedRaceBonuses.Stats.First(r => r.Type == 1).Value).ToString("F1");
+            EnduranceRB.Text = (ReturnTotalStatValue(EnduranceTotalTextBlock, EnduranceTextBox) * loadedRaceBonuses.Stats.First(r => r.Type == 3).Value).ToString("F1");
+            InitiativeRB.Text = (ReturnTotalStatValue(InitiativeTotalTextBlock, InitiativeTextBox) * loadedRaceBonuses.Stats.First(r => r.Type == 4).Value).ToString("F1");
+            DodgeRB.Text = (ReturnTotalStatValue(DodgeTotalTextBlock, DodgeTextBox) * loadedRaceBonuses.Stats.First(r => r.Type == 7).Value).ToString("F1");
+            WeaponRB.Text = (ReturnTotalStatValue(WeaponSkillTotalTextBlock, WeaponSkillTextBox) * loadedRaceBonuses.Stats.First(r => r.Type == weaponTypeSelected).Value).ToString("F1");
+            ShieldRB.Text = (ReturnTotalStatValue(ShieldSkillTotalTextBlock, ShieldSkillTextBox) * loadedRaceBonuses.Stats.First(r => r.Type == 6).Value).ToString("F1");
+        }
+
+        private double ReturnTotalStatValue(TextBlock block, TextBox box)
+        {
+            return (int.TryParse(box.Text, out int staminaValue) ? staminaValue : 0) + (int.TryParse(block.Text, out int totalStaminaValue) ? totalStaminaValue : 0);
         }
     }
 }

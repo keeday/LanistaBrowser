@@ -213,11 +213,9 @@ public partial class MainViewModel : ViewModelBase
                         tactic.RaceName = matchingRace.Name!.ToLower();
                     }
 
-                    var matchingWeaponSkill = ApiConfig.WeaponSkills!.FirstOrDefault(skill => skill.Type == tactic.WeaponSkillID);
-                    if (matchingWeaponSkill != null)
-                    {
-                        tactic.WeaponName = matchingWeaponSkill.Name!.ToLower();
-                    }
+                    var matchingWeaponSkill = ApiConfig.WeaponTypes!.FirstOrDefault(skill => skill.Value == tactic.WeaponSkillID);
+
+                    tactic.WeaponName = matchingWeaponSkill.Key!.ToLower();
                 }
             }
             catch (System.Exception e)

@@ -18,8 +18,8 @@ namespace LanistaBrowserV1.Classes
         [JsonProperty("stats")]
         public List<Stats>? Stats { get; set; }
 
-        [JsonProperty("weapon_skills")]
-        public List<WeaponSkills>? WeaponSkills { get; set; }
+        //[JsonProperty("weapon_skills")]
+        //public List<WeaponSkills>? WeaponSkills { get; set; }
 
         [JsonProperty("races")]
         public List<Races>? Races { get; set; }
@@ -38,6 +38,15 @@ namespace LanistaBrowserV1.Classes
     }
 
     public class WeaponSkills
+    {
+        [JsonProperty("value")]
+        public double Value { get; set; }
+
+        [JsonProperty("type")]
+        public int Type { get; set; }
+    }
+
+    public class WeaponTypes
     {
         [JsonProperty("name")]
         public string? Name { get; set; }
@@ -72,8 +81,8 @@ namespace LanistaBrowserV1.Classes
 
     public class RaceStats
     {
-        [JsonProperty("name")]
-        public string? Name { get; set; }
+        [JsonProperty("value")]
+        public double Value { get; set; }
 
         [JsonProperty("type")]
         public int Type { get; set; }
@@ -81,8 +90,8 @@ namespace LanistaBrowserV1.Classes
 
     public class EncantTags
     {
-        [JsonProperty("name")]
-        public string? Name { get; set; }
+        [JsonProperty("value")]
+        public double Value { get; set; }
 
         [JsonProperty("id")]
         public int Id { get; set; }
