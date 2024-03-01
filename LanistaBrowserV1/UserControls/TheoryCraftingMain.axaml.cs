@@ -11,6 +11,7 @@ using System.Linq;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using Avalonia.Media;
+using Avalonia.Threading;
 
 namespace LanistaBrowserV1.UserControls
 {
@@ -26,6 +27,8 @@ namespace LanistaBrowserV1.UserControls
         private Armor? selectedArmor = new();
         private string weaponTypeNameSelected = string.Empty;
         private string equippingSlot = string.Empty;
+
+        private string selectedRaceName = string.Empty;
 
         private List<string> equipmentSlots = ["mainhand", "shieldhand", "head", "shoulders", "chest", "hands", "legs", "feet", "back", "neck", "finger", "amulet", "bracelet", "trinket"];
 
@@ -65,8 +68,11 @@ namespace LanistaBrowserV1.UserControls
                 weaponTypeNameSelected = viewModel.ApiConfig.WeaponTypes!.First(w => w.Value == selectedTactic.WeaponSkillID).Key.ToLower();
                 selectedRace = selectedTactic.RaceID;
 
+                selectedRaceName = viewModel.ApiConfig.Races!.First(r => r.Type == selectedTactic.RaceID).Name!.ToLower();
+
                 LevelListPanel.IsVisible = true;
                 ContentStackPanel.IsVisible = false;
+                SummaryStackPanel.IsVisible = false;
 
                 loadedRaceBonuses = viewModel.ApiConfig.Races!.FirstOrDefault(r => r.Type == selectedTactic.RaceID)!.Bonuses!;
 
@@ -102,106 +108,117 @@ namespace LanistaBrowserV1.UserControls
             return ((loadedBonuses.WeaponSkills.First(r => r.Type == type).Value - 1) < 0 ? "" : "+") + (loadedBonuses.WeaponSkills.First(r => r.Type == type).Value - 1).ToString("P0");
         }
 
-        private void ListBoxSelectLevel_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void ListBoxSelectLevel_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            await Dispatcher.UIThread.InvokeAsync(() =>
+             {
+                 if (DataContext is not MainViewModel viewModel) { return; }
+
+                 if (sender is ListBox listBox && listBox.SelectedItem is TacticsLevels selectedLevel)
+                 {
+                     selectedTacticLevel = selectedLevel.Level;
+
+                     List<TacticPlacedStat> placedStats = viewModel.Tactics.First(t => t.Id == selectedTacticId).PlacedStats.Where(s => s.Level == selectedTacticLevel).ToList();
+                     List<TacticPlacedStat> totalPlacedStats = viewModel.Tactics.First(t => t.Id == selectedTacticId).PlacedStats.Where(s => s.Level < selectedTacticLevel).ToList();
+
+                     StaminaTextBox.Text = string.Empty;
+                     StrengthTextBox.Text = string.Empty;
+                     EnduranceTextBox.Text = string.Empty;
+                     InitiativeTextBox.Text = string.Empty;
+                     DodgeTextBox.Text = string.Empty;
+                     WeaponSkillTextBox.Text = string.Empty;
+                     ShieldSkillTextBox.Text = string.Empty;
+
+                     StaminaTotalTextBlock.Text = "0";
+                     StrengthTotalTextBlock.Text = "0";
+                     EnduranceTotalTextBlock.Text = "0";
+                     InitiativeTotalTextBlock.Text = "0";
+                     DodgeTotalTextBlock.Text = "0";
+                     WeaponSkillTotalTextBlock.Text = "0";
+                     ShieldSkillTotalTextBlock.Text = "0";
+
+                     StaminaTotalTextBlock.Text = totalPlacedStats.Where(s => s.StatId == 0 && s.StatType == "stats").Sum(s => s.StatValue).ToString();
+                     StrengthTotalTextBlock.Text = totalPlacedStats.Where(s => s.StatId == 1 && s.StatType == "stats").Sum(s => s.StatValue).ToString();
+                     EnduranceTotalTextBlock.Text = totalPlacedStats.Where(s => s.StatId == 3 && s.StatType == "stats").Sum(s => s.StatValue).ToString();
+                     InitiativeTotalTextBlock.Text = totalPlacedStats.Where(s => s.StatId == 4 && s.StatType == "stats").Sum(s => s.StatValue).ToString();
+                     DodgeTotalTextBlock.Text = totalPlacedStats.Where(s => s.StatId == 7 && s.StatType == "stats").Sum(s => s.StatValue).ToString();
+                     WeaponSkillTotalTextBlock.Text = totalPlacedStats.Where(s => s.StatId != 6 && s.StatType == "weapon").Sum(s => s.StatValue).ToString();
+                     ShieldSkillTotalTextBlock.Text = totalPlacedStats.Where(s => s.StatId == 6 && s.StatType == "weapon").Sum(s => s.StatValue).ToString();
+
+                     foreach (var stat in placedStats)
+                     {
+                         if (stat.StatType == "stats")
+                         {
+                             if (stat.StatId == 0) { StaminaTextBox.Text = stat.StatValue.ToString(); }
+                             if (stat.StatId == 1) { StrengthTextBox.Text = stat.StatValue.ToString(); }
+                             if (stat.StatId == 3) { EnduranceTextBox.Text = stat.StatValue.ToString(); }
+                             if (stat.StatId == 4) { InitiativeTextBox.Text = stat.StatValue.ToString(); }
+                             if (stat.StatId == 7) { DodgeTextBox.Text = stat.StatValue.ToString(); }
+                         }
+
+                         if (stat.StatType == "weapon")
+                         {
+                             if (stat.StatId == 6)
+                             {
+                                 ShieldSkillTextBox.Text = stat.StatValue.ToString();
+                             }
+                             else
+                             {
+                                 WeaponSkillTextBox.Text = stat.StatValue.ToString();
+                             }
+                         }
+                     }
+
+                     LevelContentTitle.Text = $"Level {selectedTacticLevel} | {selectedRaceName} | {weaponTypeNameSelected}";
+                     ContentStackPanel.IsVisible = true;
+                     SummaryStackPanel.IsVisible = true;
+                 }
+             });
+            await UpdateLoadedArmorAndWeapons();
+            await UpdateButtons();
+            await CalculateStats();
+        }
+
+        private async Task UpdateLoadedArmorAndWeapons()
         {
             if (DataContext is not MainViewModel viewModel) { return; }
 
-            if (sender is ListBox listBox && listBox.SelectedItem is TacticsLevels selectedLevel)
-            {
-                selectedTacticLevel = selectedLevel.Level;
+            await Task.Run(() =>
+             {
+                 loadedArmor.Clear();
+                 loadedWeapons.Clear();
 
-                List<TacticPlacedStat> placedStats = viewModel.Tactics.First(t => t.Id == selectedTacticId).PlacedStats.Where(s => s.Level == selectedTacticLevel).ToList();
-                List<TacticPlacedStat> totalPlacedStats = viewModel.Tactics.First(t => t.Id == selectedTacticId).PlacedStats.Where(s => s.Level < selectedTacticLevel).ToList();
+                 var equippedTacticItems = viewModel.Tactics.First(t => t.Id == selectedTacticId).EquippedItems.Where(e => e.TacticId == selectedTacticId).OrderByDescending(r => r.EquippedLevel);
 
-                StaminaTextBox.Text = string.Empty;
-                StrengthTextBox.Text = string.Empty;
-                EnduranceTextBox.Text = string.Empty;
-                InitiativeTextBox.Text = string.Empty;
-                DodgeTextBox.Text = string.Empty;
-                WeaponSkillTextBox.Text = string.Empty;
-                ShieldSkillTextBox.Text = string.Empty;
+                 foreach (var item in equipmentSlots)
+                 {
+                     var equippedItem = equippedTacticItems.Where(e => e.equippedSlot == item && e.EquippedLevel <= selectedTacticLevel).FirstOrDefault();
 
-                StaminaTotalTextBlock.Text = "0";
-                StrengthTotalTextBlock.Text = "0";
-                EnduranceTotalTextBlock.Text = "0";
-                InitiativeTotalTextBlock.Text = "0";
-                DodgeTotalTextBlock.Text = "0";
-                WeaponSkillTotalTextBlock.Text = "0";
-                ShieldSkillTotalTextBlock.Text = "0";
-
-                StaminaTotalTextBlock.Text = totalPlacedStats.Where(s => s.StatId == 0 && s.StatType == "stats").Sum(s => s.StatValue).ToString();
-                StrengthTotalTextBlock.Text = totalPlacedStats.Where(s => s.StatId == 1 && s.StatType == "stats").Sum(s => s.StatValue).ToString();
-                EnduranceTotalTextBlock.Text = totalPlacedStats.Where(s => s.StatId == 3 && s.StatType == "stats").Sum(s => s.StatValue).ToString();
-                InitiativeTotalTextBlock.Text = totalPlacedStats.Where(s => s.StatId == 4 && s.StatType == "stats").Sum(s => s.StatValue).ToString();
-                DodgeTotalTextBlock.Text = totalPlacedStats.Where(s => s.StatId == 7 && s.StatType == "stats").Sum(s => s.StatValue).ToString();
-                WeaponSkillTotalTextBlock.Text = totalPlacedStats.Where(s => s.StatId != 6 && s.StatType == "weapon").Sum(s => s.StatValue).ToString();
-                ShieldSkillTotalTextBlock.Text = totalPlacedStats.Where(s => s.StatId == 6 && s.StatType == "weapon").Sum(s => s.StatValue).ToString();
-
-                foreach (var stat in placedStats)
-                {
-                    if (stat.StatType == "stats")
-                    {
-                        if (stat.StatId == 0) { StaminaTextBox.Text = stat.StatValue.ToString(); }
-                        if (stat.StatId == 1) { StrengthTextBox.Text = stat.StatValue.ToString(); }
-                        if (stat.StatId == 3) { EnduranceTextBox.Text = stat.StatValue.ToString(); }
-                        if (stat.StatId == 4) { InitiativeTextBox.Text = stat.StatValue.ToString(); }
-                        if (stat.StatId == 7) { DodgeTextBox.Text = stat.StatValue.ToString(); }
-                    }
-
-                    if (stat.StatType == "weapon")
-                    {
-                        if (stat.StatId == 6)
-                        {
-                            ShieldSkillTextBox.Text = stat.StatValue.ToString();
-                        }
-                        else
-                        {
-                            WeaponSkillTextBox.Text = stat.StatValue.ToString();
-                        }
-                    }
-                }
-
-                UpdateLoadedArmorAndWeapons();
-
-                ContentStackPanel.IsVisible = true;
-                UpdateButtons();
-                CalculateStats();
-            }
+                     if (equippedItem != null && equippedItem.EquippedType == "armor")
+                     {
+                         loadedArmor.Add(viewModel.ArmorList.First(a => a.Id == equippedItem.EquippedId));
+                     }
+                     else if (equippedItem != null)
+                     {
+                         loadedWeapons.Add(viewModel.WeaponList.First(w => w.Id == equippedItem.EquippedId));
+                     }
+                 }
+             });
         }
 
-        private void UpdateLoadedArmorAndWeapons()
+        private async void TextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (DataContext is not MainViewModel viewModel) { return; }
+            await Dispatcher.UIThread.InvokeAsync(() =>
+             {
+                 if (sender is TextBox textBox && textBox.Text != null)
+                 {
+                     textBox.Text = System.Text.RegularExpressions.Regex.Replace(textBox.Text, "[^0-9]", "");
+                     SaveStatsButton.IsVisible = true;
+                     UpdateStatsToSpend();
+                 }
+             });
 
-            loadedArmor.Clear();
-            loadedWeapons.Clear();
-
-            var equippedTacticItems = viewModel.Tactics.First(t => t.Id == selectedTacticId).EquippedItems.Where(e => e.TacticId == selectedTacticId).OrderByDescending(r => r.EquippedLevel);
-
-            foreach (var item in equipmentSlots)
-            {
-                var equippedItem = equippedTacticItems.Where(e => e.equippedSlot == item && e.EquippedLevel <= selectedTacticLevel).FirstOrDefault();
-
-                if (equippedItem != null && equippedItem.EquippedType == "armor")
-                {
-                    loadedArmor.Add(viewModel.ArmorList.First(a => a.Id == equippedItem.EquippedId));
-                }
-                else if (equippedItem != null)
-                {
-                    loadedWeapons.Add(viewModel.WeaponList.First(w => w.Id == equippedItem.EquippedId));
-                }
-            }
-        }
-
-        private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            if (sender is TextBox textBox && textBox.Text != null)
-            {
-                textBox.Text = System.Text.RegularExpressions.Regex.Replace(textBox.Text, "[^0-9]", "");
-                SaveStatsButton.IsVisible = true;
-                UpdateStatsToSpend();
-                CalculateStats();
-            }
+            await CalculateStats();
         }
 
         private void UpdateStatsToSpend()
@@ -426,7 +443,7 @@ namespace LanistaBrowserV1.UserControls
             Debug.WriteLine("Opening Window");
         }
 
-        private void ItemButton_Click(object sender, RoutedEventArgs e)
+        private async void ItemButton_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button button)
             {
@@ -459,32 +476,38 @@ namespace LanistaBrowserV1.UserControls
                 }
                 else
                 {
-                    RemoveEquippedItem();
+                    await RemoveEquippedItem();
+                    await UpdateLoadedArmorAndWeapons();
+                    await CalculateStats();
                 }
             }
         }
 
-        private void RemoveEquippedItem()
+        private async Task RemoveEquippedItem()
         {
-            if (DataContext is MainViewModel viewModel)
-            {
-                var tactic = viewModel.Tactics.First(t => t.Id == selectedTacticId);
+            await Dispatcher.UIThread.InvokeAsync(() =>
+               {
+                   if (DataContext is MainViewModel viewModel)
+                   {
+                       var tactic = viewModel.Tactics.First(t => t.Id == selectedTacticId);
 
-                var equipmentToRemove = tactic.EquippedItems.Where(e => e.TacticId == selectedTacticId && e.EquippedLevel == selectedTacticLevel && e.equippedSlot == equippingSlot).ToList();
+                       var equipmentToRemove = tactic.EquippedItems.Where(e => e.TacticId == selectedTacticId && e.EquippedLevel == selectedTacticLevel && e.equippedSlot == equippingSlot).ToList();
 
-                foreach (var item in equipmentToRemove)
-                {
-                    tactic.EquippedItems.Remove(item);
-                }
+                       foreach (var item in equipmentToRemove)
+                       {
+                           tactic.EquippedItems.Remove(item);
+                       }
 
-                int equippedItemsOnLevel = tactic.EquippedItems.Count(e => e.TacticId == selectedTacticId && e.EquippedLevel == selectedTacticLevel);
-                if (equippedItemsOnLevel == 0)
-                {
-                    viewModel.Tactics.First(t => t.Id == selectedTacticId).Levels.First(l => l.Level == selectedTacticLevel).EquippedItemOnLevel = "";
-                }
-                SqliteHandler.DeleteEquippedItem(selectedTacticId, selectedTacticLevel, equippingSlot);
-            }
-            UpdateButtons();
+                       int equippedItemsOnLevel = tactic.EquippedItems.Count(e => e.TacticId == selectedTacticId && e.EquippedLevel == selectedTacticLevel);
+                       if (equippedItemsOnLevel == 0)
+                       {
+                           viewModel.Tactics.First(t => t.Id == selectedTacticId).Levels.First(l => l.Level == selectedTacticLevel).EquippedItemOnLevel = "";
+                       }
+                       SqliteHandler.DeleteEquippedItem(selectedTacticId, selectedTacticLevel, equippingSlot);
+                   }
+               });
+
+            await UpdateButtons();
         }
 
         private void CloseSearchItemButton_Click(object sender, RoutedEventArgs e)
@@ -494,6 +517,7 @@ namespace LanistaBrowserV1.UserControls
 
         private void CloseSearchItem()
         {
+            EquipItemButton.IsVisible = false;
             SearchItemsParentPanel.IsVisible = false;
             SearchItemsDockPanel.Children.Clear();
         }
@@ -545,82 +569,92 @@ namespace LanistaBrowserV1.UserControls
             {
                 selectedWeapon = weapon;
                 EquipItemButton.IsVisible = true;
+                EquipItemButton.Content = "Equip " + weapon.Name;
             }
             if (sender is ListBox listBoxArmor && listBoxArmor.SelectedItem is Armor armor)
             {
                 selectedArmor = armor;
                 EquipItemButton.IsVisible = true;
+                EquipItemButton.Content = "Equip " + armor.Name;
             }
         }
 
-        private void EquipSelectedItemButton_Click(object sender, RoutedEventArgs e)
+        private async void EquipSelectedItemButton_Click(object sender, RoutedEventArgs e)
         {
-            if (selectedWeapon != null && selectedItemCategory == "weapon")
+            await Dispatcher.UIThread.InvokeAsync(() =>
             {
-                string equippedType = string.Empty;
-
-                if (selectedWeapon.Type == 6)
+                if (selectedWeapon != null && selectedItemCategory == "weapon")
                 {
-                    equippedType = "shield";
-                }
-                else if (selectedWeapon.IsTwoHanded == true)
-                {
-                    equippedType = "2h";
-                }
-                else
-                {
-                    equippedType = "1h";
-                }
+                    string equippedType = string.Empty;
 
-                SqliteHandler.UpdateEquippedItem(selectedTacticId, selectedTacticLevel, equippedType, selectedWeapon.Id, equippingSlot);
-
-                if (DataContext is MainViewModel viewModel)
-                {
-                    var tactic = viewModel.Tactics.First(t => t.Id == selectedTacticId);
-
-                    var equipmentToRemove = tactic.EquippedItems.Where(e => e.TacticId == selectedTacticId && e.EquippedLevel == selectedTacticLevel && e.equippedSlot == equippingSlot).ToList();
-
-                    foreach (var item in equipmentToRemove)
+                    if (selectedWeapon.Type == 6)
                     {
-                        tactic.EquippedItems.Remove(item);
+                        equippedType = "shield";
+                    }
+                    else if (selectedWeapon.IsTwoHanded == true)
+                    {
+                        equippedType = "2h";
+                    }
+                    else
+                    {
+                        equippedType = "1h";
                     }
 
-                    tactic.EquippedItems.Add(new TacticEquippedItem { TacticId = selectedTacticId, EquippedType = equippedType, EquippedId = selectedWeapon.Id, EquippedLevel = selectedTacticLevel, equippedSlot = equippingSlot });
-                    viewModel.Tactics.First(t => t.Id == selectedTacticId).Levels.First(l => l.Level == selectedTacticLevel).EquippedItemOnLevel = "✦";
-                }
-            }
-            if (selectedArmor != null && selectedItemCategory == "armor")
-            {
-                SqliteHandler.UpdateEquippedItem(selectedTacticId, selectedTacticLevel, "armor", selectedArmor.Id, equippingSlot);
+                    SqliteHandler.UpdateEquippedItem(selectedTacticId, selectedTacticLevel, equippedType, selectedWeapon.Id, equippingSlot);
 
-                if (DataContext is MainViewModel viewModel)
-                {
-                    var tactic = viewModel.Tactics.First(t => t.Id == selectedTacticId);
-
-                    var equipmentToRemove = tactic.EquippedItems.Where(e => e.TacticId == selectedTacticId && e.EquippedLevel == selectedTacticLevel && e.equippedSlot == equippingSlot).ToList();
-
-                    foreach (var item in equipmentToRemove)
+                    if (DataContext is MainViewModel viewModel)
                     {
-                        tactic.EquippedItems.Remove(item);
-                    }
+                        var tactic = viewModel.Tactics.First(t => t.Id == selectedTacticId);
 
-                    tactic.EquippedItems.Add(new TacticEquippedItem { TacticId = selectedTacticId, EquippedType = "armor", EquippedId = selectedArmor.Id, EquippedLevel = selectedTacticLevel, equippedSlot = equippingSlot });
-                    viewModel.Tactics.First(t => t.Id == selectedTacticId).Levels.First(l => l.Level == selectedTacticLevel).EquippedItemOnLevel = "✦";
+                        var equipmentToRemove = tactic.EquippedItems.Where(e => e.TacticId == selectedTacticId && e.EquippedLevel == selectedTacticLevel && e.equippedSlot == equippingSlot).ToList();
+
+                        foreach (var item in equipmentToRemove)
+                        {
+                            tactic.EquippedItems.Remove(item);
+                        }
+
+                        tactic.EquippedItems.Add(new TacticEquippedItem { TacticId = selectedTacticId, EquippedType = equippedType, EquippedId = selectedWeapon.Id, EquippedLevel = selectedTacticLevel, equippedSlot = equippingSlot });
+                        viewModel.Tactics.First(t => t.Id == selectedTacticId).Levels.First(l => l.Level == selectedTacticLevel).EquippedItemOnLevel = "✦";
+                    }
                 }
-            }
+                if (selectedArmor != null && selectedItemCategory == "armor")
+                {
+                    SqliteHandler.UpdateEquippedItem(selectedTacticId, selectedTacticLevel, "armor", selectedArmor.Id, equippingSlot);
+
+                    if (DataContext is MainViewModel viewModel)
+                    {
+                        var tactic = viewModel.Tactics.First(t => t.Id == selectedTacticId);
+
+                        var equipmentToRemove = tactic.EquippedItems.Where(e => e.TacticId == selectedTacticId && e.EquippedLevel == selectedTacticLevel && e.equippedSlot == equippingSlot).ToList();
+
+                        foreach (var item in equipmentToRemove)
+                        {
+                            tactic.EquippedItems.Remove(item);
+                        }
+
+                        tactic.EquippedItems.Add(new TacticEquippedItem { TacticId = selectedTacticId, EquippedType = "armor", EquippedId = selectedArmor.Id, EquippedLevel = selectedTacticLevel, equippedSlot = equippingSlot });
+                        viewModel.Tactics.First(t => t.Id == selectedTacticId).Levels.First(l => l.Level == selectedTacticLevel).EquippedItemOnLevel = "✦";
+                    }
+                }
+            });
+
             CloseSearchItem();
-            UpdateButtons();
+            await UpdateLoadedArmorAndWeapons();
+            await UpdateButtons();
+            await CalculateStats();
         }
 
-        private void UpdateButtons()
+        private async Task UpdateButtons()
         {
-            if (DataContext is MainViewModel viewModel)
-            {
-                var equippedItems = viewModel.Tactics.First(t => t.Id == selectedTacticId).EquippedItems.OrderByDescending(r => r.EquippedLevel);
-                var equippedItemsOnLevel = viewModel.Tactics.First(t => t.Id == selectedTacticId).EquippedItems.Where(r => r.EquippedLevel == selectedTacticLevel);
+            await Dispatcher.UIThread.InvokeAsync(() =>
+             {
+                 if (DataContext is MainViewModel viewModel)
+                 {
+                     var equippedItems = viewModel.Tactics.First(t => t.Id == selectedTacticId).EquippedItems.OrderByDescending(r => r.EquippedLevel);
+                     var equippedItemsOnLevel = viewModel.Tactics.First(t => t.Id == selectedTacticId).EquippedItems.Where(r => r.EquippedLevel == selectedTacticLevel);
 
-                var equipmentButtons = new Dictionary<string, Button>
-                    {
+                     var equipmentButtons = new Dictionary<string, Button>
+                     {
                         { "mainhand", MainHandButton },
                         { "shieldhand", ShieldHandButton },
                         { "head", HeadButton },
@@ -635,43 +669,44 @@ namespace LanistaBrowserV1.UserControls
                         { "amulet", AmuletButton },
                         { "bracelet", BraceletButton },
                         { "trinket", TrinketButton }
-                    };
+                     };
 
-                foreach (var equipmentType in equipmentSlots)
-                {
-                    int equipmentId = equippedItems.FirstOrDefault(item => item.TacticId == selectedTacticId && item.EquippedLevel <= selectedTacticLevel && item.equippedSlot == equipmentType)?.EquippedId ?? 0;
+                     foreach (var equipmentType in equipmentSlots)
+                     {
+                         int equipmentId = equippedItems.FirstOrDefault(item => item.TacticId == selectedTacticId && item.EquippedLevel <= selectedTacticLevel && item.equippedSlot == equipmentType)?.EquippedId ?? 0;
 
-                    if (equipmentId != 0)
-                    {
-                        if (equipmentType == "mainhand" || equipmentType == "shieldhand")
-                        {
-                            equipmentButtons[equipmentType].Content = viewModel.WeaponList.First(w => w.Id == equipmentId).Name;
-                        }
-                        else
-                        {
-                            equipmentButtons[equipmentType].Content = viewModel.ArmorList.First(a => a.Id == equipmentId).Name;
-                        }
+                         if (equipmentId != 0)
+                         {
+                             if (equipmentType == "mainhand" || equipmentType == "shieldhand")
+                             {
+                                 equipmentButtons[equipmentType].Content = viewModel.WeaponList.First(w => w.Id == equipmentId).Name;
+                             }
+                             else
+                             {
+                                 equipmentButtons[equipmentType].Content = viewModel.ArmorList.First(a => a.Id == equipmentId).Name;
+                             }
 
-                        // Check if the item is in the equippedItemsOnLevel list
-                        if (equippedItemsOnLevel.Any(item => item.EquippedId == equipmentId && item.equippedSlot == equipmentType))
-                        {
-                            // Change the button's border color to yellow
-                            equipmentButtons[equipmentType].BorderBrush = new SolidColorBrush(Colors.DarkGoldenrod);
-                        }
-                        else
-                        {
-                            // Reset the button's border color
-                            equipmentButtons[equipmentType].BorderBrush = new SolidColorBrush(Colors.Transparent);
-                        }
-                    }
-                    else
-                    {
-                        equipmentButtons[equipmentType].Content = "None";
-                        // Reset the button's border color
-                        equipmentButtons[equipmentType].BorderBrush = new SolidColorBrush(Colors.Transparent);
-                    }
-                }
-            }
+                             // Check if the item is in the equippedItemsOnLevel list
+                             if (equippedItemsOnLevel.Any(item => item.EquippedId == equipmentId && item.equippedSlot == equipmentType))
+                             {
+                                 // Change the button's border color to yellow
+                                 equipmentButtons[equipmentType].BorderBrush = new SolidColorBrush(Colors.DarkGoldenrod);
+                             }
+                             else
+                             {
+                                 // Reset the button's border color
+                                 equipmentButtons[equipmentType].BorderBrush = new SolidColorBrush(Colors.Transparent);
+                             }
+                         }
+                         else
+                         {
+                             equipmentButtons[equipmentType].Content = "None";
+                             // Reset the button's border color
+                             equipmentButtons[equipmentType].BorderBrush = new SolidColorBrush(Colors.Transparent);
+                         }
+                     }
+                 }
+             });
         }
 
         private void ToggleEquippingRemovingButton_Click(object sender, RoutedEventArgs e)
@@ -690,22 +725,165 @@ namespace LanistaBrowserV1.UserControls
             }
         }
 
-        private void CalculateStats()
+        private async Task CalculateStats()
         {
-            if (loadedRaceBonuses == null || loadedRaceBonuses.Stats == null) { return; }
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                if (loadedRaceBonuses == null || loadedRaceBonuses.Stats == null) { return; }
+                if (loadedRaceBonuses == null || loadedRaceBonuses.WeaponSkills == null) { return; }
 
-            StaminaRB.Text = (ReturnTotalStatValue(StaminaTotalTextBlock, StaminaTextBox) * loadedRaceBonuses.Stats.First(r => r.Type == 0).Value).ToString("F1");
-            StrengthRB.Text = (ReturnTotalStatValue(StrengthTotalTextBlock, StrengthTextBox) * loadedRaceBonuses.Stats.First(r => r.Type == 1).Value).ToString("F1");
-            EnduranceRB.Text = (ReturnTotalStatValue(EnduranceTotalTextBlock, EnduranceTextBox) * loadedRaceBonuses.Stats.First(r => r.Type == 3).Value).ToString("F1");
-            InitiativeRB.Text = (ReturnTotalStatValue(InitiativeTotalTextBlock, InitiativeTextBox) * loadedRaceBonuses.Stats.First(r => r.Type == 4).Value).ToString("F1");
-            DodgeRB.Text = (ReturnTotalStatValue(DodgeTotalTextBlock, DodgeTextBox) * loadedRaceBonuses.Stats.First(r => r.Type == 7).Value).ToString("F1");
-            WeaponRB.Text = (ReturnTotalStatValue(WeaponSkillTotalTextBlock, WeaponSkillTextBox) * loadedRaceBonuses.Stats.First(r => r.Type == weaponTypeSelected).Value).ToString("F1");
-            ShieldRB.Text = (ReturnTotalStatValue(ShieldSkillTotalTextBlock, ShieldSkillTextBox) * loadedRaceBonuses.Stats.First(r => r.Type == 6).Value).ToString("F1");
+                if (DataContext is not MainViewModel viewModel) { return; }
+
+                double staminaRB = (ReturnTotalStatValue(StaminaTotalTextBlock, StaminaTextBox) * loadedRaceBonuses.Stats.First(r => r.Type == 0).Value);
+                StaminaRB.Text = staminaRB.ToString("F1");
+                double strengthRB = (ReturnTotalStatValue(StrengthTotalTextBlock, StrengthTextBox) * loadedRaceBonuses.Stats.First(r => r.Type == 1).Value);
+                StrengthRB.Text = strengthRB.ToString("F1");
+                double enduranceRB = (ReturnTotalStatValue(EnduranceTotalTextBlock, EnduranceTextBox) * loadedRaceBonuses.Stats.First(r => r.Type == 3).Value);
+                EnduranceRB.Text = enduranceRB.ToString("F1");
+                double initiativeRB = (ReturnTotalStatValue(InitiativeTotalTextBlock, InitiativeTextBox) * loadedRaceBonuses.Stats.First(r => r.Type == 4).Value);
+                InitiativeRB.Text = initiativeRB.ToString("F1");
+                double dodgeRB = (ReturnTotalStatValue(DodgeTotalTextBlock, DodgeTextBox) * loadedRaceBonuses.Stats.First(r => r.Type == 7).Value);
+                DodgeRB.Text = dodgeRB.ToString("F1");
+                double weaponRB = (ReturnTotalStatValue(WeaponSkillTotalTextBlock, WeaponSkillTextBox) * loadedRaceBonuses.WeaponSkills.First(r => r.Type == weaponTypeSelected).Value);
+                WeaponRB.Text = weaponRB.ToString("F1");
+                double shieldRB = (ReturnTotalStatValue(ShieldSkillTotalTextBlock, ShieldSkillTextBox) * loadedRaceBonuses.WeaponSkills.First(r => r.Type == 6).Value);
+                ShieldRB.Text = shieldRB.ToString("F1");
+
+                //weaponTypeSelected
+
+                string weaponTypeName = viewModel.ApiConfig.WeaponTypes!.First(w => w.Value == weaponTypeSelected).Key;
+
+                double staminaEQ = ReturnRaceBonusAndEquippedStats("STAMINA", staminaRB);
+                StaminaEQ.Text = staminaEQ.ToString("F1");
+                double strengthEQ = ReturnRaceBonusAndEquippedStats("STRENGTH", strengthRB);
+                StrengthEQ.Text = strengthEQ.ToString("F1");
+                double enduranceEQ = ReturnRaceBonusAndEquippedStats("ENDURANCE", enduranceRB);
+                EnduranceEQ.Text = enduranceEQ.ToString("F1");
+                double initiativeEQ = ReturnRaceBonusAndEquippedStats("INITIATIVE", initiativeRB);
+                InitiativeEQ.Text = initiativeEQ.ToString("F1");
+                double dodgeEQ = ReturnRaceBonusAndEquippedStats("DODGE", dodgeRB);
+                DodgeEQ.Text = dodgeEQ.ToString("F1");
+                double weaponEQ = ReturnRaceBonusAndEquippedStats(weaponTypeName, weaponRB);
+                WeaponEQ.Text = weaponEQ.ToString("F1");
+                double shieldEQ = ReturnRaceBonusAndEquippedStats("SHIELD", shieldRB);
+
+                BonusSourcesStackPanel.Children.Clear();
+
+                foreach (var weapon in loadedWeapons)
+                {
+                    if (weapon.Bonuses == null || weapon.Bonuses.Count == 0) { continue; }
+
+                    StackPanel baseStackPanel = new();
+                    baseStackPanel.Margin = new Avalonia.Thickness(10, 10, 0, 10);
+                    TextBlock weaponName = new();
+                    weaponName.FontWeight = FontWeight.Bold;
+                    weaponName.Text = weapon.Name;
+                    baseStackPanel.Children.Add(weaponName);
+
+                    foreach (var stat in weapon.Bonuses)
+                    {
+                        if (stat.Additive != null)
+                        {
+                            TextBlock additiveBlock = new();
+                            additiveBlock.Text = stat.Type!.ToLower() + ": ";
+                            additiveBlock.Text += stat.Additive > 0 ? $"+{stat.Additive}" : stat.Additive.ToString();
+                            baseStackPanel.Children.Add(additiveBlock);
+                        }
+                        if (stat.Multiplier != null)
+                        {
+                            TextBlock multiplierBlock = new();
+                            multiplierBlock.Text = stat.Type!.ToLower() + ": ";
+                            multiplierBlock.Text += stat.Multiplier > 1 ? $"+{(stat.Multiplier - 1) * 100}%" : $"{(stat.Multiplier - 1) * 100}%";
+                            baseStackPanel.Children.Add(multiplierBlock);
+                        }
+                    }
+                    BonusSourcesStackPanel.Children.Add(baseStackPanel);
+                }
+
+                foreach (var armor in loadedArmor)
+                {
+                    if (armor.Bonuses == null || armor.Bonuses.Count == 0) { continue; }
+
+                    StackPanel baseStackPanel = new();
+                    baseStackPanel.Margin = new Avalonia.Thickness(10, 10, 0, 10);
+                    TextBlock armorName = new();
+                    armorName.Text = armor.Name;
+                    armorName.FontWeight = FontWeight.Bold;
+                    baseStackPanel.Children.Add(armorName);
+
+                    foreach (var stat in armor.Bonuses)
+                    {
+                        if (stat.Additive != null)
+                        {
+                            TextBlock additiveBlock = new();
+                            additiveBlock.Text = stat.Type!.ToLower() + ": ";
+                            additiveBlock.Text += stat.Additive > 0 ? $"+{stat.Additive}" : stat.Additive.ToString();
+                            baseStackPanel.Children.Add(additiveBlock);
+                        }
+                        if (stat.Multiplier != null)
+                        {
+                            TextBlock multiplierBlock = new();
+                            multiplierBlock.Text = stat.Type!.ToLower() + ": ";
+                            multiplierBlock.Text += stat.Multiplier > 1 ? $"+{(stat.Multiplier - 1) * 100}%" : $"{(stat.Multiplier - 1) * 100}%";
+                            baseStackPanel.Children.Add(multiplierBlock);
+                        }
+                    }
+                    BonusSourcesStackPanel.Children.Add(baseStackPanel);
+                }
+            });
         }
 
-        private double ReturnTotalStatValue(TextBlock block, TextBox box)
+        private static double ReturnTotalStatValue(TextBlock block, TextBox box)
         {
             return (int.TryParse(box.Text, out int staminaValue) ? staminaValue : 0) + (int.TryParse(block.Text, out int totalStaminaValue) ? totalStaminaValue : 0);
+        }
+
+        private double ReturnRaceBonusAndEquippedStats(string bonusType, double baseStat)
+        {
+            double totalAfterAdditive = 0;
+            double totalAfterMultiplier = 0;
+
+            foreach (var armor in loadedArmor)
+            {
+                if (armor.Bonuses == null) { continue; }
+
+                foreach (var stat in armor.Bonuses)
+                {
+                    if (stat.Type == bonusType)
+                    {
+                        if (stat.Additive != null)
+                        {
+                            totalAfterAdditive += (double)stat.Additive;
+                        }
+                        if (stat.Multiplier != null)
+                        {
+                            totalAfterMultiplier += baseStat * ((double)stat.Multiplier - 1);
+                        }
+                    }
+                }
+            }
+
+            foreach (var weapon in loadedWeapons)
+            {
+                if (weapon.Bonuses == null) { continue; }
+
+                foreach (var stat in weapon.Bonuses)
+                {
+                    if (stat.Type == bonusType)
+                    {
+                        if (stat.Additive != null)
+                        {
+                            totalAfterAdditive += (double)stat.Additive;
+                        }
+                        if (stat.Multiplier != null)
+                        {
+                            totalAfterMultiplier += baseStat * ((double)stat.Multiplier - 1);
+                        }
+                    }
+                }
+            }
+
+            return (baseStat + totalAfterAdditive + totalAfterMultiplier);
         }
     }
 }

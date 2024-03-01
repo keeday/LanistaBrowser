@@ -88,7 +88,7 @@
 						<ColumnDefinition Width="*" />
 					</Grid.ColumnDefinitions>
 					<ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-						<StackPanel Grid.Column="0" x:Name="SummaryStackPanel" DockPanel.Dock="Right" Background="#252526">
+						<StackPanel Grid.Column="0" x:Name="SummaryStackPanel" DockPanel.Dock="Right" Background="#252526" IsVisible="false">
 							<TextBlock  Text="Level Summary" DockPanel.Dock="Top" HorizontalAlignment="Center" Margin="10" FontWeight="Bold" FontSize="20" />
 							<StackPanel x:Name="SummaryContentPanel">
 								<DockPanel>
@@ -113,13 +113,13 @@
 
 										<StackPanel Grid.Column="1">
 											<TextBlock Text="" HorizontalAlignment="Left" Margin="10" />
-											<TextBlock Text="+0%" x:Name="StaminaPercentage" HorizontalAlignment="Left" Margin="10" />
-											<TextBlock Text="+0%" x:Name="StrengthPercentage" HorizontalAlignment="Left" Margin="10" />
-											<TextBlock Text="+0%" x:Name="EndurancePercentage" HorizontalAlignment="Left" Margin="10" />
-											<TextBlock Text="+0%" x:Name="InitiativePercentage" HorizontalAlignment="Left" Margin="10" />
-											<TextBlock Text="+0%" x:Name="DodgePercentage" HorizontalAlignment="Left" Margin="10" />
-											<TextBlock Text="+0%" x:Name="WeaponPercentage" HorizontalAlignment="Left" Margin="10" />
-											<TextBlock Text="+0%" x:Name="ShieldPercentage" HorizontalAlignment="Left" Margin="10" />
+											<TextBlock Text="+0%" x:Name="StaminaPercentage" HorizontalAlignment="Right" Margin="10" />
+											<TextBlock Text="+0%" x:Name="StrengthPercentage" HorizontalAlignment="Right" Margin="10" />
+											<TextBlock Text="+0%" x:Name="EndurancePercentage" HorizontalAlignment="Right" Margin="10" />
+											<TextBlock Text="+0%" x:Name="InitiativePercentage" HorizontalAlignment="Right" Margin="10" />
+											<TextBlock Text="+0%" x:Name="DodgePercentage" HorizontalAlignment="Right" Margin="10" />
+											<TextBlock Text="+0%" x:Name="WeaponPercentage" HorizontalAlignment="Right" Margin="10" />
+											<TextBlock Text="+0%" x:Name="ShieldPercentage" HorizontalAlignment="Right" Margin="10" />
 										</StackPanel>
 
 										<StackPanel Grid.Column="2">
@@ -145,13 +145,18 @@
 										</StackPanel>
 									</Grid>
 								</DockPanel>
+								<DockPanel>
+									<TextBlock  Text="Bonus Sources" DockPanel.Dock="Top" HorizontalAlignment="Center" Margin="10" FontWeight="Bold" FontSize="20" />
+									<StackPanel x:Name="BonusSourcesStackPanel">
+									</StackPanel>
+								</DockPanel>
 							</StackPanel>
 						</StackPanel>
 					</ScrollViewer>
 
 					<ScrollViewer Grid.Column="1">
-						<StackPanel x:Name="ContentStackPanel" IsVisible="True">
-							<TextBlock  Text="Level 0 | Tactic Name" DockPanel.Dock="Top" HorizontalAlignment="Center" Margin="10" FontWeight="Bold" FontSize="20" />
+						<StackPanel x:Name="ContentStackPanel" IsVisible="False">
+							<TextBlock x:Name="LevelContentTitle"  Text="Level 0 | Tactic Name" DockPanel.Dock="Top" HorizontalAlignment="Center" Margin="10" FontWeight="Bold" FontSize="20" />
 							<Grid Margin="20" HorizontalAlignment="Center">
 								<Grid.ColumnDefinitions>
 									<ColumnDefinition Width="Auto" />
@@ -359,7 +364,7 @@
 						<ColumnDefinition Width="*" />
 					</Grid.ColumnDefinitions>
 					<Button Content="X" Foreground="Red" Background="Transparent" FontSize="30" Grid.Column="0" Click="CloseSearchItemButton_Click" />
-					<Button x:Name="EquipItemButton" IsVisible="False" Content="Equip Selected Item" Grid.Column="1" Grid.ColumnSpan="2" Click="EquipSelectedItemButton_Click" />
+					<Button x:Name="EquipItemButton" FontWeight="Bold" FontSize="25" IsVisible="False" Content="Equip Selected Item" Grid.Column="1" Click="EquipSelectedItemButton_Click" HorizontalAlignment="Center" />
 				</Grid>
 			</DockPanel>
 			<DockPanel x:Name="SearchItemsDockPanel" />
