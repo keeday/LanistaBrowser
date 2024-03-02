@@ -25,6 +25,11 @@ public partial class MainView : UserControl
         DownloadApiData();
     }
 
+    public void GoToWikiPage()
+    {
+        TabStrip.SelectedItem = WikiButton;
+    }
+
     private void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (e.AddedItems.Count > 0)

@@ -216,6 +216,15 @@ namespace LanistaBrowserV1.Functions
             }
         }
 
+        public static void UpdateLoadedTactic(int tacticId, string gladiatorName)
+        {
+            string path = DbPath();
+            using var connection = new SqliteConnection($"Data Source={path}");
+            connection.Open();
+
+            connection.Execute("UPDATE Tactics SET LoadedCharacterName = @gladiatorName WHERE Id = @tacticId", new { gladiatorName, tacticId });
+        }
+
         public static void DeleteEquippedItem(int tacticId, int level, string equippedSlot)
         {
             string path = DbPath();

@@ -4,8 +4,12 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using AvaloniaWebView;
+using LanistaBrowserV1.Classes;
+using LanistaBrowserV1.Functions;
 using LanistaBrowserV1.ViewModels;
+using LanistaBrowserV1.Views;
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -20,9 +24,12 @@ namespace LanistaBrowserV1.UserControls
     {
         private readonly Timer urlCheckTimer;
         public string gladiatorName { get; set; } = string.Empty;
+        public string lastLanistaUrl = string.Empty;
 
         private string loadedTacticName = string.Empty;
         private int currentLevel = 0;
+
+        private Tactic? selectedTactic;
 
         public LanistaWebView()
         {
@@ -48,6 +55,7 @@ namespace LanistaBrowserV1.UserControls
                         if (!string.IsNullOrEmpty(currentUrl))
                         {
                             currentUrl = currentUrl.Trim('"');
+
                             if (viewModel.CurrentUrl != currentUrl)
                             {
                                 viewModel.CurrentUrl = currentUrl;
@@ -61,13 +69,17 @@ namespace LanistaBrowserV1.UserControls
                                     Debug.WriteLine("Create Avatar detected");
                                     //Load new tactic here. Also load special js script for create avatar.
                                 }
+                                else if (currentUrl.Contains("wiki"))
+                                {
+                                    LanistaBrowser.Url = new Uri(lastLanistaUrl);
+                                    MainView mainView = this.FindAncestorOfType<MainView>()!;
+                                    mainView.GoToWikiPage();
+                                }
                                 else
                                 {
-                                    if (LoadedTacticPanel != null)
-                                    {
-                                        LoadedTacticPanel.IsVisible = false;
-                                    }
+                                    HideAllPanels();
                                 }
+                                lastLanistaUrl = currentUrl;
                             }
                         }
                     }
@@ -132,6 +144,9 @@ namespace LanistaBrowserV1.UserControls
 
                 if (placedStats != null && placedStats.Any())
                 {
+                    NoStatsPlacedMessage.IsVisible = false;
+                    SelectTacticPanel.IsVisible = false;
+
                     foreach (var stat in placedStats)
                     {
                         TextBlock statNameBlock = new();
@@ -142,7 +157,6 @@ namespace LanistaBrowserV1.UserControls
                         statValueBLock.HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left;
                         statValueBLock.Margin = new Thickness(3, 3, 0, 3);
 
-                        NoStatsPlacedMessage.IsVisible = false;
                         StatsNamePanel.Children.Add(statNameBlock);
                         StatsValuePanel.Children.Add(statValueBLock);
 
@@ -275,7 +289,7 @@ namespace LanistaBrowserV1.UserControls
             }
             else
             {
-                //No tactic loaded or this character.
+                SelectTacticPanel.IsVisible = true;
             }
         }
 
@@ -318,6 +332,55 @@ namespace LanistaBrowserV1.UserControls
                 currentLevel--;
                 LoadTheoryCraftSidePanelLevel(currentLevel, gladiatorName);
             }
+        }
+
+        private void ListBoxTactics_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (DataContext is not MainViewModel viewModel) { return; }
+
+            if (sender is ListBox listBox && listBox.SelectedItem is Tactic tactic)
+            {
+                SelectTacticButton.IsVisible = true;
+                SelectTacticText.IsVisible = false;
+
+                SelectTacticButton.Content = $"Load '{tactic.TacticName}'";
+                selectedTactic = tactic;
+            }
+        }
+
+        private void SelectTacticButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is not MainViewModel viewModel) { return; }
+            if (selectedTactic != null)
+            {
+                foreach (var tac in viewModel.Tactics)
+                {
+                    if (tac.LoadedCharacterName == gladiatorName)
+                    {
+                        tac.LoadedCharacterName = string.Empty;
+                    }
+                }
+
+                viewModel.Tactics.FirstOrDefault(t => t.Id == selectedTactic.Id)!.LoadedCharacterName = gladiatorName;
+                HideAllPanels();
+                SqliteHandler.UpdateLoadedTactic(selectedTactic.Id, gladiatorName);
+                LoadTheoryCraftSidePanelLevel(currentLevel, gladiatorName);
+            }
+        }
+
+        private void SelectNewTacticButton_Click(object sender, RoutedEventArgs e)
+        {
+            HideAllPanels();
+            SelectTacticPanel.IsVisible = true;
+        }
+
+        private void HideAllPanels()
+        {
+            LoadedTacticPanel.IsVisible = false;
+            SelectTacticPanel.IsVisible = false;
+
+            SelectTacticButton.IsVisible = false;
+            SelectTacticText.IsVisible = true;
         }
     }
 }
