@@ -6,7 +6,7 @@
         xmlns:views="clr-namespace:LanistaBrowserV1.Views"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="LanistaBrowserV1.Views.MainWindow"
-        Icon="/Assets/avalonia-logo.ico"
-        Title="LanistaBrowserV1">
-        <views:MainView />
+        Icon="/Assets/favicon.ico"
+        Title="Lanista Browser">
+	<views:MainView />
 </Window>

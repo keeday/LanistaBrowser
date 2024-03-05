@@ -4,8 +4,11 @@ using Avalonia.Interactivity;
 using Avalonia.Media;
 using LanistaBrowserV1.Functions;
 using LanistaBrowserV1.ViewModels;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Diagnostics;
+using System.Net.Http;
+using static System.Net.WebRequestMethods;
 
 namespace LanistaBrowserV1.Views;
 
@@ -59,6 +62,10 @@ public partial class MainView : UserControl
 
                 case 3:
                     viewModel.IsWikiPageVisible = true;
+                    break;
+
+                case 4:
+                    viewModel.IsAboutPageVisible = true;
                     break;
             }
         }
@@ -176,6 +183,32 @@ public partial class MainView : UserControl
                 noError = false;
             }
 
+            try
+            {
+                using (var client = new HttpClient())
+                {
+                    client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (compatible; GrandCircus/1.0)");
+                    var url = "https://api.github.com/repos/keeday/LanistaBrowser/releases/latest";
+                    var response = await client.GetStringAsync(url);
+                    var json = JObject.Parse(response);
+                    viewModel.LatestRelease = json["tag_name"].ToString();
+                }
+
+                if (viewModel.LatestRelease != viewModel.Version)
+                {
+                    NewVersionBlock.IsVisible = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                LoadingTitle.Text = "ERROR";
+                LoadingTitle.Foreground = new SolidColorBrush(Colors.Red);
+
+                Debug.WriteLine(ex.Message);
+                LoadingInfo.Text = "Could not fetch latest release.\n\n" + ex.Message;
+                noError = false;
+            }
+
             if (noError)
             {
                 LoadingScreen.IsVisible = false;
@@ -188,6 +221,31 @@ public partial class MainView : UserControl
             LoadingTitle.Foreground = new SolidColorBrush(Colors.Red);
 
             LoadingInfo.Text = "Something went horribly wrong...";
+        }
+    }
+
+    private void Hyperlink_PointerPressed(object sender, Avalonia.Input.PointerPressedEventArgs e)
+    {
+        var textBlock = sender as TextBlock;
+        if (textBlock != null)
+        {
+            var url = "https://github.com/keeday/LanistaBrowser/releases/tag/" + viewModel!.LatestRelease;
+            OpenUrl(url);
+        }
+    }
+
+    private void OpenUrl(string url)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = url,
+                UseShellExecute = true
+            });
+        }
+        catch
+        {
         }
     }
 }

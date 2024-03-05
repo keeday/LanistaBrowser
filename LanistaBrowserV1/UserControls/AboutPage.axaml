@@ -1,0 +1,43 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+			 xmlns:vm="clr-namespace:LanistaBrowserV1.ViewModels"
+             x:Class="LanistaBrowserV1.UserControls.AboutPage"
+			 x:DataType="vm:MainViewModel">
+	<Grid>
+		<DockPanel HorizontalAlignment="Center">
+			<DockPanel Width="200">
+				<Image Source="/Assets/OriginalSize.png" Opacity="0.8" />
+			</DockPanel>
+
+			<StackPanel  HorizontalAlignment="Left" VerticalAlignment="Center" Margin="70">
+
+				<DockPanel Margin="5">
+					<TextBlock Text="Created By: " FontWeight="Bold" />
+					<TextBlock Text="Keeday" />
+				</DockPanel>
+
+				<DockPanel Margin="5">
+					<TextBlock Text="Version: "  FontWeight="Bold" />
+					<TextBlock Text="{Binding Version}" />
+				</DockPanel>
+
+				<DockPanel Margin="5,10,0,0">
+					<TextBlock Text="https://github.com/keeday/LanistaBrowser"
+							   Foreground="LightBlue"
+							   Cursor="Hand"
+							   PointerPressed="Hyperlink_PointerPressed" />
+				</DockPanel>
+
+				<DockPanel Margin="5,15,0,0">
+					<TextBlock Text="You will find me lurking in the official Lanista Discord." />
+				</DockPanel>
+				<DockPanel Margin="5">
+					<TextBlock Text="If you have any questions, feel free to say hi!" />
+				</DockPanel>
+			</StackPanel>
+		</DockPanel>
+	</Grid>
+</UserControl>

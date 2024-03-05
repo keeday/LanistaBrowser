@@ -10,7 +10,15 @@
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <Configurations>Debug;Release;WindowsDeploy</Configurations>
+	  <ApplicationIcon>Properties\favicon.ico</ApplicationIcon>
+	  <AssemblyName>LanistaBrowser</AssemblyName>
   </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Properties\favicon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="Properties\favicon.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.0.9" />

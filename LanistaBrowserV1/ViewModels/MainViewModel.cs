@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using LanistaBrowserV1.Classes;
 using System.Linq;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace LanistaBrowserV1.ViewModels;
 
@@ -21,7 +22,31 @@ public partial class MainViewModel : ViewModelBase
 
     private bool _isWikiPageVisible = false;
 
+    private bool _isAboutPageVisible = false;
+
     private string _currentUrl = "https://www.wikipedia.org/";
+
+    private string _latestRelease = string.Empty;
+
+    public string LatestRelease
+    {
+        get => _latestRelease;
+        set => SetProperty(ref _latestRelease, value);
+    }
+
+    public string Version
+    {
+        get
+        {
+            var assembly = Assembly.GetEntryAssembly();
+            if (assembly != null)
+            {
+                var fileVersionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
+                return "v" + fileVersionInfo.FileVersion ?? "Version not found";
+            }
+            return "Version not found";
+        }
+    }
 
     //Search
     private bool _isWeaponsVisible = true;
@@ -62,6 +87,7 @@ public partial class MainViewModel : ViewModelBase
                 IsSearchItemsVisible = false;
                 IsTheoryCraftingMainVisible = false;
                 IsWikiPageVisible = false;
+                IsAboutPageVisible = false;
             }
         }
     }
@@ -76,6 +102,7 @@ public partial class MainViewModel : ViewModelBase
                 IsLanistaVisible = false;
                 IsTheoryCraftingMainVisible = false;
                 IsWikiPageVisible = false;
+                IsAboutPageVisible = false;
             }
         }
     }
@@ -90,6 +117,7 @@ public partial class MainViewModel : ViewModelBase
                 IsLanistaVisible = false;
                 IsWikiPageVisible = false;
                 IsSearchItemsVisible = false;
+                IsAboutPageVisible = false;
             }
         }
     }
@@ -104,6 +132,22 @@ public partial class MainViewModel : ViewModelBase
                 IsLanistaVisible = false;
                 IsTheoryCraftingMainVisible = false;
                 IsSearchItemsVisible = false;
+                IsAboutPageVisible = false;
+            }
+        }
+    }
+
+    public bool IsAboutPageVisible
+    {
+        get => _isAboutPageVisible;
+        set
+        {
+            if (SetProperty(ref _isAboutPageVisible, value) && value)
+            {
+                IsLanistaVisible = false;
+                IsTheoryCraftingMainVisible = false;
+                IsSearchItemsVisible = false;
+                IsWikiPageVisible = false;
             }
         }
     }

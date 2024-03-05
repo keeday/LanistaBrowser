@@ -58,7 +58,20 @@
 
 					<TabItem Header="Wiki" x:Name="WikiButton" Cursor="Hand">
 					</TabItem>
+
+					<TabItem Header="About" x:Name="AboutButton" Cursor="Hand">
+					</TabItem>
 				</TabStrip>
+				<TextBlock Text="New Version Avalible"
+							   Foreground="Red"
+							   Cursor="Hand"
+						   FontWeight="Bold"
+						    VerticalAlignment="Center"
+						   HorizontalAlignment="Right"
+						   Margin="5"
+						   x:Name="NewVersionBlock"
+						   IsVisible="False"
+							   PointerPressed="Hyperlink_PointerPressed" />
 			</DockPanel>
 
 			<Border DockPanel.Dock="Top" Background="Black" Height="1" />
@@ -74,6 +87,9 @@
 				</DockPanel>
 				<DockPanel x:Name="WikiPage" IsVisible="{Binding IsWikiPageVisible}">
 					<local:WikiPage />
+				</DockPanel>
+				<DockPanel x:Name="AboutPage" IsVisible="{Binding IsAboutPageVisible}">
+					<local:AboutPage />
 				</DockPanel>
 			</Grid>
 		</DockPanel>
