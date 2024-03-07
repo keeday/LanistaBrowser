@@ -15,8 +15,8 @@
 			<StackPanel  HorizontalAlignment="Left" VerticalAlignment="Center" Margin="70">
 
 				<DockPanel Margin="5">
-					<TextBlock Text="Created By: " FontWeight="Bold" />
-					<TextBlock Text="Keeday" />
+
+					<TextBlock Text="Created by Keeday © 2024" />
 				</DockPanel>
 
 				<DockPanel Margin="5">

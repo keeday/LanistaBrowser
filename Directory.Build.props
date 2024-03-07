@@ -2,7 +2,7 @@
 	<PropertyGroup>
 		<Nullable>enable</Nullable>
 		<AvaloniaVersion>11.0.2</AvaloniaVersion>
-		<Version>0.0.0.1</Version>
+		<Version>0.0.0.2</Version>
 		<Copyright>https://github.com/keeday/LanistaBrowser</Copyright>
 	</PropertyGroup>
 </Project>

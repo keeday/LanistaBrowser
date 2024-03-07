@@ -146,8 +146,17 @@ namespace LanistaBrowserV1.Classes
         {
             get
             {
-                var requirement = this.Requirements?.FirstOrDefault(r => r.RequirementableId == 2);
+                var requirement = this.Requirements?.FirstOrDefault(r => r.RequirementableId == 2 && r.Requirementable == "App\\Models\\Stat");
                 return requirement?.RequirementValue;
+            }
+        }
+
+        public int? OffhandStrengthRequirementValue
+        {
+            get
+            {
+                var requirement = this.Requirements?.FirstOrDefault(r => r.RequirementableId == 2 && r.Requirementable == "App\\Models\\Stat");
+                return requirement?.OffhandRequirement;
             }
         }
 
@@ -209,6 +218,9 @@ namespace LanistaBrowserV1.Classes
     {
         [JsonProperty("id")]
         public int Id { get; set; }
+
+        [JsonProperty("offhand_requirement")]
+        public int? OffhandRequirement { get; set; }
 
         [JsonProperty("requirement_text")]
         public string? RequirementText { get; set; }
