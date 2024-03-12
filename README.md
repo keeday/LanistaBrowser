@@ -48,11 +48,11 @@ On Windows the browser utilizes [Microsoft's Webview](https://learn.microsoft.co
 
 **Will the browser be available for other platforms?**
 
-Yes, an Android version is planned. The framework (Avalonia) allows builds for Mac, iOS, and Linux. However, building, testing, and releasing for these platforms is currently not something I am capable of, as I do not use any of these platforms. I am happy to try to build for these platforms, but I will need assistance in testing before I publish. Please contact me if you're interested in helping.
+Yes, an Android version is planned. The framework (Avalonia) allow builds for Mac, iOS, and Linux. However, building, testing, and releasing for these platforms is currently not something I am capable of, as I do not use any of these platforms. I am happy to try to build for these platforms, but I will need assistance in testing before I publish. Please contact me if you're interested in helping.
 
 **Do you have a roadmap?**
 
-The closest thing to a roadmap is my [Trello Board](https://trello.com/platforms).
+The closest thing to a roadmap is my [Trello Board](https://trello.com/b/UTABzwpt/lanistabrowser).
 
 **I have an idea/found a bug!**
 
