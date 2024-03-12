@@ -42,9 +42,9 @@ On Windows the browser utilizes [Microsoft's Webview](https://learn.microsoft.co
 
 ## FAQ
 
-**Will the browser be available for other systems?**
+**Will the browser be available for other platforms?**
 
-Yes, an Android version is planned. The framework (Avalonia) allows builds for Mac, iOS, and Linux. However, building, testing, and releasing for these platforms is currently not something I am capable of, as I do not use any of these systems. I am happy to try to build for these systems, but I will need assistance in testing before I publish.
+Yes, an Android version is planned. The framework (Avalonia) allows builds for Mac, iOS, and Linux. However, building, testing, and releasing for these platforms is currently not something I am capable of, as I do not use any of these platforms. I am happy to try to build for these systems, but I will need assistance in testing before I publish. Please contact me if you're interested in helping.
 
 **Do you have a roadmap?**
 
