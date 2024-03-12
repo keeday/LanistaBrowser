@@ -20,7 +20,7 @@ Provides a fully searchable database for all of Lanista's weapons, shields, equi
 
 **Timers and Reminders** (Upcoming)
 
-Set reminders for upcoming tournaments, or set custom reminders.
+Set reminders for upcoming tournaments, or set custom timers.
 
 **Data Sync** (Upcoming)
 
