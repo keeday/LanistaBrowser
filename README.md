@@ -6,6 +6,8 @@
 
 Lanista Browser is a specialized tool for playing the web-based game [https://beta.lanista.se/](https://beta.lanista.se/)
 
+**The Browser is in Beta, there will be bugs!**
+
 ## Main Features
 
 **Theory Crafting**
