@@ -16,7 +16,7 @@ Craft and build tactics, equip weapons and other equipment, and display final st
 
 **Items Database** 
 
-Provides a fully searchable database for all of Lanista's weapons, shields, equipment, and consumables with advanced filters. Mark specific items as favorites to find them easier later (e.g., in Theory Crafter).
+Provides a fully searchable database for all of Lanista's weapons, shields, equipment, and consumables with advanced filters. Mark specific items as favorites to find them easier (e.g., in Theory Crafter).
 
 **Timers and Reminders** (Upcoming)
 
@@ -57,3 +57,11 @@ Great! The easiest way to contact me would be via Discord. You will find me lurk
 **How do I use the Theory Crafter?**
 
 I am currently working on a guide. Check back here later.
+
+**What data is stored, and how is it stored?**
+
+The only data that is being stored is the tactics you create. And that is being stored locally on your PC in a .db file (SQLite). You find this file under **/documents/LanistaBrowser** after you have started it up for the first time.
+
+**Will I loose my saved tactics and favorites if I update the Browser?**
+
+No. As long as you don't manually delete the **/documents/LanistaBrowser** folder, your tactics and favorites will be saved even if you delete/replace/update the Browser files.
