@@ -33,6 +33,10 @@ Once the Android version is released, I will look in to the possibilites of bein
 3. Run "LanistaBrowser.exe" to launch the application.
 4. **Note -** Antivirus software might block the browser.
 
+## Updating
+
+Download the latest release from [here](https://github.com/keeday/LanistaBrowser/releases) and extract it in the folder you already have the Browser in, and just replace all files.
+
 ## Requirements
 
 On Windows the browser utilizes [Microsoft's Webview](https://learn.microsoft.com/en-us/microsoft-edge/webview2/).
