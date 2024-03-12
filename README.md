@@ -65,3 +65,7 @@ The only data that is being stored is the tactics you create. And that is being 
 **Will I loose my saved tactics and favorites if I update the Browser?**
 
 No. As long as you don't manually delete the **/documents/LanistaBrowser** folder, your tactics and favorites will be saved even if you delete/replace/update the Browser files.
+
+**Can I help develop the Browser?**
+
+Yes! If you have experience with C# and want to help develop the Browser, please contact me and we can discuss further!
