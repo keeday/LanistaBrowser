@@ -16,7 +16,7 @@ Craft and build tactics, equip weapons and other equipment, and display final st
 
 **Items Database** 
 
-Provides a fully searchable database for all of Lanista's weapons, shields, equipment, and consumables with advanced filters. Mark specific items as favorites for easier access later (e.g., in Theory Crafter).
+Provides a fully searchable database for all of Lanista's weapons, shields, equipment, and consumables with advanced filters. Mark specific items as favorites to find them easier later (e.g., in Theory Crafter).
 
 **Timers and Reminders** (Upcoming)
 
