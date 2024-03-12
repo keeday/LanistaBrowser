@@ -4,7 +4,7 @@
 
 
 
-Lanista Browser is a specialized tool for playing the web-based game [https://beta.lanista.se/](https://beta.lanista.se/).
+Lanista Browser is a specialized tool for playing the web-based game [https://beta.lanista.se/](https://beta.lanista.se/)
 
 ## Main Features
 
