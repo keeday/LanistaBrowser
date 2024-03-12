@@ -12,7 +12,7 @@ Lanista Browser is a specialized tool for playing the web-based game [https://be
 
 **Theory Crafting**
 
-Craft and build tactics, equip weapons and other equipment, and display final stats after applying race and equipment bonuses.
+Craft and build tactics, equip weapons and other equipment, and display final stats after race and equipment bonuses.
 
 **Items Database** 
 
