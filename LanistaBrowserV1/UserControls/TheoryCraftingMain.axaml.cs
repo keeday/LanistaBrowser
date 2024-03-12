@@ -766,6 +766,7 @@ namespace LanistaBrowserV1.UserControls
                 double weaponEQ = ReturnRaceBonusAndEquippedStats(weaponTypeName, weaponRB);
                 WeaponEQ.Text = weaponEQ.ToString("F1");
                 double shieldEQ = ReturnRaceBonusAndEquippedStats("SHIELD", shieldRB);
+                ShieldEQ.Text = shieldEQ.ToString("F1");
 
                 BonusSourcesStackPanel.Children.Clear();
 

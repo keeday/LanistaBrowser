@@ -83,6 +83,10 @@ namespace LanistaBrowserV1.UserControls
                             }
                         }
                     }
+
+#if Debug
+  UrlBox.IsVisible = true;
+#endif
                 });
             }
             catch (Exception ex)
