@@ -24,7 +24,7 @@ public partial class MainViewModel : ViewModelBase
 
     private bool _isAboutPageVisible = false;
 
-    private string _currentUrl = "https://www.wikipedia.org/";
+    private string _currentUrl = "https://beta.lanista.se/";
 
     private string _latestRelease = string.Empty;
 
