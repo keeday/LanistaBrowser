@@ -8,6 +8,8 @@ Lanista Browser is a specialized tool for playing the web-based game [https://be
 
 **The Browser is in Beta, there will be bugs!**
 
+**You can find the changelog [here](https://github.com/keeday/LanistaBrowser/blob/main/changelog.MD).**
+
 ## Main Features
 
 **Theory Crafting**
@@ -18,9 +20,9 @@ Craft and build tactics, equip weapons and other equipment, and display final st
 
 Provides a fully searchable database for all of Lanista's weapons, shields, equipment, and consumables with advanced filters. Mark specific items as favorites to find them easier (e.g., in Theory Crafter).
 
-**Timers and Reminders** (Upcoming)
+**Timers and Reminders**
 
-Set reminders for upcoming tournaments, or set custom timers.
+Create and set Timers/Reminders.
 
 **Data Sync** (Upcoming)
 
@@ -29,7 +31,7 @@ Once the Android version is released, I will look in to the possibilites of bein
 ## Installing
 
 1. [Go here](https://github.com/keeday/LanistaBrowser/releases) and download the latest release.
-2. Extract the downloaded zip file to a folder.  **Note -** Avoid folders requiring administrator rights. (Such as the Program Files folder).
+2. Extract the downloaded zip file to a folder.
 3. Run "LanistaBrowser.exe" to launch the application.
 4. **Note -** Antivirus software might block the browser.
 
@@ -42,7 +44,7 @@ Download the latest release from [here](https://github.com/keeday/LanistaBrowser
 On Windows the browser utilizes [Microsoft's Webview](https://learn.microsoft.com/en-us/microsoft-edge/webview2/).
 
 * Webview will be pre-installed if you're on Windows 11.
-* If you're on Windows 10 or earlier, you might need to install it.
+* If you're on Windows 10 or earlier, you probably have it, but might need to install it.
 
 ## FAQ
 
@@ -56,7 +58,7 @@ The closest thing to a roadmap is my [Trello Board](https://trello.com/b/UTABzwp
 
 **I have an idea/found a bug!**
 
-Great! The easiest way to contact me would be via Discord. You will find me lurking in Lanistas official Discord channel (@keeday)
+Great! You can create an issue post [Here](https://github.com/keeday/LanistaBrowser/issues). Optionally, you can find me lurking in Lanista's official Discord channel (@Keeday).
 
 **How do I use the Theory Crafter?**
 
