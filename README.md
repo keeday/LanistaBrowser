@@ -8,7 +8,7 @@ Lanista Browser is a specialized tool for playing the web-based game [https://be
 
 **The Browser is in Beta, there will be bugs!**
 
-**You can find the changelog [here](https://github.com/keeday/LanistaBrowser/issues).**
+**You can find the changelog [here](https://github.com/keeday/LanistaBrowser/blob/main/changelog.MD).**
 
 ## Main Features
 
