@@ -23,6 +23,8 @@ namespace LanistaBrowserV1.UserControls
     public partial class LanistaWebView : UserControl
     {
         private readonly Timer urlCheckTimer;
+
+        public string Url { get; set; } = "https://beta.lanista.se/";
         public string gladiatorName { get; set; } = string.Empty;
         public string lastLanistaUrl = string.Empty;
 
@@ -46,9 +48,7 @@ namespace LanistaBrowserV1.UserControls
             {
                 await Dispatcher.UIThread.InvokeAsync(async () =>
                 {
-                    MainViewModel? viewModel = DataContext as MainViewModel;
-
-                    if (LanistaBrowser != null && viewModel != null)
+                    if (LanistaBrowser != null)
                     {
                         string? currentUrl = await LanistaBrowser.ExecuteScriptAsync("window.location.href");
 
@@ -56,9 +56,28 @@ namespace LanistaBrowserV1.UserControls
                         {
                             currentUrl = currentUrl.Trim('"');
 
-                            if (viewModel.CurrentUrl != currentUrl)
+                            if (Url != currentUrl)
                             {
-                                viewModel.CurrentUrl = currentUrl;
+                                Url = currentUrl;
+                                if (DataContext is MainViewModel viewModel)
+                                {
+                                    int id = this.Tag as int? ?? 0;
+
+                                    if (id != 0)
+                                    {
+                                        string? currentTitle = await LanistaBrowser.ExecuteScriptAsync("document.title");
+                                        if (currentTitle is null)
+                                        {
+                                            currentTitle = "Loading...";
+                                        }
+                                        else
+                                        {
+                                            currentTitle = currentTitle.Trim('"');
+                                            currentTitle = currentTitle.Replace(" | Lanista", "");
+                                        }
+                                        viewModel.OpenTabs.Where(r => r.ID == id).First().Title = currentTitle;
+                                    }
+                                }
                                 if (currentUrl.Contains("levelup"))
                                 {
                                     string? htmlMarkup = await LanistaBrowser.ExecuteScriptAsync("document.documentElement.outerHTML");
@@ -67,7 +86,8 @@ namespace LanistaBrowserV1.UserControls
                                 else if (currentUrl.Contains("create-avatar"))
                                 {
                                     Debug.WriteLine("Create Avatar detected");
-                                    //Load new tactic here. Also load special js script for create avatar.
+                                    string? htmlMarkup = await LanistaBrowser.ExecuteScriptAsync("document.documentElement.outerHTML");
+                                    NewCharacterDetected(htmlMarkup);
                                 }
                                 else if (currentUrl.Contains("wiki"))
                                 {
@@ -126,6 +146,39 @@ namespace LanistaBrowserV1.UserControls
             }
         }
 
+        private void NewCharacterDetected(string? htmlMarkup)
+        {
+            if (!string.IsNullOrEmpty(htmlMarkup))
+            {
+                htmlMarkup = System.Text.RegularExpressions.Regex.Unescape(htmlMarkup);
+
+                HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
+                doc.LoadHtml(htmlMarkup);
+
+                currentLevel = 1;
+                gladiatorName = "New";
+
+                LoadTheoryCraftSidePanelLevel(currentLevel, gladiatorName);
+            }
+        }
+
+        private async Task SetStatBoxesToZero()
+        {
+            await LanistaBrowser.ExecuteScriptAsync(Script("Bashälsa", 0));
+            await LanistaBrowser.ExecuteScriptAsync(Script("Styrka", 0));
+            await LanistaBrowser.ExecuteScriptAsync(Script("Uthållighet", 0));
+            await LanistaBrowser.ExecuteScriptAsync(Script("Initiativstyrka", 0));
+            await LanistaBrowser.ExecuteScriptAsync(Script("Undvika Anfall", 0));
+
+            await LanistaBrowser.ExecuteScriptAsync(Script("Yxor", 0));
+            await LanistaBrowser.ExecuteScriptAsync(Script("Svärd", 0));
+            await LanistaBrowser.ExecuteScriptAsync(Script("Hammare", 0));
+            await LanistaBrowser.ExecuteScriptAsync(Script("Stavar", 0));
+            await LanistaBrowser.ExecuteScriptAsync(Script("Sköldar", 0));
+            await LanistaBrowser.ExecuteScriptAsync(Script("Stickvapen", 0));
+            await LanistaBrowser.ExecuteScriptAsync(Script("Kättingvapen", 0));
+        }
+
         private async void LoadTheoryCraftSidePanelLevel(int level, string characterName)
         {
             Debug.WriteLine($"You are level: '{level}'");
@@ -150,6 +203,8 @@ namespace LanistaBrowserV1.UserControls
                 {
                     NoStatsPlacedMessage.IsVisible = false;
                     SelectTacticPanel.IsVisible = false;
+
+                    await SetStatBoxesToZero();
 
                     foreach (var stat in placedStats)
                     {
@@ -365,9 +420,17 @@ namespace LanistaBrowserV1.UserControls
                     }
                 }
 
-                viewModel.Tactics.FirstOrDefault(t => t.Id == selectedTactic.Id)!.LoadedCharacterName = gladiatorName;
+                if (gladiatorName == "New")
+                {
+                    viewModel.Tactics.FirstOrDefault(t => t.Id == selectedTactic.Id)!.LoadedCharacterName = "New";
+                    SqliteHandler.UpdateLoadedTactic(selectedTactic.Id, "");
+                }
+                else
+                {
+                    viewModel.Tactics.FirstOrDefault(t => t.Id == selectedTactic.Id)!.LoadedCharacterName = gladiatorName;
+                    SqliteHandler.UpdateLoadedTactic(selectedTactic.Id, gladiatorName);
+                }
                 HideAllPanels();
-                SqliteHandler.UpdateLoadedTactic(selectedTactic.Id, gladiatorName);
                 LoadTheoryCraftSidePanelLevel(currentLevel, gladiatorName);
             }
         }

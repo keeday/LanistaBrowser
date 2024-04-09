@@ -1,0 +1,212 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:local="clr-namespace:LanistaBrowserV1.UserControls"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="600"
+             x:Class="LanistaBrowserV1.UserControls.WebViewContainer"
+			 xmlns:vm="clr-namespace:LanistaBrowserV1.ViewModels"
+			 xmlns:functions="clr-namespace:LanistaBrowserV1.Functions"
+			 x:DataType="vm:MainViewModel"
+
+			 Loaded="UserControl_Loaded">
+
+	<UserControl.Styles>
+		<Style Selector="Button.noHoverEffect:pointerover /template/ ContentPresenter">
+			<Setter Property="Background" Value="Transparent" />
+		</Style>
+	</UserControl.Styles>
+
+	<UserControl.Resources>
+		<functions:TimeSpanToStringConverter x:Key="TimeSpanToStringConverter" />
+		<functions:BoolInverterConverter x:Key="BoolInverterConverter" />
+		<functions:DateTimeRemoveSecondsConverter x:Key="DateTimeRemoveSecondsConverter" />
+	</UserControl.Resources>
+
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="30" />
+			<RowDefinition Height="*" />
+			<RowDefinition Height="Auto" />
+		</Grid.RowDefinitions>
+
+		<DockPanel Grid.Row="0">
+			<DockPanel DockPanel.Dock="Top">
+				<Button Background="LightGray" CornerRadius="0" Padding="0" VerticalAlignment="Stretch" Width="30">
+					<TextBlock Text="⟳" Foreground="Black" FontSize="19" Padding="0,2,0,0" TextAlignment="Center" FontWeight="Bold" />
+				</Button>
+
+				<StackPanel Orientation="Horizontal" x:Name="StackPanelWebTabs">
+					<ItemsControl ItemsSource="{Binding OpenTabs}">
+						<ItemsControl.ItemsPanel>
+							<ItemsPanelTemplate>
+								<StackPanel Orientation="Horizontal" />
+							</ItemsPanelTemplate>
+						</ItemsControl.ItemsPanel>
+						<ItemsControl.ItemTemplate>
+							<DataTemplate>
+								<DockPanel Background="{Binding BackgroundColor}">
+									<DockPanel DockPanel.Dock="Top">
+										<Button Content="{Binding Title}"
+											Background="Transparent"
+											Classes="noHoverEffect"
+											Click="ActivateWebView_Click"
+											Tag="{Binding ID}" />
+
+										<Button Content="✗"
+												Background="Transparent"
+												Padding="1"
+												Click="CloseWebView_Click"
+												Margin="5,0,5,0"
+												Tag="{Binding ID}" />
+									</DockPanel>
+									<Border DockPanel.Dock="Top" Height="4" Background="White" IsVisible="{Binding IsSelected}" />
+								</DockPanel>
+							</DataTemplate>
+						</ItemsControl.ItemTemplate>
+					</ItemsControl>
+				</StackPanel>
+				<Button Content="+" CornerRadius="0" Padding="5,0,5,0" Background="Transparent" FontWeight="ExtraBold" FontSize="20" Click="AddWebView_Click" />
+			</DockPanel>
+			<Border Height="2" Background="Black" DockPanel.Dock="Bottom" x:Name="TopBlackBar" />
+		</DockPanel>
+
+		<Grid Grid.Row="1" x:Name="WebViewGrid" />
+
+		<DockPanel Grid.Row="2" x:Name="BottomRowDockPanel" LastChildFill="True">
+			<Button Padding="0" HorizontalAlignment="Stretch" CornerRadius="0" Click="BottomRowToggleVisibility_Click" DockPanel.Dock="Top" x:Name="BottomRowToggleVisibilityButton">
+				<TextBlock Text="∧∧ Timers and Reminders ∧∧" Padding="0" TextAlignment="Center" FontSize="14" x:Name="BottomRowToggleTextBlock" />
+			</Button>
+			<Grid x:Name="BottomRowGrid" IsVisible="False">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="*" />
+					<ColumnDefinition Width="300" />
+				</Grid.ColumnDefinitions>
+
+				<DockPanel Grid.Column="0">
+					<DockPanel Background="#1E1E1E">
+						<StackPanel x:Name="CreateTimerStackpanel" Margin="10" DockPanel.Dock="Left">
+							<TextBlock Text="Create Timer" FontWeight="Bold" Margin="0,0,0,15" FontSize="20" MinWidth="300" TextAlignment="Center" HorizontalAlignment="Left" />
+
+							<TextBlock Text="Timer Name" FontWeight="Bold" Margin="0,0,0,3" />
+							<TextBox x:Name="CreateTimerNameTextBox" HorizontalAlignment="Left" MinWidth="300" />
+
+							<TextBlock Text="Date" FontWeight="Bold" Margin="0,10,0,3" />
+							<DatePicker x:Name="CreateTimerDatePicker" MinWidth="300" />
+
+							<TextBlock Text="Time" FontWeight="Bold" Margin="0,10,0,3" />
+							<TimePicker x:Name="CreateTimerTimePicker" MinWidth="300" />
+
+							<Button Margin="0,20,0,0" Click="CreateTimerButton_Click" MinWidth="300">
+								<TextBlock Text="Create" TextAlignment="Center" />
+							</Button>
+						</StackPanel>
+					</DockPanel>
+
+					<DockPanel>
+						<StackPanel Margin="10" DockPanel.Dock="Left">
+							<DockPanel>
+								<TextBlock Text="Timer Volume: " FontWeight="Bold" VerticalAlignment="Center" />
+								<TextBlock Text="10" Width="20" HorizontalAlignment="Left" x:Name="TimerSettingVolumeValue" VerticalAlignment="Center" />
+								<Button Padding="0" Width="25" Height="25" Click="DecreaseTimerVolumeButton_Click">
+									<TextBlock Text="-" TextAlignment="Center" FontWeight="Bold" FontSize="18" />
+								</Button>
+								<Button Padding="0" Width="25" Height="25" Click="IncreaseTimerVolumeButton_Click">
+									<TextBlock Text="+" TextAlignment="Center" FontWeight="Bold" FontSize="18" />
+								</Button>
+							</DockPanel>
+
+							<DockPanel Margin="0,15,0,5">
+								<TextBlock Text="Notification Sound"  FontWeight="Bold" VerticalAlignment="Center" />
+								<Button Padding="1" Width="20" Height="20" Margin="5,0,0,0" Click="AddCustomSoundButton_Click">
+									<TextBlock Text="⟳" TextAlignment="Center" VerticalAlignment="Center" />
+								</Button>
+							</DockPanel>
+
+							<Border Background="#1E1E1E" Padding="2,2,5,2">
+								<DockPanel>
+									<Button Padding="0" Background="Transparent" Margin="2,0,5,0" Click="RemoveCustomSoundButton_Click" x:Name="RemoveCustomSoundButton">
+										<TextBlock Text="✗" Foreground="Red" />
+									</Button>
+									<TextBlock Text="Default" VerticalAlignment="Center" x:Name="CustomNotificationPathTextBox" />
+								</DockPanel>
+							</Border>
+							<Button Content="Test Notification" Margin="0,20,0,0" Click="TrySoundButton_Click" />
+						</StackPanel>
+					</DockPanel>
+
+					<ScrollViewer Background="#252526" Width="300" DockPanel.Dock="Right" HorizontalAlignment="Right">
+						<StackPanel>
+							<TextBlock Text="Expired Timers" TextAlignment="Center" FontWeight="Bold" FontSize="20" Margin="5" />
+							<Border Height="4" Background="#1E1E1E" Margin="5,0,5,0" CornerRadius="10" />
+							<StackPanel>
+
+								<ItemsControl ItemsSource="{Binding CustomTimers}">
+									<ItemsControl.ItemsPanel>
+										<ItemsPanelTemplate>
+											<StackPanel Orientation="Vertical" />
+										</ItemsPanelTemplate>
+									</ItemsControl.ItemsPanel>
+									<ItemsControl.ItemTemplate>
+										<DataTemplate>
+											<Border Background="#1E1E1E" Margin="5" CornerRadius="10" IsVisible="{Binding IsTimerExpired}">
+												<DockPanel HorizontalAlignment="Stretch">
+													<StackPanel Margin="10">
+														<DockPanel>
+															<TextBlock Text="{Binding TimerName}" Margin="0,0,5,0" FontWeight="Bold" DockPanel.Dock="Left" />
+															<Button Padding="0" Width="22" Height="22" DockPanel.Dock="Right" HorizontalAlignment="Right" Background="Transparent" FontWeight="Bold" Tag="{Binding Id}" Click="RemoveTimerButton_Click">
+																<TextBlock Text="✗" TextAlignment="Center" VerticalAlignment="Center" />
+															</Button>
+														</DockPanel>
+														<TextBlock Text="{Binding DateTimeValue, Converter={StaticResource DateTimeRemoveSecondsConverter}}" />
+													</StackPanel>
+												</DockPanel>
+											</Border>
+										</DataTemplate>
+									</ItemsControl.ItemTemplate>
+								</ItemsControl>
+							</StackPanel>
+						</StackPanel>
+					</ScrollViewer>
+				</DockPanel>
+
+				<ScrollViewer Grid.Column="1" Background="#1E1E1E">
+					<StackPanel>
+						<TextBlock Text="Upcoming Timers" TextAlignment="Center" FontWeight="Bold" FontSize="20" Margin="5" />
+						<Border Height="4" Background="#252526" Margin="5,0,5,0" CornerRadius="10" />
+						<StackPanel>
+							<ItemsControl ItemsSource="{Binding CustomTimers}">
+								<ItemsControl.ItemsPanel>
+									<ItemsPanelTemplate>
+										<StackPanel Orientation="Vertical" />
+									</ItemsPanelTemplate>
+								</ItemsControl.ItemsPanel>
+								<ItemsControl.ItemTemplate>
+									<DataTemplate>
+										<Border Background="#252526" Margin="5" CornerRadius="10" IsVisible="{Binding IsTimerExpired, Converter={StaticResource BoolInverterConverter}}">
+											<DockPanel HorizontalAlignment="Stretch">
+												<StackPanel Margin="10">
+													<DockPanel>
+														<TextBlock Text="{Binding TimerName}" Margin="0,0,5,0" FontWeight="Bold" DockPanel.Dock="Left" />
+														<Button Padding="0" Width="22" Height="22" DockPanel.Dock="Right" HorizontalAlignment="Right" Background="Transparent" FontWeight="Bold" Tag="{Binding Id}" Click="RemoveTimerButton_Click">
+															<TextBlock Text="✗" TextAlignment="Center" VerticalAlignment="Center" />
+														</Button>
+													</DockPanel>
+													<TextBlock Text="{Binding DateTimeValue, Converter={StaticResource DateTimeRemoveSecondsConverter}}" Margin="0,0,7,0" />
+													<DockPanel>
+														<TextBlock Text="Time Left: " FontWeight="Bold" />
+														<TextBlock Text="{Binding TimeLeft, Converter={StaticResource TimeSpanToStringConverter}}" />
+													</DockPanel>
+												</StackPanel>
+											</DockPanel>
+										</Border>
+									</DataTemplate>
+								</ItemsControl.ItemTemplate>
+							</ItemsControl>
+						</StackPanel>
+					</StackPanel>
+				</ScrollViewer>
+			</Grid>
+		</DockPanel>
+	</Grid>
+</UserControl>

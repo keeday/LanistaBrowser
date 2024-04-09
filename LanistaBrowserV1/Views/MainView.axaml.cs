@@ -6,6 +6,7 @@ using LanistaBrowserV1.Functions;
 using LanistaBrowserV1.ViewModels;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Http;
 using static System.Net.WebRequestMethods;
@@ -16,6 +17,13 @@ public partial class MainView : UserControl
 {
     private LanistaApiCall lanistaApiCall = new();
     private MainViewModel? viewModel;
+
+    private List<string> settingList =
+        [
+        "TimerVolume",
+        "TimerNotificationPath",
+        "CustomNotificationPath",
+        ];
 
     public MainView()
     {
@@ -117,11 +125,29 @@ public partial class MainView : UserControl
                 var favoritedArmors = SqliteHandler.FetchFavoritedArmors();
                 var favoritedConsumables = SqliteHandler.FetchFavoritedConsumables();
                 var tactics = SqliteHandler.FetchTactics();
+                var customTimers = SqliteHandler.FetchCustomTimers();
 
                 viewModel.FavoritedArmors = favoritedArmors;
                 viewModel.FavoritedWeapons = favoritedWeapons;
                 viewModel.FavoritedConsumables = favoritedConsumables;
                 viewModel.Tactics = tactics;
+                viewModel.CustomTimers = customTimers;
+
+                foreach (string setting in settingList)
+                {
+                    if (!SqliteHandler.CheckIfSettingExists(setting))
+                    {
+                        if (setting == "TimerVolume")
+                        {
+                            SqliteHandler.CreateSetting(setting, "10");
+                            continue;
+                        }
+
+                        SqliteHandler.CreateSetting(setting, "");
+                    }
+                }
+
+                viewModel.UserSettings = SqliteHandler.FetchUserSettings();
             }
             catch (Exception ex)
             {
@@ -191,7 +217,7 @@ public partial class MainView : UserControl
                     var url = "https://api.github.com/repos/keeday/LanistaBrowser/releases/latest";
                     var response = await client.GetStringAsync(url);
                     var json = JObject.Parse(response);
-                    viewModel.LatestRelease = json["tag_name"].ToString();
+                    viewModel.LatestRelease = json["tag_name"]!.ToString();
                 }
 
                 if (viewModel.LatestRelease != viewModel.Version)

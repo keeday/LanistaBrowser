@@ -13,7 +13,7 @@
 			<ColumnDefinition Width="Auto" />
 		</Grid.ColumnDefinitions>
 		<DockPanel x:Name="WebViewPanel" Grid.Column="0">
-			<TextBlock x:Name="UrlBox" DockPanel.Dock="Top" Text="{Binding CurrentUrl}" IsVisible="False"></TextBlock>
+			<TextBlock x:Name="UrlBox" DockPanel.Dock="Top" Text="{Binding Url}" IsVisible="False" />
 			<WebView x:Name="LanistaBrowser" Url="https://beta.lanista.se/" />
 		</DockPanel>
 		<DockPanel  x:Name="LoadedTacticPanel" Grid.Column="1" IsVisible="false" Width="400">

@@ -16,7 +16,10 @@ namespace LanistaBrowserV1.UserControls
             if (textBlock != null)
             {
                 var url = textBlock.Text;
-                OpenUrl(url);
+                if (url != null)
+                {
+                    OpenUrl(url);
+                }
             }
         }
 

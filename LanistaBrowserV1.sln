@@ -9,6 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LanistaBrowserV1.Android", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LanistaBrowserV1.Desktop", "LanistaBrowserV1.Desktop\LanistaBrowserV1.Desktop.csproj", "{2EF05B51-714E-4A8D-A52E-E822C183D803}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AD7FE9BA-3FF4-4351-833B-D87E2ED6B747}"
+	ProjectSection(SolutionItems) = preProject
+		changelog.MD = changelog.MD
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

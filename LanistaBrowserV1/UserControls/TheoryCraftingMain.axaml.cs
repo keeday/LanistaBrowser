@@ -12,6 +12,7 @@ using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using Avalonia.Media;
 using Avalonia.Threading;
+using System;
 
 namespace LanistaBrowserV1.UserControls
 {
@@ -71,6 +72,7 @@ namespace LanistaBrowserV1.UserControls
                 selectedRaceName = viewModel.ApiConfig.Races!.First(r => r.Type == selectedTactic.RaceID).Name!.ToLower();
 
                 LevelListPanel.IsVisible = true;
+                DeleteTacticButton.IsVisible = true;
                 ContentStackPanel.IsVisible = false;
                 SummaryStackPanel.IsVisible = false;
 
@@ -198,9 +200,25 @@ namespace LanistaBrowserV1.UserControls
                      {
                          loadedArmor.Add(viewModel.ArmorList.First(a => a.Id == equippedItem.EquippedId));
                      }
-                     else if (equippedItem != null)
+                     else if (equippedItem != null && equippedItem.equippedSlot == "mainhand")
                      {
                          loadedWeapons.Add(viewModel.WeaponList.First(w => w.Id == equippedItem.EquippedId));
+                     }
+                     else if (equippedItem != null && equippedItem.equippedSlot == "shieldhand")
+                     {
+                         TacticEquippedItem? mainHandWeapon = equippedTacticItems.FirstOrDefault(item => item.TacticId == selectedTacticId && item.EquippedLevel <= selectedTacticLevel && item.equippedSlot == "mainhand");
+
+                         bool mainHandIsTwoHanded = false;
+
+                         if (mainHandWeapon != null && mainHandWeapon.EquippedType == "2h")
+                         {
+                             mainHandIsTwoHanded = true;
+                         }
+
+                         if (!mainHandIsTwoHanded)
+                         {
+                             loadedWeapons.Add(viewModel.WeaponList.First(w => w.Id == equippedItem.EquippedId));
+                         }
                      }
                  }
              });
@@ -275,11 +293,11 @@ namespace LanistaBrowserV1.UserControls
 
             int pointsSpent = staminaPoints + strengthPoints + endurancePoints + initiativePoints + dodgePoints + weaponSkillPoints + shieldSkillPoints;
 
-            if (pointsSpent < maxPointsToSpend)
+            if (pointsSpent > maxPointsToSpend)
             {
                 var box = MessageBoxManager
-              .GetMessageBoxStandard("Warning", "You have more points to spend, are you sure you want to save?",
-                  ButtonEnum.YesNo);
+            .GetMessageBoxStandard("Warning", "You have spent more points than allowed, are you sure you want to save?",
+                             ButtonEnum.YesNo);
 
                 var result = await box.ShowAsync();
 
@@ -288,19 +306,7 @@ namespace LanistaBrowserV1.UserControls
                     return;
                 }
             }
-            else if (pointsSpent > maxPointsToSpend)
-            {
-                var box = MessageBoxManager
-              .GetMessageBoxStandard("Warning", "You have more points spent than allowed, are you sure you want to save?",
-                               ButtonEnum.YesNo);
 
-                var result = await box.ShowAsync();
-
-                if (result.Equals(ButtonResult.No))
-                {
-                    return;
-                }
-            }
             SqliteHandler.UpdatePlacedStats(selectedTacticId, selectedTacticLevel, "stats", 0, staminaPoints);
             SqliteHandler.UpdatePlacedStats(selectedTacticId, selectedTacticLevel, "stats", 1, strengthPoints);
             SqliteHandler.UpdatePlacedStats(selectedTacticId, selectedTacticLevel, "stats", 3, endurancePoints);
@@ -677,9 +683,29 @@ namespace LanistaBrowserV1.UserControls
 
                          if (equipmentId != 0)
                          {
-                             if (equipmentType == "mainhand" || equipmentType == "shieldhand")
+                             if (equipmentType == "mainhand")
                              {
                                  equipmentButtons[equipmentType].Content = viewModel.WeaponList.First(w => w.Id == equipmentId).Name;
+                             }
+                             else if (equipmentType == "shieldhand")
+                             {
+                                 TacticEquippedItem? mainHandWeapon = equippedItems.FirstOrDefault(item => item.TacticId == selectedTacticId && item.EquippedLevel <= selectedTacticLevel && item.equippedSlot == "mainhand");
+
+                                 bool mainHandIsTwoHanded = false;
+
+                                 if (mainHandWeapon != null && mainHandWeapon.EquippedType == "2h")
+                                 {
+                                     mainHandIsTwoHanded = true;
+                                 }
+
+                                 if (mainHandIsTwoHanded)
+                                 {
+                                     equipmentButtons[equipmentType].Content = "/";
+                                 }
+                                 else
+                                 {
+                                     equipmentButtons[equipmentType].Content = viewModel.WeaponList.First(w => w.Id == equipmentId).Name;
+                                 }
                              }
                              else
                              {
@@ -770,15 +796,29 @@ namespace LanistaBrowserV1.UserControls
 
                 BonusSourcesStackPanel.Children.Clear();
 
+                Border initBorder = new()
+                {
+                    Height = 2,
+                    Background = new SolidColorBrush(Colors.White),
+                    HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch,
+                    Margin = new Avalonia.Thickness(5, 10, 10, 5),
+                    CornerRadius = new Avalonia.CornerRadius(1),
+                };
+
+                BonusSourcesStackPanel.Children.Add(initBorder);
+
                 foreach (var weapon in loadedWeapons)
                 {
                     if (weapon.Bonuses == null || weapon.Bonuses.Count == 0) { continue; }
 
                     StackPanel baseStackPanel = new();
                     baseStackPanel.Margin = new Avalonia.Thickness(10, 10, 0, 10);
-                    TextBlock weaponName = new();
-                    weaponName.FontWeight = FontWeight.Bold;
-                    weaponName.Text = weapon.Name;
+                    TextBlock weaponName = new()
+                    {
+                        FontWeight = FontWeight.Bold,
+                        Text = weapon.Name,
+                        FontSize = 16
+                    };
                     baseStackPanel.Children.Add(weaponName);
 
                     foreach (var stat in weapon.Bonuses)
@@ -794,11 +834,32 @@ namespace LanistaBrowserV1.UserControls
                         {
                             TextBlock multiplierBlock = new();
                             multiplierBlock.Text = stat.Type!.ToLower() + ": ";
-                            multiplierBlock.Text += stat.Multiplier > 1 ? $"+{(stat.Multiplier - 1) * 100}%" : $"{(stat.Multiplier - 1) * 100}%";
+                            multiplierBlock.Text += stat.Multiplier.HasValue && stat.Multiplier > 1 ? $"+{Math.Round((stat.Multiplier.Value - 1) * 100, 1)}%" : $"{Math.Round((stat.Multiplier.GetValueOrDefault() - 1) * 100, 1)}%";
                             baseStackPanel.Children.Add(multiplierBlock);
                         }
                     }
                     BonusSourcesStackPanel.Children.Add(baseStackPanel);
+
+                    TextBlock requirementsTitleText = new()
+                    {
+                        Text = "Requirements",
+                        FontWeight = FontWeight.Bold,
+                        Margin = new Avalonia.Thickness(10, 0, 0, 0)
+                    };
+                    BonusSourcesStackPanel.Children.Add(requirementsTitleText);
+
+                    BonusSourcesStackPanel.Children.Add(GetWeaponRequirements(weapon));
+
+                    Border border = new()
+                    {
+                        Height = 2,
+                        Background = new SolidColorBrush(Colors.White),
+                        HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch,
+                        Margin = new Avalonia.Thickness(10, 15, 10, 5),
+                        CornerRadius = new Avalonia.CornerRadius(1),
+                    };
+
+                    BonusSourcesStackPanel.Children.Add(border);
                 }
 
                 foreach (var armor in loadedArmor)
@@ -832,6 +893,85 @@ namespace LanistaBrowserV1.UserControls
                     BonusSourcesStackPanel.Children.Add(baseStackPanel);
                 }
             });
+        }
+
+        private static StackPanel GetWeaponRequirements(Weapon selectedWeapon)
+        {
+            StackPanel weaponRequirements = new();
+
+            string requiredLevel;
+            string minLevel = selectedWeapon.RequiredLevel.ToString() ?? string.Empty;
+            string maxLevel = selectedWeapon.MaxLevel.ToString() ?? string.Empty;
+            if (string.IsNullOrEmpty(maxLevel))
+            {
+                requiredLevel = minLevel;
+            }
+            else
+            {
+                requiredLevel = $"{minLevel} - {maxLevel}";
+            }
+            weaponRequirements.Children.Add(BuildInfoDockPanel("Level", requiredLevel));
+
+            if (selectedWeapon.StrengthRequirementValue != null && selectedWeapon.StrengthRequirementValue != 0)
+            {
+                weaponRequirements.Children.Add(BuildInfoDockPanel("Strength", selectedWeapon.StrengthRequirementValue.ToString() ?? string.Empty));
+            }
+
+            if (selectedWeapon.SkillRequirementValue != null && selectedWeapon.SkillRequirementValue != 0)
+            {
+                weaponRequirements.Children.Add(BuildInfoDockPanel(selectedWeapon.TypeName ?? "Skill", selectedWeapon.SkillRequirementValue.ToString() ?? string.Empty));
+            }
+
+            if (!string.IsNullOrEmpty(selectedWeapon.RaceRestrictions))
+            {
+                weaponRequirements.Children.Add(BuildInfoDockPanel("Race", selectedWeapon.RaceRestrictions));
+            }
+            if (selectedWeapon.RequiresLegend == true)
+            {
+                weaponRequirements.Children.Add(BuildInfoDockPanel("Requires Legend", ""));
+            }
+            if (selectedWeapon.RequiredRankingPoints != null)
+            {
+                weaponRequirements.Children.Add(BuildInfoDockPanel("Ranking", selectedWeapon.RequiredRankingPoints.ToString() ?? string.Empty));
+            }
+            if (selectedWeapon.MinPopularity != null)
+            {
+                weaponRequirements.Children.Add(BuildInfoDockPanel("Min Popularity", selectedWeapon.MinPopularity.ToString() ?? string.Empty));
+            }
+            if (selectedWeapon.MaxPopularity != null)
+            {
+                weaponRequirements.Children.Add(BuildInfoDockPanel("Max Popularity", selectedWeapon.MaxPopularity.ToString() ?? string.Empty));
+            }
+
+            return weaponRequirements;
+        }
+
+        private static DockPanel BuildInfoDockPanel(string title, string content)
+        {
+            DockPanel dockPanel = new();
+            TextBlock titleText = new();
+            TextBlock contentText = new();
+
+            dockPanel.Margin = new Avalonia.Thickness(10, 0, 0, 0);
+
+            if (title.Contains("Requires Legend"))
+            {
+                titleText.Text = $"{title}";
+            }
+            else
+            {
+                titleText.Text = $"{title}: ";
+            }
+
+            titleText.HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left;
+
+            contentText.Text = content;
+            contentText.HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left;
+
+            dockPanel.Children.Add(titleText);
+            dockPanel.Children.Add(contentText);
+
+            return dockPanel;
         }
 
         private static double ReturnTotalStatValue(TextBlock block, TextBox box)
@@ -885,6 +1025,34 @@ namespace LanistaBrowserV1.UserControls
             }
 
             return (baseStat + totalAfterAdditive + totalAfterMultiplier);
+        }
+
+        private async void DeleteTacticButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is not MainViewModel viewModel) { return; }
+
+            string selectedTacticName = viewModel.Tactics.First(t => t.Id == selectedTacticId).TacticName;
+
+            var box = MessageBoxManager
+        .GetMessageBoxStandard("Warning", $"You are about to delete '{selectedTacticName}'!\n\nAre you sure? \n\nThis is permanent, and can't be reversed!",
+                         ButtonEnum.YesNo);
+
+            var result = await box.ShowAsync();
+
+            if (!result.Equals(ButtonResult.Yes))
+            {
+                return;
+            }
+
+            SqliteHandler.DeleteTactic(selectedTacticId);
+            viewModel.Tactics.Remove(viewModel.Tactics.First(t => t.Id == selectedTacticId));
+
+            selectedTacticId = 0;
+
+            LevelListPanel.IsVisible = false;
+            DeleteTacticButton.IsVisible = false;
+            ContentStackPanel.IsVisible = false;
+            SummaryStackPanel.IsVisible = false;
         }
     }
 }

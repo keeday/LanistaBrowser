@@ -6,6 +6,7 @@ using Avalonia.Markup.Xaml;
 using LanistaBrowserV1.ViewModels;
 using LanistaBrowserV1.Views;
 using AvaloniaWebView;
+using System;
 
 namespace LanistaBrowserV1;
 

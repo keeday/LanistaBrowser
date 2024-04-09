@@ -12,23 +12,48 @@
     <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
 
+  
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="11.0.9" />
-    <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.0.9" />
-    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.9" />
-    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.0.9" />
+    <AvaloniaResource Remove="Assets\ambient_flute.mp3" />
+    <AvaloniaResource Remove="Assets\ambient_flute.ogg" />
+  </ItemGroup>
+
+  
+  <ItemGroup>
+    <None Remove="Assets\ambient_flute.mp3" />
+    <None Remove="Assets\ambient_flute.ogg" />
+  </ItemGroup>
+
+  
+  <ItemGroup>
+    <Content Include="Assets\ambient_flute.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\ambient_flute.ogg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.0.10" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.0.10" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.10" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.0.10" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
 
     <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-    <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.9" />
+    <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.10" />
     <PackageReference Include="Avalonia.Diagnostics" Condition="'$(Configuration)'=='WindowsDeploy'">
       <Version>11.0.9</Version>
     </PackageReference>
-    <PackageReference Include="Dapper" Version="2.1.28" />
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.59" />
+    <PackageReference Include="Dapper" Version="2.1.35" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.60" />
+    <PackageReference Include="ManagedBass" Version="3.1.1" />
     <PackageReference Include="MessageBox.Avalonia" Version="3.1.5.1" />
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.2" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.3" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="System.Management" Version="8.0.0" />
     <PackageReference Include="WebView.Avalonia" Version="11.0.0.1" />
   </ItemGroup>
+
 </Project>

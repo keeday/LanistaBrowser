@@ -8,6 +8,8 @@ using LanistaBrowserV1.Classes;
 using System.Linq;
 using System.Diagnostics;
 using System.Reflection;
+using System.ComponentModel;
+using Avalonia.Media;
 
 namespace LanistaBrowserV1.ViewModels;
 
@@ -69,7 +71,13 @@ public partial class MainViewModel : ViewModelBase
     private ApiConfig _apiConfig = new();
 
     //TheoryCrafting
-    private ObservableCollection<Tactic> _tactics = new();
+    private ObservableCollection<Tactic> _tactics = [];
+
+    private ObservableCollection<WebViewTab> _openTabs = [];
+
+    private ObservableCollection<CustomTimer> _customTimers = [];
+
+    private ObservableCollection<UserSettings> _userSettings = [];
 
     //Other
 
@@ -156,6 +164,24 @@ public partial class MainViewModel : ViewModelBase
     {
         get => _currentUrl;
         set => SetProperty(ref _currentUrl, value);
+    }
+
+    public ObservableCollection<WebViewTab> OpenTabs
+    {
+        get => _openTabs;
+        set => SetProperty(ref _openTabs, value);
+    }
+
+    public ObservableCollection<CustomTimer> CustomTimers
+    {
+        get => _customTimers;
+        set => SetProperty(ref _customTimers, value);
+    }
+
+    public ObservableCollection<UserSettings> UserSettings
+    {
+        get => _userSettings;
+        set => SetProperty(ref _userSettings, value);
     }
 
     //Search

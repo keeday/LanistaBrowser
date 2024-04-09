@@ -13,6 +13,7 @@ using Microsoft.Data.Sqlite;
 using System.IO;
 using System.Diagnostics;
 using System.Collections.ObjectModel;
+using System.Xml.Linq;
 
 namespace LanistaBrowserV1.Functions
 {
@@ -43,6 +44,8 @@ namespace LanistaBrowserV1.Functions
             await connection.ExecuteAsync(@"CREATE TABLE IF NOT EXISTS TacticsPlacedStats (Id INTEGER PRIMARY KEY AUTOINCREMENT, TacticId INTEGER NOT NULL, Level INTEGER NOT NULL, FOREIGN KEY(TacticId) REFERENCES Tactics(Id) ON DELETE CASCADE)");
             await connection.ExecuteAsync(@"CREATE TABLE IF NOT EXISTS TacticsEquipped (Id INTEGER PRIMARY KEY AUTOINCREMENT, TacticId INTEGER NOT NULL, FOREIGN KEY(TacticId) REFERENCES Tactics(Id) ON DELETE CASCADE)");
             await connection.ExecuteAsync(@"CREATE TABLE IF NOT EXISTS TacticsLevels (Id INTEGER PRIMARY KEY AUTOINCREMENT, TacticId INTEGER NOT NULL, FOREIGN KEY(TacticId) REFERENCES Tactics(Id) ON DELETE CASCADE)");
+            await connection.ExecuteAsync(@"CREATE TABLE IF NOT EXISTS TimerTable (Id INTEGER PRIMARY KEY AUTOINCREMENT)");
+            await connection.ExecuteAsync(@"CREATE TABLE IF NOT EXISTS PersonalSettings (Id INTEGER PRIMARY KEY AUTOINCREMENT)");
 
             // List of tables and their expected columns
             var tablesAndColumns = new Dictionary<string, List<(string ColumnName, string ColumnType)>>
@@ -54,6 +57,8 @@ namespace LanistaBrowserV1.Functions
                 { "TacticsPlacedStats", new List<(string, string)> { ("Id", "INTEGER"), ("TacticId", "INTEGER"), ("StatType", "TEXT NOT NULL"), ("StatID", "INTEGER NOT NULL"), ("StatValue", "INTEGER NOT NULL") } },
                 { "TacticsEquipped", new List<(string, string)> { ("Id", "INTEGER"), ("TacticId", "INTEGER"), ("EquippedType", "TEXT NOT NULL"), ("EquippedID", "INTEGER NOT NULL"), ("EquippedLevel", "INTEGER NOT NULL"), ("EquippedSlot","TEXT NOT NULL") } },
                 { "TacticsLevels", new List<(string, string)> { ("Id", "INTEGER"), ("TacticId", "INTEGER"), ("Level", "INTEGER NOT NULL"), ("LevelNote", "TEXT DEFAULT ''"), ("LevelAsString", "TEXT NOT NULL"), ("PlacedStatsString", "TEXT DEFAULT ''"), ("EquippedItemOnLevel", "TEXT DEFAULT ''") } },
+                { "TimerTable", new List<(string, string)> { ("Id", "INTEGER"), ("TimerName", "TEXT"), ("TimerType", "TEXT"), ("DateTimeValue", "DATETIME NOT NULL") } },
+                { "PersonalSettings", new List<(string, string)> { ("Id", "INTEGER"), ("SettingName", "TEXT"), ("SettingValue", "TEXT") } },
             };
 
             // Check each table for missing columns
@@ -83,6 +88,44 @@ namespace LanistaBrowserV1.Functions
                                                 END;");
         }
 
+        public static bool CheckIfSettingExists(string settingName)
+        {
+            string path = DbPath();
+            using var connection = new SqliteConnection($"Data Source={path}");
+            connection.Open();
+
+            var setting = connection.QueryFirstOrDefault("SELECT * FROM PersonalSettings WHERE SettingName = @settingName", new { settingName });
+
+            return setting != null;
+        }
+
+        public static void CreateSetting(string settingName, string settingValue)
+        {
+            string path = DbPath();
+            using var connection = new SqliteConnection($"Data Source={path}");
+            connection.Open();
+
+            connection.Execute("INSERT INTO PersonalSettings (SettingName, SettingValue) VALUES (@settingName, @settingValue)", new { settingName, settingValue });
+        }
+
+        public static void UpdateSetting(string settingName, string settingValue)
+        {
+            string path = DbPath();
+            using var connection = new SqliteConnection($"Data Source={path}");
+            connection.Open();
+
+            connection.Execute("UPDATE PersonalSettings SET SettingValue = @settingValue WHERE SettingName = @settingName", new { settingName, settingValue });
+        }
+
+        public static ObservableCollection<UserSettings> FetchUserSettings()
+        {
+            string path = DbPath();
+            using var connection = new SqliteConnection($"Data Source={path}");
+            connection.Open();
+
+            return new ObservableCollection<UserSettings>(connection.Query<UserSettings>("SELECT * FROM PersonalSettings"));
+        }
+
         public static List<FavoritedWeapon> FetchFavoritedWeapons()
         {
             string path = DbPath();
@@ -108,6 +151,19 @@ namespace LanistaBrowserV1.Functions
             connection.Open();
 
             return connection.Query<FavoritedArmor>("SELECT * FROM FavoritedArmors").ToList();
+        }
+
+        public static ObservableCollection<CustomTimer> FetchCustomTimers()
+        {
+            string path = DbPath();
+            using var connection = new SqliteConnection($"Data Source={path}");
+            connection.Open();
+
+            connection.Execute("DELETE FROM TimerTable WHERE DateTimeValue < @currentDateTime", new { currentDateTime = DateTime.Now });
+
+            var customTimers = connection.Query<CustomTimer>("SELECT * FROM TimerTable ORDER BY DateTimeValue").ToList();
+
+            return new ObservableCollection<CustomTimer>(customTimers);
         }
 
         public static ObservableCollection<Tactic> FetchTactics()
@@ -171,6 +227,42 @@ namespace LanistaBrowserV1.Functions
 
             int newId = connection.QuerySingle<int>("SELECT last_insert_rowid()");
             return newId;
+        }
+
+        public static void DeleteTactic(int tacticId)
+        {
+            string path = DbPath();
+            using var connection = new SqliteConnection($"Data Source={path}");
+            connection.Open();
+
+            connection.Execute("DELETE FROM TacticsPlacedStats WHERE TacticId = @tacticId", new { tacticId });
+            connection.Execute("DELETE FROM TacticsEquipped WHERE TacticId = @tacticId", new { tacticId });
+            connection.Execute("DELETE FROM TacticsLevels WHERE TacticId = @tacticId", new { tacticId });
+            connection.Execute("DELETE FROM Tactics WHERE Id = @tacticId", new { tacticId });
+        }
+
+        public static int CreateNewTimer(string timerName, string timerType, DateTime dateTimeValue)
+        {
+            string path = DbPath();
+            using var connection = new SqliteConnection($"Data Source={path}");
+            connection.Open();
+
+            connection.Execute("INSERT INTO TimerTable (TimerName, TimerType, DateTimeValue) VALUES (@timerName, @timerType, @dateTimeValue)", new { timerName, timerType, dateTimeValue });
+
+            int newId = connection.QuerySingle<int>("SELECT last_insert_rowid()");
+
+            return newId;
+        }
+
+        public static int DeleteCustomTimer(int timerId)
+        {
+            string path = DbPath();
+            using var connection = new SqliteConnection($"Data Source={path}");
+            connection.Open();
+
+            connection.Execute("DELETE FROM TimerTable WHERE Id = @timerId", new { timerId });
+
+            return timerId;
         }
 
         public static void AddNewLevel(int tacticId, int level)
