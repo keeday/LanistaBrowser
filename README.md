@@ -31,7 +31,7 @@ Once the Android version is released, I will look in to the possibilites of bein
 ## Installing
 
 1. [Go here](https://github.com/keeday/LanistaBrowser/releases) and download the latest release.
-2. Extract the downloaded zip file to a folder.  **Note -** Avoid folders requiring administrator rights. (Such as the Program Files folder).
+2. Extract the downloaded zip file to a folder.
 3. Run "LanistaBrowser.exe" to launch the application.
 4. **Note -** Antivirus software might block the browser.
 
