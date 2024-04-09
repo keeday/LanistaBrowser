@@ -18,9 +18,9 @@ Craft and build tactics, equip weapons and other equipment, and display final st
 
 Provides a fully searchable database for all of Lanista's weapons, shields, equipment, and consumables with advanced filters. Mark specific items as favorites to find them easier (e.g., in Theory Crafter).
 
-**Timers and Reminders** (Upcoming)
+**Timers and Reminders**
 
-Set reminders for upcoming tournaments, or set custom timers.
+Create and set Timers/Reminders.
 
 **Data Sync** (Upcoming)
 
@@ -42,7 +42,7 @@ Download the latest release from [here](https://github.com/keeday/LanistaBrowser
 On Windows the browser utilizes [Microsoft's Webview](https://learn.microsoft.com/en-us/microsoft-edge/webview2/).
 
 * Webview will be pre-installed if you're on Windows 11.
-* If you're on Windows 10 or earlier, you might need to install it.
+* If you're on Windows 10 or earlier, you probably have it, but might need to install it.
 
 ## FAQ
 
@@ -56,7 +56,7 @@ The closest thing to a roadmap is my [Trello Board](https://trello.com/b/UTABzwp
 
 **I have an idea/found a bug!**
 
-Great! The easiest way to contact me would be via Discord. You will find me lurking in Lanistas official Discord channel (@keeday)
+Great! You can create an issue post [Here](https://github.com/keeday/LanistaBrowser/issues). Optionally, you can find me lurking in Lanista's official Discord channel (@Keeday).
 
 **How do I use the Theory Crafter?**
 
