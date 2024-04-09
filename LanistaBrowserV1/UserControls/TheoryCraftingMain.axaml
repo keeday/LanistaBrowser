@@ -155,7 +155,7 @@
 					</ScrollViewer>
 
 					<ScrollViewer Grid.Column="1">
-						<StackPanel x:Name="ContentStackPanel" IsVisible="True">
+						<StackPanel x:Name="ContentStackPanel" IsVisible="False">
 							<TextBlock x:Name="LevelContentTitle"  Text="Level 0 | Tactic Name" DockPanel.Dock="Top" HorizontalAlignment="Center" Margin="10" FontWeight="Bold" FontSize="20" />
 							<Grid Margin="20" HorizontalAlignment="Center">
 								<Grid.ColumnDefinitions>
