@@ -20,7 +20,7 @@ Provides a fully searchable database for all of Lanista's weapons, shields, equi
 
 **Timers and Reminders** (Upcoming)
 
-Set reminders for upcoming tournaments, or set custom reminders.
+Set reminders for upcoming tournaments, or set custom timers.
 
 **Data Sync** (Upcoming)
 
@@ -33,6 +33,10 @@ Once the Android version is released, I will look in to the possibilites of bein
 3. Run "LanistaBrowser.exe" to launch the application.
 4. **Note -** Antivirus software might block the browser.
 
+## Updating
+
+Download the latest release from [here](https://github.com/keeday/LanistaBrowser/releases) and extract it in the folder you already have the Browser in, and just replace all files.
+
 ## Requirements
 
 On Windows the browser utilizes [Microsoft's Webview](https://learn.microsoft.com/en-us/microsoft-edge/webview2/).
@@ -44,11 +48,11 @@ On Windows the browser utilizes [Microsoft's Webview](https://learn.microsoft.co
 
 **Will the browser be available for other platforms?**
 
-Yes, an Android version is planned. The framework (Avalonia) allows builds for Mac, iOS, and Linux. However, building, testing, and releasing for these platforms is currently not something I am capable of, as I do not use any of these platforms. I am happy to try to build for these systems, but I will need assistance in testing before I publish. Please contact me if you're interested in helping.
+Yes, an Android version is planned. The framework (Avalonia) allow builds for Mac, iOS, and Linux. However, building, testing, and releasing for these platforms is currently not something I am capable of, as I do not use any of these platforms. I am happy to try to build for these platforms, but I will need assistance in testing before I publish. Please contact me if you're interested in helping.
 
 **Do you have a roadmap?**
 
-The closest thing to a roadmap is my [Trello Board](https://trello.com/platforms).
+The closest thing to a roadmap is my [Trello Board](https://trello.com/b/UTABzwpt/lanistabrowser).
 
 **I have an idea/found a bug!**
 
