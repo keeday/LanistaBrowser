@@ -27,6 +27,7 @@ using System.Linq;
 using System.Management;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using static System.Collections.Specialized.BitVector32;
 
 namespace LanistaBrowserV1.UserControls
 {
@@ -52,7 +53,7 @@ namespace LanistaBrowserV1.UserControls
             InitializeComponent();
         }
 
-        private void UserControl_Loaded(object sender, RoutedEventArgs e)
+        public void DataLoaded()
         {
             maxIdValue++;
             LanistaWebView newWebView = new();
@@ -73,6 +74,9 @@ namespace LanistaBrowserV1.UserControls
                 viewModel.OpenTabs.Add(webViewTab);
                 viewModel.OpenTabs.Where(r => r.ID == maxIdValue).First().IsSelected = true;
                 ActivateTab(maxIdValue);
+
+                DefaultZoomValueBox.Text = viewModel.UserSettings.FirstOrDefault(x => x.SettingName == "DefaultZoom")?.SettingValue ?? "n/a";
+                currentSelectedId = maxIdValue;
             }
 
             var topLevel = TopLevel.GetTopLevel(this);
@@ -173,6 +177,7 @@ namespace LanistaBrowserV1.UserControls
                     if ((int)webView.Tag! == id)
                     {
                         webView.IsVisible = true;
+                        currentSelectedId = id;
                     }
                     else
                     {
@@ -181,6 +186,19 @@ namespace LanistaBrowserV1.UserControls
                 }
 
                 ActivateTab(id);
+            }
+        }
+
+        private void RefreshWebview_Click(object sender, RoutedEventArgs e)
+        {
+            int id = currentSelectedId;
+
+            foreach (LanistaWebView webView in WebViewGrid.Children)
+            {
+                if ((int)webView.Tag! == id)
+                {
+                    webView.RefreshView();
+                }
             }
         }
 
@@ -223,7 +241,6 @@ namespace LanistaBrowserV1.UserControls
                 viewModel.OpenTabs.Where(r => r.ID == maxIdValue).First().IsSelected = true;
                 ActivateTab(maxIdValue);
             }
-            // CheckTabCount();
         }
 
         private void ActivateTab(int id)
@@ -242,6 +259,49 @@ namespace LanistaBrowserV1.UserControls
                         item.IsSelected = false;
                         item.BackgroundColor = deActivatedColor;
                     }
+                }
+            }
+        }
+
+        private void IncreaseDefaultZoom_Click(object sender, RoutedEventArgs e)
+        {
+            IncreaseDecreaseZoom("increase");
+        }
+
+        private void DecreaseDefaultZoom_Click(object sender, RoutedEventArgs e)
+        {
+            IncreaseDecreaseZoom("decrease");
+        }
+
+        private async void IncreaseDecreaseZoom(string action)
+        {
+            if (DataContext is not MainViewModel viewModel) { return; }
+            string? oldZoomString = viewModel.UserSettings.FirstOrDefault(x => x.SettingName == "DefaultZoom")?.SettingValue ?? null;
+            if (oldZoomString is null) { return; }
+            if (!int.TryParse(oldZoomString, out int oldZoom)) { return; }
+
+            int newZoom;
+
+            if (action == "increase")
+            {
+                if (oldZoom >= 200) { return; }
+                newZoom = oldZoom + 5;
+            }
+            else
+            {
+                if (oldZoom <= 50) { return; }
+                newZoom = oldZoom - 5;
+            }
+
+            viewModel.UserSettings.FirstOrDefault(x => x.SettingName == "DefaultZoom")!.SettingValue = newZoom.ToString();
+            DefaultZoomValueBox.Text = newZoom.ToString();
+            SqliteHandler.UpdateSetting("DefaultZoom", newZoom.ToString());
+
+            foreach (var webView in WebViewGrid.Children)
+            {
+                if (webView is LanistaWebView lanistaWebView)
+                {
+                    await lanistaWebView.SetZoom();
                 }
             }
         }
@@ -279,11 +339,8 @@ namespace LanistaBrowserV1.UserControls
                     }
                 }
 
-                if (CreateTimerDatePicker.SelectedDate == null || CreateTimerTimePicker.SelectedTime == null)
-                {
-                    CreateTimerDatePicker.SelectedDate = DateTime.Now;
-                    CreateTimerTimePicker.SelectedTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute + 30, DateTime.Now.Second);
-                }
+                CreateTimerDatePicker.SelectedDate = DateTime.Now;
+                CreateTimerTimePicker.SelectedTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute + 30, DateTime.Now.Second);
             }
         }
 

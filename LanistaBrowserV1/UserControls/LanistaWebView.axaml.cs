@@ -6,6 +6,7 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using AvaloniaWebView;
+using DryIoc.FastExpressionCompiler.LightExpression;
 using LanistaBrowserV1.Classes;
 using LanistaBrowserV1.Functions;
 using LanistaBrowserV1.ViewModels;
@@ -40,6 +41,41 @@ namespace LanistaBrowserV1.UserControls
             {
                 await CheckCurrentUrl();
             }, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
+        }
+
+        private async void LanistaBrowser_NavigationCompleted(object sender, WebViewUrlLoadedEventArg e)
+        {
+            await SetZoom();
+        }
+
+        private async void LanistaBrowser_NavigationStarting(object sender, WebViewUrlLoadingEventArg? e)
+        {
+            await SetZoom();
+        }
+
+        public void RefreshView()
+        {
+            LanistaBrowser.Reload();
+        }
+
+        public async Task SetZoom()
+        {
+            if (DataContext is not MainViewModel viewModel) { return; }
+
+            string vmZoom = viewModel.UserSettings.FirstOrDefault(r => r.SettingName == "DefaultZoom")?.SettingValue ?? "";
+
+            if (string.IsNullOrWhiteSpace(vmZoom))
+            {
+                Debug.WriteLine("No zoom level set in settings.");
+                return;
+            }
+
+            string zoomLevel = $"{vmZoom}%";
+
+            await Dispatcher.UIThread.InvokeAsync(async () =>
+              {
+                  await LanistaBrowser.ExecuteScriptAsync($"document.body.style.zoom='{zoomLevel}'");
+              });
         }
 
         private async Task CheckCurrentUrl()

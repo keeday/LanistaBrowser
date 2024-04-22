@@ -23,6 +23,7 @@ public partial class MainView : UserControl
         "TimerVolume",
         "TimerNotificationPath",
         "CustomNotificationPath",
+        "DefaultZoom",
         ];
 
     public MainView()
@@ -143,6 +144,12 @@ public partial class MainView : UserControl
                             continue;
                         }
 
+                        if (setting == "DefaultZoom")
+                        {
+                            SqliteHandler.CreateSetting(setting, "100");
+                            continue;
+                        }
+
                         SqliteHandler.CreateSetting(setting, "");
                     }
                 }
@@ -239,6 +246,7 @@ public partial class MainView : UserControl
             {
                 LoadingScreen.IsVisible = false;
                 MainWindow.IsVisible = true;
+                WebViewContainer.DataLoaded();
             }
         }
         else

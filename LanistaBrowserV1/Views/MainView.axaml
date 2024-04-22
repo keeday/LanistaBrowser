@@ -76,7 +76,7 @@
 			<Border DockPanel.Dock="Top" Background="Black" Height="1" />
 			<Grid x:Name="BaseGrid">
 				<DockPanel x:Name="LanistaPanel" IsVisible="{Binding IsLanistaVisible}">
-					<local:WebViewContainer />
+					<local:WebViewContainer x:Name="WebViewContainer" />
 				</DockPanel>
 				<DockPanel x:Name="SearchItemsPanel" IsVisible="{Binding IsSearchItemsVisible}">
 					<local:SearchItemsParent />

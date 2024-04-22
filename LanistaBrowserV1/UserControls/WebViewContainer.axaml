@@ -7,9 +7,7 @@
              x:Class="LanistaBrowserV1.UserControls.WebViewContainer"
 			 xmlns:vm="clr-namespace:LanistaBrowserV1.ViewModels"
 			 xmlns:functions="clr-namespace:LanistaBrowserV1.Functions"
-			 x:DataType="vm:MainViewModel"
-
-			 Loaded="UserControl_Loaded">
+			 x:DataType="vm:MainViewModel">
 
 	<UserControl.Styles>
 		<Style Selector="Button.noHoverEffect:pointerover /template/ ContentPresenter">
@@ -32,7 +30,7 @@
 
 		<DockPanel Grid.Row="0">
 			<DockPanel DockPanel.Dock="Top">
-				<Button Background="LightGray" CornerRadius="0" Padding="0" VerticalAlignment="Stretch" Width="30">
+				<Button Background="LightGray" CornerRadius="0" Padding="0" VerticalAlignment="Stretch" Width="30"  Click="RefreshWebview_Click">
 					<TextBlock Text="⟳" Foreground="Black" FontSize="19" Padding="0,2,0,0" TextAlignment="Center" FontWeight="Bold" />
 				</Button>
 
@@ -67,6 +65,21 @@
 					</ItemsControl>
 				</StackPanel>
 				<Button Content="+" CornerRadius="0" Padding="5,0,5,0" Background="Transparent" FontWeight="ExtraBold" FontSize="20" Click="AddWebView_Click" />
+				<DockPanel DockPanel.Dock="Right" HorizontalAlignment="Right">
+					<TextBlock Text="Default Zoom:" FontWeight="Bold" TextAlignment="Center" VerticalAlignment="Center" />
+					<Border>
+						<DockPanel Margin="5,0">
+							<TextBlock Text="100" VerticalAlignment="Center" x:Name="DefaultZoomValueBox" />
+							<TextBlock Text="%" VerticalAlignment="Center" />
+						</DockPanel>
+					</Border>
+					<Button CornerRadius="5" Padding="5,0,5,0" Background="#1E1E1E"  FontSize="20" Width="25" Click="IncreaseDefaultZoom_Click">
+						<TextBlock Text="+" HorizontalAlignment="Center" FontWeight="ExtraBold" />
+					</Button>
+					<Button  CornerRadius="5" Padding="5,0,5,0" Background="#1E1E1E"  FontSize="20" Width="25" Click="DecreaseDefaultZoom_Click">
+						<TextBlock Text="-" HorizontalAlignment="Center" FontWeight="ExtraBold" />
+					</Button>
+				</DockPanel>
 			</DockPanel>
 			<Border Height="2" Background="Black" DockPanel.Dock="Bottom" x:Name="TopBlackBar" />
 		</DockPanel>
