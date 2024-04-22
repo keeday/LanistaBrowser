@@ -1,3 +1,11 @@
+## V0.0.0.5 (Upcoming)
+
+**New Features**
+- You can now set the default zoom. When you refresh/change character the webview will now default to this value.
+
+**Bug Fixes**
+- Refresh Button now works as intended.
+
 ## V0.0.0.4
 
 **Browser**
