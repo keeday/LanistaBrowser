@@ -5,7 +5,7 @@
 
 **Bug Fixes**
 - Refresh Button now works as intended.
-- Timer date/time will now default to current date + 30 minutes each time you open the timer window.
+- Timer date/time will now default to current date/time + 30 minutes each time you open the timer window.
 
 ## V0.0.0.4
 
