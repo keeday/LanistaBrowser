@@ -1,4 +1,4 @@
-## V0.0.0.5 (Upcoming)
+## V0.0.0.5
 
 **New Features**
 - You can now set the default zoom. When you refresh/change character the webview will now default to this value.
